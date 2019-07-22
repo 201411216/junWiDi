@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -32,7 +31,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private TextView txt_myDevice_Address;
     private TextView txt_myDevice_State;
     private TextView btn_Refresh_Peer_List;
-    private Button btn_Request_Connect;
     private Button btn_Request_Disconnect;
     private ListView listView_Server_List;
 
@@ -69,15 +67,14 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
 
         btn_Refresh_Peer_List = findViewById(R.id.client_btn_refresh_peer_list);
-        btn_Request_Connect = findViewById(R.id.client_btn_request_connect);
         btn_Request_Disconnect = findViewById(R.id.client_btn_request_disconnect);
 
         listView_Server_List = findViewById(R.id.client_list_server);
         wifiP2pDeviceList = new ArrayList<WifiP2pDevice>();
-        wifiP2pDeviceList.add(new WifiP2pDevice());
         myClientAdapter = new MyClientAdapter(this, R.layout.item_server, wifiP2pDeviceList);
         listView_Server_List.setAdapter(myClientAdapter);
         btn_Refresh_Peer_List.setOnClickListener(myClickListener);
+        btn_Request_Disconnect.setOnClickListener(myClickListener);
         listView_Server_List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -102,8 +99,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                         Log.e(TAG, "Discover Peer failed :: " + i);
                     }
                 });
-            } else if (v.equals(btn_Request_Connect)) {
-
             } else if (v.equals(btn_Request_Disconnect)) {
                 disconnect();
             }
@@ -182,7 +177,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     public void onSelfDeviceAvailable(WifiP2pDevice wifiP2pDevice) {
-
+        Log.e(TAG, "onSelfDeviceAvailable");
+        Log.e(TAG, "DeviceName: " + wifiP2pDevice.deviceName);
+        Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
+        Log.e(TAG, "Status: " + wifiP2pDevice.status);
+        txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
+        txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
+        txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
     }
 
     @Override
@@ -190,5 +191,22 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.v(TAG, "onPeersAvailable");
         myClientAdapter.addAll(wifiP2pDeviceList.getDeviceList());
         myClientAdapter.notifyDataSetChanged();
+    }
+
+    public static String getDeviceState(int deviceState) {
+        switch (deviceState) {
+            case WifiP2pDevice.AVAILABLE:
+                return "Available";
+            case WifiP2pDevice.INVITED:
+                return "Invited";
+            case WifiP2pDevice.CONNECTED:
+                return "Connected";
+            case WifiP2pDevice.FAILED:
+                return "Failed";
+            case WifiP2pDevice.UNAVAILABLE:
+                return "Unavailable";
+            default:
+                return "Error";
+        }
     }
 }

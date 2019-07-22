@@ -21,14 +21,14 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
     public static WifiP2pManager mManager;
     public static WifiP2pManager.Channel mChannel;
     public MyDirectActionListener mListener;
-    public ArrayList<WifiP2pDevice> peers;
+    public ArrayList<WifiP2pDevice> myPeers;
 
     public MyBroadCastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, MyDirectActionListener listener){
         super();
         this.mManager = manager;
         this.mChannel = channel;
         this.mListener = listener;
-        peers = new ArrayList<WifiP2pDevice>();
+        myPeers = new ArrayList<WifiP2pDevice>();
     }
 
     @Override
@@ -44,12 +44,15 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
                 mListener.setIsWifiP2pEnabled(false);
             }
         }else if(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)){
-            mManager.requestPeers(mChannel, new WifiP2pManager.PeerListListener(){
-                @Override
-                public void onPeersAvailable(WifiP2pDeviceList peers){
-                    mListener.onPeersAvailable(peers);
-                }
-            });
+            Log.v(TAG, "WIFI_P2P_PEERS_CHANGED_ACTION");
+            if(mManager != null) {
+                mManager.requestPeers(mChannel, new WifiP2pManager.PeerListListener() {
+                    @Override
+                    public void onPeersAvailable(WifiP2pDeviceList peers) {
+                        mListener.onPeersAvailable(peers);
+                    }
+                });
+            }
         }else if(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)){
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
             if(networkInfo.isConnected()) {
@@ -81,17 +84,4 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
         return intentFilter;
     }
-
-    WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
-        @Override
-        public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-            peers.clear();
-            peers.addAll(wifiP2pDeviceList.getDeviceList());
-            if(peers.size() == 0){
-                Log.d(TAG, "No Peer");
-                return;
-            }
-        }
-    };
-
 }

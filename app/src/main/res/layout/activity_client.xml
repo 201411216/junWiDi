@@ -45,13 +45,6 @@
             android:text="새로고침"/>
 
         <Button
-            android:id="@+id/client_btn_request_connect"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="연결 요청"/>
-
-        <Button
             android:id="@+id/client_btn_request_disconnect"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

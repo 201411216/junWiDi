@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class MyServerAdapter extends ArrayAdapter<WifiP2pDevice> {
 
@@ -66,6 +67,11 @@ public class MyServerAdapter extends ArrayAdapter<WifiP2pDevice> {
     public void addAll(Collection c){
         myDeviceArrayList.clear();
         myDeviceArrayList.addAll(c);
+    }
+
+    @Override
+    public void clear(){
+        myDeviceArrayList.clear();
     }
 
     @Override
