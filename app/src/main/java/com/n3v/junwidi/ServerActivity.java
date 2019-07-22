@@ -1,5 +1,6 @@
 package com.n3v.junwidi;
 
+import android.content.Context;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
@@ -45,7 +46,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server);
         initView();
-        myManager = (WifiP2pManager) getSystemService(WIFI_P2P_SERVICE);
+        myManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
@@ -98,19 +99,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     public void onFailure(int i) {
                         Log.e(TAG, "Discover Peer Failed :: " + i);
                         showToast("Discover Peer Failed");
-                    }
-                });
-                myManager.requestPeers(myChannel, new WifiP2pManager.PeerListListener() {
-                    @Override
-                    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-                        Log.e(TAG, "Direct : onPeersAvailable : " + wifiP2pDeviceList.getDeviceList().size());
-                        myWifiP2pDeviceList.clear();
-                        myWifiP2pDeviceList.addAll(wifiP2pDeviceList.getDeviceList());
-                        myServerAdapter.addAll(myWifiP2pDeviceList);
-                        myServerAdapter.notifyDataSetChanged();
-                        if(wifiP2pDeviceList.getDeviceList().size() == 0){
-                            showToast("No peer");
-                        }
                     }
                 });
             } else if (v.equals(btn_File_Select)) {
@@ -171,7 +159,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-        Log.e(TAG, "onPeersAvailable : " + wifiP2pDeviceList.getDeviceList().size());
+        Log.e(TAG, "onPeersAvailable : wifiP2pDeviceList.size : " + wifiP2pDeviceList.getDeviceList().size());
         myWifiP2pDeviceList.clear();
         myWifiP2pDeviceList.addAll(wifiP2pDeviceList.getDeviceList());
         myServerAdapter.addAll(myWifiP2pDeviceList);
@@ -195,10 +183,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             public void onFailure(int i) {
                 Log.e(TAG, "Create Group Failed");
                 showToast("Create Group Failed :: " + i);
-                if(i == 2){
-                    btn_Server_Control.setText("그룹 해제");
-                    isGroupExist = false;
-                }
+//                if(i == 2){
+//                    btn_Server_Control.setText("그룹 해제");
+//                    isGroupExist = false;
+//                }
             }
         });
     }
