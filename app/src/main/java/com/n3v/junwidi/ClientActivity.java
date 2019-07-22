@@ -61,7 +61,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         });
     }
 
-    private void initView(){
+    private void initView() { //Activity의 view item들 초기화
         txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
         txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
         txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
@@ -77,7 +77,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         btn_Request_Disconnect.setOnClickListener(myClickListener);
         listView_Server_List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) { //ListView 아이템 클릭 리스너
                 WifiP2pDevice d = wifiP2pDeviceList.get(position);
                 connect(d);
             }
@@ -86,7 +86,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     private View.OnClickListener myClickListener = new View.OnClickListener() {
         @Override
-        public void onClick(View v) {
+        public void onClick(View v) { //일반 버튼 클릭 리스너
             if (v.equals(btn_Refresh_Peer_List)) {
                 myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
                     @Override
@@ -105,11 +105,11 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         }
     };
 
-    public void connect(WifiP2pDevice d){
+    public void connect(WifiP2pDevice d) { //Wifi P2P 연결
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = d.deviceAddress;
         config.wps.setup = WpsInfo.PBC;
-        if(d.status == WifiP2pDevice.CONNECTED){
+        if (d.status == WifiP2pDevice.CONNECTED) {
             Log.v(TAG, "The Device is already connected");
             return;
         }
@@ -128,7 +128,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         });
     }
 
-    public void disconnect(){
+    public void disconnect() {
         myManager.removeGroup(myChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
@@ -156,27 +156,27 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     }
 
     @Override
-    public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
+    public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) { //Wifi P2P 연결(그룹 생성) 시 호출됨
         wifiP2pDeviceList.clear();
         myClientAdapter.notifyDataSetChanged();
         Log.e(TAG, "onConnectionInfoAvailable");
         Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
         Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
-        if(wifiP2pInfo.groupFormed && !wifiP2pInfo.isGroupOwner){
+        if (wifiP2pInfo.groupFormed && !wifiP2pInfo.isGroupOwner) {
             myInfo = wifiP2pInfo;
         }
     }
 
     @Override
-    public void onDisconnection() {
+    public void onDisconnection() { //Wifi P2P가 연결되지 않았을 때 호출됨
         Log.e(TAG, "onDisconnection");
         wifiP2pDeviceList.clear();
         myClientAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void onSelfDeviceAvailable(WifiP2pDevice wifiP2pDevice) {
+    public void onSelfDeviceAvailable(WifiP2pDevice wifiP2pDevice) { //Wifi가 켜져있을 시 호출됨
         Log.e(TAG, "onSelfDeviceAvailable");
         Log.e(TAG, "DeviceName: " + wifiP2pDevice.deviceName);
         Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
@@ -187,8 +187,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     }
 
     @Override
-    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-        Log.v(TAG, "onPeersAvailable");
+    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) { //BroadCastReceiver에서 PEER_CHANGED 시 호출됨
+        Log.e(TAG, "onPeersAvailable : wifiP2pDeviceList.size : " + wifiP2pDeviceList.getDeviceList().size());
         myClientAdapter.addAll(wifiP2pDeviceList.getDeviceList());
         myClientAdapter.notifyDataSetChanged();
     }

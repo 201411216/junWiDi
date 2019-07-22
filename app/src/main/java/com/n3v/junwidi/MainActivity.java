@@ -25,10 +25,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void enterServer(View view){
         startActivity(new Intent(this, ServerActivity.class));
-    }
+    } //xml 파일을 통해 onClick으로 호출됨
 
     public void enterClient(View view){
         startActivity(new Intent(this, ClientActivity.class));
-    }
+    } //xml 파일을 통해 onClick으로 호출됨
 
 }
