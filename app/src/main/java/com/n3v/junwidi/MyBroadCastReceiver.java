@@ -21,14 +21,12 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
     public static WifiP2pManager mManager;
     public static WifiP2pManager.Channel mChannel;
     public MyDirectActionListener mListener;
-    public ArrayList<WifiP2pDevice> myPeers;
 
     public MyBroadCastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, MyDirectActionListener listener){
         super();
         this.mManager = manager;
         this.mChannel = channel;
         this.mListener = listener;
-        myPeers = new ArrayList<WifiP2pDevice>();
     }
 
     @Override

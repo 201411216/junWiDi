@@ -20,6 +20,9 @@
         <activity android:name=".ClientActivity"/>
     </application>
 
+    <uses-feature
+        android:required="true"
+        android:name="android.hardware.wifi.direct"/>
     <uses-permission
         android:required="true"
         android:name="android.permission.CHANGE_WIFI_STATE"/>
@@ -28,10 +31,16 @@
         android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission
         android:required="true"
+        android:name="android.permission.ACCESS_WIFI_MULTICAST_STATE"/>
+    <uses-permission
+        android:required="true"
         android:name="android.permission.INTERNET"/>
     <uses-permission
         android:required="true"
         android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission
+        android:required="true"
+        android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission
         android:required="true"
         android:name="android.permission.ACCESS_NETWORK_STATE"/>
