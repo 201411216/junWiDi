@@ -1,5 +1,7 @@
 package com.n3v.junwidi;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -13,6 +15,9 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +39,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private Button btn_Request_Disconnect;
     private ListView listView_Server_List;
 
-    private ArrayList<WifiP2pDevice> wifiP2pDeviceList;
+    private ArrayList<WifiP2pDevice> myWifiP2pDeviceList;
     private MyClientAdapter myClientAdapter;
 
     private WifiP2pInfo myInfo;
@@ -48,6 +53,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         initView();
+        permissionCheck();
         myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
@@ -68,17 +74,18 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
         btn_Refresh_Peer_List = findViewById(R.id.client_btn_refresh_peer_list);
         btn_Request_Disconnect = findViewById(R.id.client_btn_request_disconnect);
+        btn_Request_Disconnect.setEnabled(false);
 
         listView_Server_List = findViewById(R.id.client_list_server);
-        wifiP2pDeviceList = new ArrayList<WifiP2pDevice>();
-        myClientAdapter = new MyClientAdapter(this, R.layout.item_server, wifiP2pDeviceList);
+        myWifiP2pDeviceList = new ArrayList<>();
+        myClientAdapter = new MyClientAdapter(this, R.layout.item_server, myWifiP2pDeviceList);
         listView_Server_List.setAdapter(myClientAdapter);
         btn_Refresh_Peer_List.setOnClickListener(myClickListener);
         btn_Request_Disconnect.setOnClickListener(myClickListener);
         listView_Server_List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) { //ListView 아이템 클릭 리스너
-                WifiP2pDevice d = wifiP2pDeviceList.get(position);
+                WifiP2pDevice d = myWifiP2pDeviceList.get(position);
                 connect(d);
             }
         });
@@ -91,12 +98,14 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
                     @Override
                     public void onSuccess() {
-                        Log.v(TAG, "Discover Peer success");
+                        Log.v(TAG, "Discover Peer Success");
+                        showToast("Discover Peer Success");
                     }
 
                     @Override
                     public void onFailure(int i) {
-                        Log.e(TAG, "Discover Peer failed :: " + i);
+                        Log.e(TAG, "Discover Peer Failed :: " + i);
+                        showToast("Discover Peer Failed");
                     }
                 });
             } else if (v.equals(btn_Request_Disconnect)) {
@@ -108,6 +117,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     public void connect(WifiP2pDevice d) { //Wifi P2P 연결
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = d.deviceAddress;
+        config.groupOwnerIntent = 0;
         config.wps.setup = WpsInfo.PBC;
         if (d.status == WifiP2pDevice.CONNECTED) {
             Log.v(TAG, "The Device is already connected");
@@ -134,12 +144,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             public void onSuccess() {
                 Log.v(TAG, "Disconnect Success");
                 showToast("Disconnect Success");
-                myManager.requestPeers(myChannel, new WifiP2pManager.PeerListListener() {
-                    @Override
-                    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-                        this.onPeersAvailable(wifiP2pDeviceList);
-                    }
-                });
             }
 
             @Override
@@ -157,22 +161,21 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) { //Wifi P2P 연결(그룹 생성) 시 호출됨
-        wifiP2pDeviceList.clear();
+        myWifiP2pDeviceList.clear();
         myClientAdapter.notifyDataSetChanged();
         Log.e(TAG, "onConnectionInfoAvailable");
         Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
         Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
-        if (wifiP2pInfo.groupFormed && !wifiP2pInfo.isGroupOwner) {
-            myInfo = wifiP2pInfo;
-        }
+        btn_Request_Disconnect.setEnabled(true);
     }
 
     @Override
     public void onDisconnection() { //Wifi P2P가 연결되지 않았을 때 호출됨
         Log.e(TAG, "onDisconnection");
-        wifiP2pDeviceList.clear();
+        myWifiP2pDeviceList.clear();
         myClientAdapter.notifyDataSetChanged();
+        btn_Request_Disconnect.setEnabled(false);
     }
 
     @Override
@@ -189,8 +192,16 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) { //BroadCastReceiver에서 PEER_CHANGED 시 호출됨
         Log.e(TAG, "onPeersAvailable : wifiP2pDeviceList.size : " + wifiP2pDeviceList.getDeviceList().size());
+        myWifiP2pDeviceList.clear();
+        for (WifiP2pDevice d : wifiP2pDeviceList.getDeviceList()){
+            myWifiP2pDeviceList.add(d);
+        }
         myClientAdapter.addAll(wifiP2pDeviceList.getDeviceList());
+        Log.e(TAG, "myWifiP2pDeviceList.size : " + myWifiP2pDeviceList.size());
         myClientAdapter.notifyDataSetChanged();
+        if(wifiP2pDeviceList.getDeviceList().size() == 0){
+            showToast("No peer");
+        }
     }
 
     public static String getDeviceState(int deviceState) {
@@ -207,6 +218,16 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 return "Unavailable";
             default:
                 return "Error";
+        }
+    }
+
+    public void permissionCheck() {
+        int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
+        int permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        } else {
+
         }
     }
 }

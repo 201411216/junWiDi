@@ -76,7 +76,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         btn_Refresh_List.setOnClickListener(myClickListener);
 
         listView_Client_List = findViewById(R.id.server_list_client);
-        myWifiP2pDeviceList = new ArrayList<WifiP2pDevice>();
+        myWifiP2pDeviceList = new ArrayList<>();
         myServerAdapter = new MyServerAdapter(this, R.layout.item_client, myWifiP2pDeviceList);
         listView_Client_List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -98,7 +98,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     removeGroup();
                 }
             } else if (v.equals(btn_Refresh_List)) {
-                if(isWifiP2pEnabled) {
+                if (isWifiP2pEnabled) {
                     myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
                         @Override
                         public void onSuccess() {
@@ -119,14 +119,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     };
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         unregisterReceiver(myBroadCastReceiver);
     }
@@ -144,8 +144,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
         Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
-        if (wifiP2pInfo.groupFormed && !wifiP2pInfo.isGroupOwner) {
-            myInfo = wifiP2pInfo;
+        if (wifiP2pInfo.groupFormed) {
+            btn_Server_Control.setText("그룹 해제");
+            isGroupExist = true;
+        }else{
+            btn_Server_Control.setText("그룹 생성");
+            isGroupExist = false;
         }
     }
 
@@ -173,11 +177,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
         Log.e(TAG, "onPeersAvailable : wifiP2pDeviceList.size : " + wifiP2pDeviceList.getDeviceList().size());
         myWifiP2pDeviceList.clear();
-        myWifiP2pDeviceList.addAll(wifiP2pDeviceList.getDeviceList());
+        for (WifiP2pDevice d : wifiP2pDeviceList.getDeviceList()) {
+            myWifiP2pDeviceList.add(d);
+        }
         myServerAdapter.addAll(wifiP2pDeviceList.getDeviceList());
         Log.e(TAG, "myWifiP2pDeviceList.size : " + myWifiP2pDeviceList.size());
         myServerAdapter.notifyDataSetChanged();
-        if(wifiP2pDeviceList.getDeviceList().size() == 0){
+        if (wifiP2pDeviceList.getDeviceList().size() == 0) {
             showToast("No peer");
         }
     }
@@ -189,7 +195,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 Log.v(TAG, "Create Group Success");
                 showToast("Create Group Success");
                 isGroupExist = true;
-                btn_Server_Control.setText("그룹 해제");
             }
 
             @Override
@@ -239,12 +244,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
-    public void permissionCheck(){
+    public void permissionCheck() {
         int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
         int permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        if(permissionChecker == PackageManager.PERMISSION_DENIED){
+        if (permissionChecker == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }else{
+        } else {
 
         }
     }
@@ -252,6 +257,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void connect(WifiP2pDevice d) { //Wifi P2P 연결
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = d.deviceAddress;
+        config.groupOwnerIntent = 15;
         config.wps.setup = WpsInfo.PBC;
         if (d.status == WifiP2pDevice.CONNECTED) {
             Log.v(TAG, "The Device is already connected");
