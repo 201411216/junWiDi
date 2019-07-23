@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class MyBroadCastReceiver extends BroadcastReceiver {
 
-    public static final String TAG = "MyBroadCastReceiver";
+    private static final String TAG = "MyBroadCastReceiver";
 
     public static WifiP2pManager mManager;
     public static WifiP2pManager.Channel mChannel;

@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static String TAG = "";
+    private static final String TAG = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -51,6 +51,13 @@
             android:layout_weight="1"
             android:text="연결 해제"/>
 
+        <Button
+            android:id="@+id/client_btn_request_multicast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="메시지 수신"/>
+
     </LinearLayout>
 
 

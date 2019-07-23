@@ -3,6 +3,8 @@ package com.n3v.junwidi;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.DhcpInfo;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -20,13 +22,20 @@ import android.widget.TextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.n3v.junwidi.Services.MyServerTask;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class ServerActivity extends BaseActivity implements MyDirectActionListener {
 
-    public static String TAG = "ServerActivity";
+    private static final String TAG = "ServerActivity";
 
     private WifiP2pManager myManager;
     private WifiP2pManager.Channel myChannel;
@@ -68,10 +77,15 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         btn_Refresh_List = findViewById(R.id.server_btn_refresh_list);
         btn_Server_Control = findViewById(R.id.server_btn_server_control);
 
+        //test for Broadcast by Multicast
+
+        btn_File_Select.setText("메시지 전송");
+
         if (!isGroupExist) {
             btn_Server_Control.setText("그룹 생성");
         }
 
+        btn_File_Select.setOnClickListener(myClickListener);
         btn_Server_Control.setOnClickListener(myClickListener);
         btn_Refresh_List.setOnClickListener(myClickListener);
 
@@ -114,9 +128,15 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     });
                 }
             } else if (v.equals(btn_File_Select)) {
+                Log.v(TAG, "btn_File_Select onClick");
+                callServerTask();
             }
         }
     };
+
+    public void callServerTask(){
+        new MyServerTask(this).execute();
+    }
 
     @Override
     public void onResume() {
@@ -276,6 +296,18 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 showToast("Connect Failed");
             }
         });
+    }
+
+    InetAddress getBroadcastAddress() throws IOException {
+        WifiManager myWifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+        DhcpInfo dhcp = myWifiManager.getDhcpInfo();
+
+        int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
+        byte[] quads = new byte[4];
+        for (int i = 0; i < 4; i++) {
+            quads[i] = (byte) ((broadcast >> i * 8) & 0xFF);
+        }
+        return InetAddress.getByAddress(quads);
     }
 
 }

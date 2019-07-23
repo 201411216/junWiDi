@@ -14,6 +14,8 @@ import java.util.List;
 
 public class MyServerAdapter extends ArrayAdapter<WifiP2pDevice> {
 
+    private static final String TAG = "MyServerAdapter";
+
     private ArrayList<WifiP2pDevice> myDeviceArrayList;
     private Context myContext;
     private int myResource;

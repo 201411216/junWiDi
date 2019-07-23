@@ -15,6 +15,8 @@ import java.util.Collection;
 
 public class MyClientAdapter extends ArrayAdapter<WifiP2pDevice> {
 
+    private static final String TAG = "MyClientAdapter";
+
     private ArrayList<WifiP2pDevice> myDeviceArrayList;
     private Context myContext;
     private int myResource;
