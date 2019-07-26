@@ -115,6 +115,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 }
             } else if (v.equals(btn_Refresh_List)) {
                 if (isWifiP2pEnabled) {
+                    Log.v(TAG, "btn_Refresh_List act");
+                    myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() {
+                        @Override
+                        public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+                            deviceListUpdate(wifiP2pGroup);
+                        }
+                    });
                     myServerAdapter.notifyDataSetChanged();
                 }
             } else if (v.equals(btn_File_Select)) {
@@ -166,24 +173,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() {
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
-                ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(wifiP2pGroup.getClientList());
-                boolean exist = false;
-                for (int i = 0; i < tempWifiP2pDeviceList.size(); i++) {
-                    exist = false;
-                    for (int j = 0; j < myWifiP2pDeviceList.size(); j++) {
-                        if (myWifiP2pDeviceList.get(j).deviceName.equals(tempWifiP2pDeviceList.get(i).deviceName) && myWifiP2pDeviceList.get(j).deviceAddress.equals(tempWifiP2pDeviceList.get(i).deviceAddress)) {
-                            exist = true;
-                            break;
-                        }
-                    }
-                    Log.v(TAG, tempWifiP2pDeviceList.get(i).deviceName);
-                    if (!exist) {
-                        DeviceInfo di = new DeviceInfo(tempWifiP2pDeviceList.get(i));
-                        myDeviceInfoList.add(di);
-                        Log.v(TAG, "added : " + tempWifiP2pDeviceList.get(i).deviceName);
-
-                    }
-                }
+                deviceListUpdate(wifiP2pGroup);
             }
         });
 
@@ -330,5 +320,70 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 showToast("Connect Failed");
             }
         });
+    }
+
+    public void deviceListUpdate(WifiP2pGroup group) {
+        if (myDeviceInfoList.size() < group.getClientList().size()) {
+            Log.v(TAG, "deviceListUpdate : Case 1");
+            ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
+            boolean exist = false;
+            Log.v(TAG, "tempWifiP2pDeviceList.size() = " + tempWifiP2pDeviceList.size());
+            for (int i = 0; i < tempWifiP2pDeviceList.size(); i++) {
+                exist = false;
+                for (int j = 0; j < myDeviceInfoList.size(); j++) {
+                    if (myDeviceInfoList.get(j).getWifiP2pDevice().equals(tempWifiP2pDeviceList.get(i))) {
+                        exist = true;
+                        break;
+                    }
+                }
+                Log.v(TAG, tempWifiP2pDeviceList.get(i).deviceName);
+                if (!exist) {
+                    DeviceInfo di = new DeviceInfo(tempWifiP2pDeviceList.get(i));
+                    myDeviceInfoList.add(di);
+                    Log.v(TAG, "added : " + tempWifiP2pDeviceList.get(i).deviceName);
+
+                }
+                return;
+            }
+        } else if (myDeviceInfoList.size() > group.getClientList().size()) {
+            Log.v(TAG, "deviceListUpdate : Case 2");
+            ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
+            boolean exist = false;
+            if (group.getClientList().size() == 0){
+                myDeviceInfoList.clear();
+            }
+            for (int i = 0; i < myDeviceInfoList.size(); i++) {
+                exist = false;
+                for (int j = 0; j < tempWifiP2pDeviceList.size(); j++) {
+                    if (myDeviceInfoList.get(i).getWifiP2pDevice().equals(tempWifiP2pDeviceList.get(j))) {
+                        exist = true;
+                        break;
+                    }
+                    if (!exist) {
+                        Log.v(TAG, myDeviceInfoList.get(i).getWifiP2pDevice().deviceName + " disconnected");
+                        myDeviceInfoList.remove(i);
+                    }
+                }
+            }
+            return;
+        } else if (myDeviceInfoList.size() == group.getClientList().size()) {
+            Log.v(TAG, "deviceListUpdate : Case 3 with size : " + myDeviceInfoList.size());
+            if (myDeviceInfoList.size() > 0) {
+                ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
+                int test = 0;
+                for (int i = 0; i < myDeviceInfoList.size(); i++) {
+                    for (int j = 0; j < tempWifiP2pDeviceList.size(); j++) {
+                        if (myDeviceInfoList.get(i).getWifiP2pDevice().equals(tempWifiP2pDeviceList.get(j))) {
+                            test++;
+                            break;
+                        }
+                    }
+                }
+                if (myDeviceInfoList.size() != test) {
+                    Log.e(TAG, "Device info list doesn't matched");
+                }
+            }
+            return;
+        }
     }
 }
