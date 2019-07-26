@@ -9,9 +9,11 @@ import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -55,7 +57,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private ArrayList<WifiP2pDevice> myWifiP2pDeviceList = new ArrayList<>();
     private MyServerAdapter myServerAdapter;
 
-    private WifiP2pInfo myInfo;
+    private WifiP2pInfo myWifiP2pInfo = null;
+    private WifiP2pDevice myWifiP2pDevice = null;
+    private DeviceInfo myDeviceInfo = null;
+    private ArrayList<DeviceInfo> myDeviceInfoList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,13 +95,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         btn_Refresh_List.setOnClickListener(myClickListener);
 
         listView_Client_List = findViewById(R.id.server_list_client);
-        myWifiP2pDeviceList = new ArrayList<>();
-        myServerAdapter = new MyServerAdapter(this, R.layout.item_client, myWifiP2pDeviceList);
+        myServerAdapter = new MyServerAdapter(this, R.layout.item_client, myDeviceInfoList);
         listView_Client_List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                WifiP2pDevice d = myServerAdapter.getItem(position);
-                connect(d);
             }
         });
         listView_Client_List.setAdapter(myServerAdapter);
@@ -129,13 +131,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 }
             } else if (v.equals(btn_File_Select)) {
                 Log.v(TAG, "btn_File_Select onClick");
-                callServerTask();
+                callServerTask(MyServerTask.SERVER_TEST_SERVICE);
             }
         }
     };
 
-    public void callServerTask(){
-        new MyServerTask(this).execute();
+    public void callServerTask(String mode) {
+        new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList).execute();
     }
 
     @Override
@@ -164,10 +166,47 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
         Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+        myWifiP2pInfo = wifiP2pInfo;
+
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        int dpi = dm.densityDpi;
+        float density = dm.density;
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density);
+
+//        myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() {
+//            @Override
+//            public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+//                ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(wifiP2pGroup.getClientList());
+//                boolean exist = false;
+//                for (int i = 0; i < tempWifiP2pDeviceList.size(); i++) {
+//                    exist = false;
+//                    for (int j = 0; j < myWifiP2pDeviceList.size(); j++) {
+//                        if (myWifiP2pDeviceList.get(j).deviceName.equals(tempWifiP2pDeviceList.get(i).deviceName) && myWifiP2pDeviceList.get(j).deviceAddress.equals(tempWifiP2pDeviceList.get(i).deviceAddress)) {
+//                            exist = true;
+//                            break;
+//                        }
+//                    }
+//                    if (exist == false) {
+//                        DeviceInfo di = new DeviceInfo(tempWifiP2pDeviceList.get(i));
+//                        myDeviceInfoList.add(di);
+//                    }
+//                }
+//            }
+//        });
+
+//        if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
+//            callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
+//            Log.v(TAG, myDeviceInfo.getString() + "!");
+//        }
+
+        //myServerAdapter.notifyDataSetChanged();
+
         if (wifiP2pInfo.groupFormed) {
             btn_Server_Control.setText("그룹 해제");
             isGroupExist = true;
-        }else{
+        } else {
             btn_Server_Control.setText("그룹 생성");
             isGroupExist = false;
         }
@@ -191,21 +230,23 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
         txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
         txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
+
+        myWifiP2pDevice = wifiP2pDevice;
     }
 
     @Override
     public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
         Log.e(TAG, "onPeersAvailable : wifiP2pDeviceList.size : " + wifiP2pDeviceList.getDeviceList().size());
-        myWifiP2pDeviceList.clear();
-        for (WifiP2pDevice d : wifiP2pDeviceList.getDeviceList()) {
-            myWifiP2pDeviceList.add(d);
-        }
-        myServerAdapter.addAll(wifiP2pDeviceList.getDeviceList());
-        Log.e(TAG, "myWifiP2pDeviceList.size : " + myWifiP2pDeviceList.size());
-        myServerAdapter.notifyDataSetChanged();
-        if (wifiP2pDeviceList.getDeviceList().size() == 0) {
-            showToast("No peer");
-        }
+//        myWifiP2pDeviceList.clear();
+//        for (WifiP2pDevice d : wifiP2pDeviceList.getDeviceList()) {
+//            myWifiP2pDeviceList.add(d);
+//        }
+//        myServerAdapter.addAll(wifiP2pDeviceList.getDeviceList());
+//        Log.e(TAG, "myWifiP2pDeviceList.size : " + myWifiP2pDeviceList.size());
+//        myServerAdapter.notifyDataSetChanged();
+//        if (wifiP2pDeviceList.getDeviceList().size() == 0) {
+//            showToast("No peer");
+//        }
     }
 
     public void createGroup() {
@@ -274,7 +315,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
-    public void connect(WifiP2pDevice d) { //Wifi P2P 연결
+    public void connect(final WifiP2pDevice d) { //Wifi P2P 연결
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = d.deviceAddress;
         config.groupOwnerIntent = 15;
@@ -288,6 +329,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             public void onSuccess() {
                 Log.v(TAG, "Connect Success");
                 showToast("Connect Success");
+                DeviceInfo di = new DeviceInfo(d);
+                myDeviceInfoList.add(di);
             }
 
             @Override

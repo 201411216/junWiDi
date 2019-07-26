@@ -11,6 +11,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,9 +27,13 @@ import com.n3v.junwidi.Services.MyClientTask;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 
 public class ClientActivity extends BaseActivity implements MyDirectActionListener {
 
@@ -52,7 +57,11 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private ArrayList<WifiP2pDevice> myWifiP2pDeviceList;
     private MyClientAdapter myClientAdapter;
 
-    private WifiP2pInfo myInfo;
+    private WifiP2pInfo myWifiP2pInfo;
+    private WifiP2pDevice myWifiP2pDevice = null;
+    private DeviceInfo myDeviceInfo = null;
+
+    InetAddress host_Address = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,13 +132,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             } else if (v.equals(btn_Request_Disconnect)) {
                 disconnect();
             } else if (v.equals(btn_Request_Multicast)) {
-                callClientTask();
+                callClientTask(MyClientTask.CLIENT_TEST_SERVICE);
             }
         }
     };
 
-    public void callClientTask(){
-        new MyClientTask(this).execute();
+    public void callClientTask(String mode) {
+        new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo).execute();
     }
 
     public void connect(WifiP2pDevice d) { //Wifi P2P 연결
@@ -185,7 +194,23 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
         Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+        myWifiP2pInfo = wifiP2pInfo;
         btn_Request_Disconnect.setEnabled(true);
+        host_Address = wifiP2pInfo.groupOwnerAddress;
+
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        int dpi = dm.densityDpi;
+        float density = dm.density;
+        String addr = getDottedDecimalIP(getLocalIPAddress());
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, addr, width, height, dpi, density);
+
+        if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
+
+        } else if (wifiP2pInfo.groupFormed) {
+            callClientTask(MyClientTask.CLIENT_HANDSHAKE_SERVICE);
+        }
     }
 
     @Override
@@ -205,6 +230,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
         txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
         txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
+
+        myWifiP2pDevice = wifiP2pDevice;
     }
 
     @Override
@@ -248,4 +275,39 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
         }
     }
+
+    private byte[] getLocalIPAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        if (inetAddress instanceof Inet4Address) { // fix for Galaxy Nexus. IPv4 is easy to use :-)
+                            return inetAddress.getAddress();
+                        }
+                        //return inetAddress.getHostAddress().toString(); // Galaxy Nexus returns IPv6
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
+        } catch (NullPointerException ex) {
+            //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
+        }
+        return null;
+    }
+
+    private String getDottedDecimalIP(byte[] ipAddr) {
+        //convert to dotted decimal notation:
+        String ipAddrStr = "";
+        for (int i=0; i<ipAddr.length; i++) {
+            if (i > 0) {
+                ipAddrStr += ".";
+            }
+            ipAddrStr += ipAddr[i]&0xFF;
+        }
+        return ipAddrStr;
+    }
+
 }
