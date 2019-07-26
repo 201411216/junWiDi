@@ -50,13 +50,13 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
             if (tempDevice.getStr_address() != null) {
                 item_Client_Device_Address.setText(tempDevice.getStr_address());
             }
-            if (tempDevice.getPx_width() == -1){
+            if (tempDevice.getPx_width() != -1){
                 item_Client_Device_Width_Px.setText(tempDevice.getPx_width());
             }
-            if (tempDevice.getPx_height() == -1){
+            if (tempDevice.getPx_height() != -1){
                 item_Client_Device_Height_Px.setText(tempDevice.getPx_height());
             }
-            if (tempDevice.getDpi() == -1){
+            if (tempDevice.getDpi() != -1){
                 item_Client_Device_Dpi.setText(tempDevice.getDpi());
             }
 

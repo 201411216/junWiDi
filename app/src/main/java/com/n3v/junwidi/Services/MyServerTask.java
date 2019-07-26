@@ -17,6 +17,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -46,8 +47,11 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     protected String doInBackground(Void... voids) {
         if (ACT_MODE.equals(SERVER_TEST_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_TEST_SERVICE");
+            DatagramSocket socket = null;
             try {
-                DatagramSocket socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                socket.setReuseAddress(true);
+                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                 Log.v(TAG, "Before Receive");
@@ -61,21 +65,27 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
+            } finally {
+            if(socket != null){
+                socket.close();
             }
+        }
             return "";
         } else if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
+            DatagramSocket socket = null;
             try {
-                DatagramSocket socket = new DatagramSocket();
+                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 socket.setReuseAddress(true);
-                socket.bind(new InetSocketAddress(Constants.FILE_SERVICE_PORT));
-                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                 socket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
+                Log.v(TAG, "Receive message : " + msg);
                 StringTokenizer st = new StringTokenizer(msg, "//");
                 for (int i = 0; i < myDeviceInfoList.size(); i++) {
+                    st = new StringTokenizer(msg, "//");
                     if (myDeviceInfoList.get(i).getWifiP2pDevice().deviceName.equals(st.nextToken())) {
                         myDeviceInfoList.get(i).setStr_address(st.nextToken());
                         myDeviceInfoList.get(i).setPx_width(Integer.parseInt(st.nextToken()));
@@ -84,18 +94,22 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         myDeviceInfoList.get(i).setDensity(Float.parseFloat(st.nextToken()));
                     }
                 }
-                Log.v(TAG, "Receive message : " + msg);
                 socket.close();
+            } catch (SocketTimeoutException e){
+                Log.v(TAG, "SERVER_HANDSHAKE_SERVICE : Socket Time out");
             } catch (SocketException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : DatagramSocket socket = new DatagramSocket();");
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
+            } finally {
+                if(socket != null){
+                    socket.close();
+                }
             }
         } else {
         }
-
         return "";
 
 //        try {
@@ -122,6 +136,11 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 //            e.printStackTrace();
 //        }
 //        return null;
+
+    }
+
+    @Override
+    protected void onPostExecute(String result){
 
     }
 

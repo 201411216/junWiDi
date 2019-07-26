@@ -116,6 +116,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             try {
                 InetAddress addr = InetAddress.getByName(host_addr);
                 DatagramSocket socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                socket.setReuseAddress(true);
+                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                socket.bind(new InetSocketAddress(Constants.FILE_SERVICE_PORT));
                 byte[] buf = getDottedDecimalIP(getLocalIPAddress()).getBytes();
                 Log.v(TAG, getDottedDecimalIP(getLocalIPAddress()));
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
@@ -134,11 +137,12 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             }
         } else if (ACT_MODE.equals(CLIENT_HANDSHAKE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
+            DatagramSocket socket = null;
             try {
                 InetAddress addr = InetAddress.getByName(host_addr);
-                DatagramSocket socket = new DatagramSocket();
+                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 socket.setReuseAddress(true);
-                socket.bind(new InetSocketAddress(Constants.FILE_SERVICE_PORT));
                 byte[] buf = myDeviceInfo.getString().getBytes();
                 Log.v(TAG, "Handshake Info : " + myDeviceInfo.getString());
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
@@ -154,44 +158,20 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
+            } finally {
+                if (socket != null) {
+                    socket.close();
+                }
             }
         }
-//        Log.v(TAG, "doInBackground");
-//        WifiManager wifi = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
-//        WifiManager.MulticastLock lock = wifi.createMulticastLock("jun.widi");
-//        lock.acquire();
-//
-//        DatagramSocket clientSocket = null;
-//
-//        try {
-//            clientSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-//        } catch (SocketException e) {
-//            Log.e(TAG, "Error : clientSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);");
-//            e.printStackTrace();
-//        }
-//
-//        byte[] data = new byte[1024];
-//        DatagramPacket packet = new DatagramPacket(data, data.length);
-//        try{
-//            clientSocket.receive(packet);
-//        } catch (IOException e){
-//            Log.e(TAG, "Error : clientSocket.receive(packet);");
-//            e.printStackTrace();
-//        }
-//        String message = new String(packet.getData());
-//        Log.v(TAG, "Message : " + message);
-//
-//        lock.release();
-//        clientSocket.close();
-//        return null;
         return "";
     }
 
     private byte[] getLocalIPAddress() {
         try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                 NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
                         if (inetAddress instanceof Inet4Address) { // fix for Galaxy Nexus. IPv4 is easy to use :-)
@@ -212,11 +192,11 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private String getDottedDecimalIP(byte[] ipAddr) {
         //convert to dotted decimal notation:
         String ipAddrStr = "";
-        for (int i=0; i<ipAddr.length; i++) {
+        for (int i = 0; i < ipAddr.length; i++) {
             if (i > 0) {
                 ipAddrStr += ".";
             }
-            ipAddrStr += ipAddr[i]&0xFF;
+            ipAddrStr += ipAddr[i] & 0xFF;
         }
         return ipAddrStr;
     }
