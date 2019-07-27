@@ -14,6 +14,10 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
+/*
+WifiP2pManager 의 intent broadcast 를 받는 BroadcastReceiver.
+WifiP2p 의 각종 상태 변화를 받아 적절한 함수 호출.
+ */
 public class MyBroadCastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "MyBroadCastReceiver";

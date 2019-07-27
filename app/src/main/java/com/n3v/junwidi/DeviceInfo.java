@@ -5,6 +5,9 @@ import android.util.DisplayMetrics;
 
 import java.net.InetAddress;
 
+/*
+통신 및 영상 재생에 필요한 기기 정보를 저장할 객체
+ */
 public class DeviceInfo {
 
     private WifiP2pDevice wifiP2pDevice;

@@ -13,6 +13,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/*
+Server Activity 의 ListView 가 사용할 ArrayAdapter.
+DeviceInfoList 의 정보를 ListView 에 띄워줌.
+
+view.setText() 의 괄호 안의 내용은 String 만 받으므로 다른 type 의 데이터는 형변환을 해줘야함
+ */
 public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
 
     private static final String TAG = "MyServerAdapter";

@@ -82,9 +82,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         btn_Refresh_List = findViewById(R.id.server_btn_refresh_list);
         btn_Server_Control = findViewById(R.id.server_btn_server_control);
 
-        //test for Broadcast by Multicast
-
-        btn_File_Select.setText("메시지 전송");
+        btn_File_Select.setText("파일 선택");
 
         if (!isGroupExist) {
             btn_Server_Control.setText("그룹 생성");
@@ -153,6 +151,17 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         this.isWifiP2pEnabled = enabled;
     }
 
+    /*
+    BroadCastReceiver 가 WIFI_P2P_CONNECTION_CHANGED_ACTION intent 를 받았을 때 호출.
+    새롭게 연결된 Client 가 있거나, 기존의 Client 가 제외되거나 그룹이 생성, 제거됐을 때 호출됨.
+    Handshake Process 의 중추.
+    p1 : myDeviceInfo 가 초기화 되지 않은 경우 초기화함.(wifiP2pInfo 를 통해 GroupOwner 인 자신의 IP 주소를 얻을 수 있음)
+    p2 : WifiP2pGroup 을 얻어 Group 의 Client 의 WifiP2pDevice 정보를 얻을 수 있음 -> DeviceInfoList 갱신.
+    p3 : Group 이 생성되있고, 자신이 GroupOwner 인 경우(Server 는 항상 GroupOwner) Handshake process 로 통신 시도.
+        해당 AsyncTask 에서 수신된 데이터를 통해 새롭게 추가된 Client 의 IP address 와 Display 정보를 DeviceInfoList 에 추가함.
+        onPostExecute() 를 통해 adapter 에 직접 notifyDataSetChanged()를 보내 ListView 를 최신화함.
+    p4 : 그룹이 생성된 경우와 그렇지 않은 경우 btn 정보 변경.
+     */
     @Override
     public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
         //btn_Server_Control.setEnabled(true);
@@ -163,28 +172,22 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
         myWifiP2pInfo = wifiP2pInfo;
 
-        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
-        int dpi = dm.densityDpi;
-        float density = dm.density;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density);
+        if(myDeviceInfo == null) { // p1
+            setMyDeviceInfo(wifiP2pInfo);
+        }
 
-        myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() {
+        myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
                 deviceListUpdate(wifiP2pGroup);
             }
         });
 
-        if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
+        if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) { // p3
             callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
-            Log.v(TAG, myDeviceInfo.getString() + "!");
         }
 
-        myServerAdapter.notifyDataSetChanged();
-
-        if (wifiP2pInfo.groupFormed) {
+        if (wifiP2pInfo.groupFormed) { // p4
             btn_Server_Control.setText("그룹 해제");
             isGroupExist = true;
         } else {
@@ -193,6 +196,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
+    /*
+    Wi-Fi P2P Connection 이 해제될 때 호출됨
+     */
     @Override
     public void onDisconnection() {
         Log.e(TAG, "onDisconnection");
@@ -204,6 +210,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         btn_File_Select.setEnabled(false);
     }
 
+    /*
+    BroadCastReceiver 가 WIFI_P2P_THIS_DEVICE_CHANGED_ACTION intent 를 받았을 때 호출됨
+    별 의미는 없고 자신의 기기 정보를 받아 View 에 올려주는 기능을 하고 있음
+     */
     @Override
     public void onSelfDeviceAvailable(WifiP2pDevice wifiP2pDevice) {
         Log.e(TAG, "onSelfDeviceAvailable");
@@ -217,11 +227,18 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myWifiP2pDevice = wifiP2pDevice;
     }
 
+    /*
+    BroadCastReceiver 가 WIFI_P2P_PEERS_CHANGED_ACTION intent 를 받았을 때 호출됨
+    Server Activity 에서는 사용되지 않음
+     */
     @Override
     public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
         //Log.e(TAG, "onPeersAvailable : wifiP2pDeviceList.size : " + wifiP2pDeviceList.getDeviceList().size());
     }
 
+    /*
+    새로운 Wi-Fi P2P Group 생성
+     */
     public void createGroup() {
         myManager.createGroup(myChannel, new WifiP2pManager.ActionListener() {
             @Override
@@ -235,14 +252,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             public void onFailure(int i) {
                 Log.e(TAG, "Create Group Failed");
                 showToast("Create Group Failed :: " + i);
-//                if(i == 2){
-//                    btn_Server_Control.setText("그룹 해제");
-//                    isGroupExist = false;
-//                }
             }
         });
     }
 
+    /*
+    Wi-Fi P2P 그룹에서 탈퇴하는 기능
+    Server Activity 는 항상 Group Owner로 동작하므로 그룹이 해산됨(예상)
+     */
     public void removeGroup() {
         myManager.removeGroup(myChannel, new WifiP2pManager.ActionListener() {
             @Override
@@ -261,6 +278,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         });
     }
 
+    /*
+    WifiP2pDevice.status 의 return value 가 int 이므로 String 으로 변환
+     */
     public static String getDeviceState(int deviceState) {
         switch (deviceState) {
             case WifiP2pDevice.AVAILABLE:
@@ -278,6 +298,11 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
+    /*
+    Wi-Fi P2P Peerlist를 받아오기 위해 android 일정 버전 이상에서는 ACCESS_FINE_LOCATION 권한을 요구함.
+    해당 권한은 Dangerous Permission에 해당되므로 runtime 중에 권한을 요청하여 허가받아야함.
+    해당 권한이 필요한 상황마다 확인하는 것을 권장.(현재는 Server, Client Activity의 onCreate 에서 한번씩만 호출하고 있음)
+     */
     public void permissionCheck() {
         int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
         int permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -288,6 +313,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
+    /*
+    Server Activity 에서는 사용하지 않음
+     */
     public void connect(final WifiP2pDevice d) { //Wifi P2P 연결
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = d.deviceAddress;
@@ -314,12 +342,22 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         });
     }
 
+    /*
+    Server Activity 에서 WifiP2pGroup - DeviceInfoList 의 동기화를 위한 함수
+    Group 의 ClientList 가 변경될 때마다 호출할 것을 권장
+    Case 1 : Group 의 Client 수가 DeviceInfoList.size() 보다 큰 경우(새로운 클라이언트가 추가된 경우)
+        새로운 Client 의 WifiP2pDevice 정보를 DeviceInfoList 에 add
+    Case 2 : Group 의 Client 수가 DeviceInfoList.size() 보다 작은 경우(기존의 클라이언트가 제외된 경우)
+        제외된 Client 의 DeviceInfo 정보를 List 에서 remove
+    Case 3 : Group 의 Client 수가 DeviceInfoList.size() 와 같은 경우(그룹 정보가 유지되는 경우)
+        현재 DeviceInfoList 의 정보와 Group 의 Client 정보가 일치하는지 확인 -> 불일치 시 Log.e
+     */
     public void deviceListUpdate(WifiP2pGroup group) {
-        if (group == null) {
+        if (group == null) { // nullPointException 방지
             myDeviceInfoList.clear();
             return;
         }
-        if (myDeviceInfoList.size() < group.getClientList().size()) {
+        if (myDeviceInfoList.size() < group.getClientList().size()) { //Case 1
             Log.v(TAG, "deviceListUpdate : Case 1");
             ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
             boolean exist = false;
@@ -341,7 +379,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 }
                 return;
             }
-        } else if (myDeviceInfoList.size() > group.getClientList().size()) {
+        } else if (myDeviceInfoList.size() > group.getClientList().size()) { // Case 2
             Log.v(TAG, "deviceListUpdate : Case 2");
             ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
             boolean exist = false;
@@ -362,7 +400,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 }
             }
             return;
-        } else if (myDeviceInfoList.size() == group.getClientList().size()) {
+        } else if (myDeviceInfoList.size() == group.getClientList().size()) { // Case 3
             Log.v(TAG, "deviceListUpdate : Case 3 with size : " + myDeviceInfoList.size());
             if (myDeviceInfoList.size() > 0) {
                 ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
@@ -381,5 +419,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             }
             return;
         }
+    }
+
+    public void setMyDeviceInfo(WifiP2pInfo wifiP2pInfo){
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        int dpi = dm.densityDpi;
+        float density = dm.density;
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density);
     }
 }
