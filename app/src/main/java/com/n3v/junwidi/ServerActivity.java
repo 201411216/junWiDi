@@ -132,7 +132,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     };
 
     public void callServerTask(String mode) {
-        new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList).execute();
+        new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter).execute();
     }
 
     @Override
@@ -197,8 +197,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onDisconnection() {
         Log.e(TAG, "onDisconnection");
         myWifiP2pDeviceList.clear();
-        myServerAdapter.notifyDataSetChanged();
         //btn_Server_Control.setEnabled(false);
+        isGroupExist = false;
+        myDeviceInfoList.clear();
+        myServerAdapter.notifyDataSetChanged();
         btn_File_Select.setEnabled(false);
     }
 
@@ -217,17 +219,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-        Log.e(TAG, "onPeersAvailable : wifiP2pDeviceList.size : " + wifiP2pDeviceList.getDeviceList().size());
-//        myWifiP2pDeviceList.clear();
-//        for (WifiP2pDevice d : wifiP2pDeviceList.getDeviceList()) {
-//            myWifiP2pDeviceList.add(d);
-//        }
-//        myServerAdapter.addAll(wifiP2pDeviceList.getDeviceList());
-//        Log.e(TAG, "myWifiP2pDeviceList.size : " + myWifiP2pDeviceList.size());
-//        myServerAdapter.notifyDataSetChanged();
-//        if (wifiP2pDeviceList.getDeviceList().size() == 0) {
-//            showToast("No peer");
-//        }
+        //Log.e(TAG, "onPeersAvailable : wifiP2pDeviceList.size : " + wifiP2pDeviceList.getDeviceList().size());
     }
 
     public void createGroup() {
@@ -323,6 +315,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     }
 
     public void deviceListUpdate(WifiP2pGroup group) {
+        if (group == null) {
+            myDeviceInfoList.clear();
+            return;
+        }
         if (myDeviceInfoList.size() < group.getClientList().size()) {
             Log.v(TAG, "deviceListUpdate : Case 1");
             ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
@@ -349,7 +345,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             Log.v(TAG, "deviceListUpdate : Case 2");
             ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
             boolean exist = false;
-            if (group.getClientList().size() == 0){
+            if (group.getClientList().size() == 0) {
                 myDeviceInfoList.clear();
             }
             for (int i = 0; i < myDeviceInfoList.size(); i++) {

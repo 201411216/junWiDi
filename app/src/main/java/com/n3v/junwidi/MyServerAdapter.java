@@ -2,6 +2,7 @@ package com.n3v.junwidi;
 
 import android.content.Context;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +66,12 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
     }
 
     @Override
+    public void notifyDataSetChanged(){
+        //Log.v(TAG, "notifyDataSetChanged() in act");
+        super.notifyDataSetChanged();
+    }
+
+    @Override
     public void notifyDataSetInvalidated(){
         myDeviceInfoList.clear();
         super.notifyDataSetInvalidated();
@@ -98,8 +105,6 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
     public DeviceInfo getItem(int position) {
         return myDeviceInfoList.get(position);
     }
-
-
 
     public static String getDeviceState(int deviceState) {
         switch (deviceState) {
