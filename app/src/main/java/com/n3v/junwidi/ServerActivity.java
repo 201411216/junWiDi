@@ -179,6 +179,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+                Log.v(TAG, "onGroupInfoAvailable()");
                 deviceListUpdate(wifiP2pGroup);
             }
         });
@@ -375,9 +376,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     DeviceInfo di = new DeviceInfo(tempWifiP2pDeviceList.get(i));
                     myDeviceInfoList.add(di);
                     Log.v(TAG, "added : " + tempWifiP2pDeviceList.get(i).deviceName);
-
+                    return;
                 }
-                return;
             }
         } else if (myDeviceInfoList.size() > group.getClientList().size()) { // Case 2
             Log.v(TAG, "deviceListUpdate : Case 2");

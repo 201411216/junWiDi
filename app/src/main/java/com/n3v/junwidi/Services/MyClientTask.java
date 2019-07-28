@@ -113,9 +113,10 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     protected String doInBackground(Void... voids) {
         if (ACT_MODE.equals(CLIENT_TEST_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_TEST_SERVICE");
+            DatagramSocket socket = null;
             try {
                 InetAddress addr = InetAddress.getByName(host_addr);
-                DatagramSocket socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 socket.setReuseAddress(true);
                 socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 socket.bind(new InetSocketAddress(Constants.FILE_SERVICE_PORT));
@@ -134,6 +135,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
+            } finally {
+                socket.close();
             }
         } else if (ACT_MODE.equals(CLIENT_HANDSHAKE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
@@ -148,7 +151,6 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
                 Log.v(TAG, "Send message complete");
                 socket.send(packet);
-                socket.close();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : InetAddress addr = InetAddress.getByName(\"255.255.255.255\");");

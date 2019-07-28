@@ -354,6 +354,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         int height = dm.heightPixels;
         int dpi = dm.densityDpi;
         float density = dm.density;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density);
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, dpi, density);
     }
 }

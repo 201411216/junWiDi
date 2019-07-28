@@ -97,7 +97,6 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         myDeviceInfoList.get(i).setDensity(Float.parseFloat(st.nextToken()));
                     }
                 }
-                socket.close();
                 publishProgress();
             } catch (SocketTimeoutException e){
                 Log.v(TAG, "SERVER_HANDSHAKE_SERVICE : Socket Time out");
