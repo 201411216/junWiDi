@@ -1,9 +1,6 @@
 package com.n3v.junwidi;
 
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.util.DisplayMetrics;
-
-import java.net.InetAddress;
 
 /*
 통신 및 영상 재생에 필요한 기기 정보를 저장할 객체

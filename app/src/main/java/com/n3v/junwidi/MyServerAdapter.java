@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /*
 Server Activity 의 ListView 가 사용할 ArrayAdapter.

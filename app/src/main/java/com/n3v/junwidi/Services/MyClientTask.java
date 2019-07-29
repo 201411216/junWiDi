@@ -1,7 +1,6 @@
 package com.n3v.junwidi.Services;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -10,30 +9,24 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.n3v.junwidi.BaseActivity;
-import com.n3v.junwidi.ClientActivity;
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
-import com.n3v.junwidi.MainActivity;
-import com.n3v.junwidi.ServerActivity;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
+
+import static android.content.Context.WIFI_SERVICE;
 
 public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
@@ -105,11 +98,11 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 //
     @Override
     protected void onPostExecute(String result) {
-        Log.v(TAG, "onPostExecute");
+        //Log.v(TAG, "onPostExecute");
     }
 
     public InetAddress getBroadcastAddress() throws IOException {
-        WifiManager myWifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
+        WifiManager myWifiManager = (WifiManager) myContext.getSystemService(WIFI_SERVICE);
         DhcpInfo dhcp = myWifiManager.getDhcpInfo();
 
         int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
@@ -178,13 +171,18 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
         } else if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)) {
             Log.v(TAG, "ACT : CLIENT_MESSAGE_SERVICE");
             DatagramSocket socket = null;
+            WifiManager.MulticastLock multicastLock = null;
             try {
+                WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
+                multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
+                multicastLock.acquire();
                 socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                socket.setSoTimeout(Constants.LONG_TIMEOUT);
                 socket.setBroadcast(true);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
+                Log.v(TAG, "before : receive time_test");
                 socket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
@@ -206,6 +204,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } finally {
                 if(socket != null){
                     socket.close();
+                    multicastLock.release();
                 }
             }
         }
@@ -216,7 +215,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     protected void onProgressUpdate(Integer... values){
         super.onProgressUpdate(values);
         if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)){
-            Toaster.get().showToast(myContext, time_test, Toast.LENGTH_LONG);
+            Toaster.get().showToast(myContext, time_test + "\n" + getStrNow(), Toast.LENGTH_LONG);
         }
     }
 
@@ -273,5 +272,12 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
         public static Toaster get() {
             return INSTANCE;
         }
+    }
+
+    public String getStrNow(){
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        return sdfNow.format(date);
     }
 }

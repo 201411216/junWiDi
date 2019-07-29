@@ -1,10 +1,6 @@
 package com.n3v.junwidi.Services;
 
-import android.app.IntentService;
 import android.content.Context;
-import android.content.Intent;
-import android.net.DhcpInfo;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -16,7 +12,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -83,7 +78,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             try {
                 socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                socket.setSoTimeout(Constants.HANDSHAKE_TIMEOUT);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                 socket.receive(packet);
@@ -115,16 +110,17 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(SERVER_MESSAGE_SERVICE)) {
-            Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
+            Log.v(TAG, "ACT : SERVER_MESSAGE_SERVICE");
             DatagramSocket socket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
                 socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 socket.setReuseAddress(true);
+                socket.setBroadcast(true);
                 String time_msg = "time_test+=+" + getStrNow();
                 byte[] buf = time_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + myDeviceInfo.getString());
+                Log.v(TAG, "Handshake Info : " + time_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
                 Log.v(TAG, "Send message complete");
                 socket.send(packet);

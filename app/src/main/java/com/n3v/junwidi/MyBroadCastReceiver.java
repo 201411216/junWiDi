@@ -1,6 +1,5 @@
 package com.n3v.junwidi;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 
-import java.util.ArrayList;
 
 /*
 WifiP2pManager 의 intent broadcast 를 받는 BroadcastReceiver.

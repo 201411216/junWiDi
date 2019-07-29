@@ -3,8 +3,6 @@ package com.n3v.junwidi;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.DhcpInfo;
-import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -26,16 +24,7 @@ import androidx.core.content.ContextCompat;
 
 import com.n3v.junwidi.Services.MyServerTask;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 public class ServerActivity extends BaseActivity implements MyDirectActionListener {
 
@@ -132,7 +121,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     };
 
     public void callServerTask(String mode) {
-        new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter).execute();
+        if(myWifiP2pInfo != null) {
+            new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter).execute();
+        }
     }
 
     @Override
@@ -308,11 +299,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
      */
     public void permissionCheck() {
         int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
+        int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0;
         int permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionChecker == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        } else {
-
+        }
+        permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_MULTICAST_STATE);
+        if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CHANGE_WIFI_MULTICAST_STATE}, MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE);
         }
     }
 

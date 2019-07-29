@@ -1,9 +1,7 @@
 package com.n3v.junwidi;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -24,15 +22,12 @@ import androidx.core.content.ContextCompat;
 
 import com.n3v.junwidi.Services.MyClientTask;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.Enumeration;
 
 public class ClientActivity extends BaseActivity implements MyDirectActionListener {
@@ -48,6 +43,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private TextView txt_myDevice_Name;
     private TextView txt_myDevice_Address;
     private TextView txt_myDevice_State;
+    private TextView txt_Host_Ip_Address;
     private Button btn_Refresh_Peer_List;
     private Button btn_Request_Disconnect;
     private Button btn_Request_Multicast;
@@ -90,6 +86,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
         txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
         txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
+        txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
 
         btn_Refresh_Peer_List = findViewById(R.id.client_btn_refresh_peer_list);
         btn_Request_Disconnect = findViewById(R.id.client_btn_request_disconnect);
@@ -138,7 +135,9 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     };
 
     public void callClientTask(String mode) {
-        new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo).execute();
+        if(myWifiP2pInfo != null) {
+            new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo).execute();
+        }
     }
 
     /*
@@ -211,7 +210,11 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
         myWifiP2pInfo = wifiP2pInfo;
         btn_Request_Disconnect.setEnabled(true);
-        host_Address = wifiP2pInfo.groupOwnerAddress;
+        if (wifiP2pInfo.groupFormed) {
+            host_Address = wifiP2pInfo.groupOwnerAddress;
+            String temp_Addr = String.valueOf(host_Address).replace("/", "");
+            txt_Host_Ip_Address.setText(temp_Addr);
+        }
 
         if (myDeviceInfo == null) { // p1
             setMyDeviceInfo(wifiP2pInfo);
@@ -232,6 +235,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "onDisconnection");
         myWifiP2pDeviceList.clear();
         myClientAdapter.notifyDataSetChanged();
+        host_Address = null;
+        txt_Host_Ip_Address.setText("-");
         btn_Request_Disconnect.setEnabled(false);
     }
 
@@ -300,11 +305,14 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
      */
     public void permissionCheck() {
         int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
+        int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0;
         int permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionChecker == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        } else {
-
+        }
+        permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_MULTICAST_STATE);
+        if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CHANGE_WIFI_MULTICAST_STATE}, MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE);
         }
     }
 
@@ -355,5 +363,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         int dpi = dm.densityDpi;
         float density = dm.density;
         myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, dpi, density);
+        Log.v(TAG, "Local IP : " + getDottedDecimalIP(getLocalIPAddress()));
     }
 }
