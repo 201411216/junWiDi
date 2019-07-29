@@ -55,11 +55,11 @@ public class MyClientAdapter extends ArrayAdapter<WifiP2pDevice> {
         return v;
     }
 
-    public void add(WifiP2pDevice device){
+    public void add(WifiP2pDevice device) {
         myDeviceArrayList.add(device);
     }
 
-    public void addAll(Collection c){
+    public void addAll(Collection c) {
         myDeviceArrayList.clear();
         myDeviceArrayList.addAll(c);
     }

@@ -26,7 +26,7 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
     public static WifiP2pManager.Channel mChannel;
     public MyDirectActionListener mListener;
 
-    public MyBroadCastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, MyDirectActionListener listener){
+    public MyBroadCastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, MyDirectActionListener listener) {
         super();
         this.mManager = manager;
         this.mChannel = channel;
@@ -34,20 +34,20 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
     }
 
     @Override
-    public void onReceive(Context context, Intent intent){ //아래의 intent filter를 통해 해당 action을 받을 시 호출
+    public void onReceive(Context context, Intent intent) { //아래의 intent filter를 통해 해당 action을 받을 시 호출
         String action = intent.getAction();
-        if(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)){ //Wifi 상태가 변경시 호출됨
+        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) { //Wifi 상태가 변경시 호출됨
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
-            if(state == WifiP2pManager.WIFI_P2P_STATE_ENABLED){
+            if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
                 Log.d(TAG, "Wi-Fi enabled");
                 mListener.setIsWifiP2pEnabled(true);
-            }else{
+            } else {
                 Log.d(TAG, "Wi-Fi failed");
                 mListener.setIsWifiP2pEnabled(false);
             }
-        }else if(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)){ //dicoverPeer을 통해 Peer가 변경되었을 시 호출
+        } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) { //dicoverPeer을 통해 Peer가 변경되었을 시 호출
             Log.v(TAG, "WIFI_P2P_PEERS_CHANGED_ACTION");
-            if(mManager != null) {
+            if (mManager != null) {
                 mManager.requestPeers(mChannel, new WifiP2pManager.PeerListListener() { //현재 WifiP2pDeviceList peers가 empty
                     @Override
                     public void onPeersAvailable(WifiP2pDeviceList peers) {
@@ -55,9 +55,9 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
                     }
                 });
             }
-        }else if(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)){ //Wifi P2P 연결의 상태가 변했을 때 호출됨
+        } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) { //Wifi P2P 연결의 상태가 변했을 때 호출됨
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-            if(networkInfo.isConnected()) {
+            if (networkInfo.isConnected()) {
                 mManager.requestConnectionInfo(mChannel, new WifiP2pManager.ConnectionInfoListener() {
                     @Override
                     public void onConnectionInfoAvailable(WifiP2pInfo info) {
@@ -65,16 +65,16 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
                     }
                 });
                 Log.e(TAG, "P2P Device is already connected");
-            }else{
+            } else {
                 mListener.onDisconnection();
                 Log.e(TAG, "P2P Device is disconnected");
             }
-        }else if(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)){ //기기 상태가 변했을 때 호출됨
+        } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) { //기기 상태가 변했을 때 호출됨
             mListener.onSelfDeviceAvailable((WifiP2pDevice) intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE));
         }
     }
 
-    public static IntentFilter getIntentFilter(){ //intent filter 반환
+    public static IntentFilter getIntentFilter() { //intent filter 반환
         IntentFilter intentFilter = new IntentFilter();
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);

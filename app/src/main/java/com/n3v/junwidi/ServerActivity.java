@@ -172,7 +172,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
         myWifiP2pInfo = wifiP2pInfo;
 
-        if(myDeviceInfo == null) { // p1
+        if (myDeviceInfo == null) { // p1
             setMyDeviceInfo(wifiP2pInfo);
         }
 
@@ -421,7 +421,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
-    public void setMyDeviceInfo(WifiP2pInfo wifiP2pInfo){
+    public void setMyDeviceInfo(WifiP2pInfo wifiP2pInfo) {
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
         int height = dm.heightPixels;

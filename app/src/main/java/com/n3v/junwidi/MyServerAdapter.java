@@ -57,13 +57,13 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
             if (tempDevice.getStr_address() != null) {
                 item_Client_Device_Address.setText(tempDevice.getStr_address());
             }
-            if (tempDevice.getPx_width() != -1){
+            if (tempDevice.getPx_width() != -1) {
                 item_Client_Device_Width_Px.setText(Integer.toString(tempDevice.getPx_width()));
             }
-            if (tempDevice.getPx_height() != -1){
+            if (tempDevice.getPx_height() != -1) {
                 item_Client_Device_Height_Px.setText(Integer.toString(tempDevice.getPx_height()));
             }
-            if (tempDevice.getDpi() != -1){
+            if (tempDevice.getDpi() != -1) {
                 item_Client_Device_Dpi.setText(Float.toString(tempDevice.getDpi()));
             }
 
@@ -72,30 +72,30 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
     }
 
     @Override
-    public void notifyDataSetChanged(){
+    public void notifyDataSetChanged() {
         //Log.v(TAG, "notifyDataSetChanged() in act");
         super.notifyDataSetChanged();
     }
 
     @Override
-    public void notifyDataSetInvalidated(){
+    public void notifyDataSetInvalidated() {
         myDeviceInfoList.clear();
         super.notifyDataSetInvalidated();
     }
 
     @Override
-    public void add(DeviceInfo device){
+    public void add(DeviceInfo device) {
         myDeviceInfoList.add(device);
     }
 
     @Override
-    public void addAll(Collection c){
+    public void addAll(Collection c) {
         myDeviceInfoList.clear();
         myDeviceInfoList.addAll(c);
     }
 
     @Override
-    public void clear(){
+    public void clear() {
         myDeviceInfoList.clear();
     }
 
