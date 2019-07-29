@@ -84,6 +84,6 @@ public class DeviceInfo {
     }
 
     public String getString() {
-        return wifiP2pDevice.deviceName + "//" + str_address + "//" + px_width + "//" + px_height + "//" + dpi + "//" + density;
+        return wifiP2pDevice.deviceName + "+=+" + str_address + "+=+" + px_width + "+=+" + px_height + "+=+" + dpi + "+=+" + density;
     }
 }

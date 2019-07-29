@@ -132,7 +132,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             } else if (v.equals(btn_Request_Disconnect)) {
                 disconnect();
             } else if (v.equals(btn_Request_Multicast)) {
-                callClientTask(MyClientTask.CLIENT_TEST_SERVICE);
+                callClientTask(MyClientTask.CLIENT_MESSAGE_SERVICE);
             }
         }
     };

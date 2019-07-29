@@ -5,10 +5,17 @@ import android.content.Intent;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.n3v.junwidi.BaseActivity;
+import com.n3v.junwidi.ClientActivity;
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
+import com.n3v.junwidi.MainActivity;
+import com.n3v.junwidi.ServerActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,18 +30,23 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.StringTokenizer;
 
 public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
     public static final String CLIENT_DOWNLOAD_SERVICE = "action.CLIENT_DOWNLOAD_SERVICE";
     public static final String CLIENT_HANDSHAKE_SERVICE = "action.CLIENT_HANDSHAKE_SERVICE";
     public static final String CLIENT_TEST_SERVICE = "action.CLIENT_TEST_SERVICE";
+    public static final String CLIENT_MESSAGE_SERVICE = "action.CLIENT_MESSAGE_SERVICE";
 
     public String ACT_MODE = "";
 
     public String host_addr = "";
+
+    private String time_test = "";
 
     private static final String TAG = "MyClientService";
 
@@ -119,13 +131,11 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 socket.setReuseAddress(true);
                 socket.setSoTimeout(Constants.COMMON_TIMEOUT);
-                socket.bind(new InetSocketAddress(Constants.FILE_SERVICE_PORT));
                 byte[] buf = getDottedDecimalIP(getLocalIPAddress()).getBytes();
                 Log.v(TAG, getDottedDecimalIP(getLocalIPAddress()));
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
                 Log.v(TAG, "Sending message");
                 socket.send(packet);
-                socket.close();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : InetAddress addr = InetAddress.getByName(\"255.255.255.255\");");
@@ -165,8 +175,49 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     socket.close();
                 }
             }
+        } else if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_MESSAGE_SERVICE");
+            DatagramSocket socket = null;
+            try {
+                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                socket.setReuseAddress(true);
+                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                socket.setBroadcast(true);
+                byte[] receivebuf = new byte[1024];
+                DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
+                socket.receive(packet);
+                String msg = new String(packet.getData(), 0, packet.getLength());
+                Log.v(TAG, "Receive message : " + msg);
+                StringTokenizer st = new StringTokenizer(msg, "+=+");
+                if (st.hasMoreTokens()){
+                    if (st.nextToken().equals("time_test")) {
+                        time_test = st.nextToken();
+                        publishProgress();
+                    }
+                }
+            } catch (SocketTimeoutException e){
+                Log.v(TAG, "CLIENT_MESSAGE_SERVICE : Socket Time out");
+            } catch (SocketException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : DatagramSocket socket = new DatagramSocket();");
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : socket.send(packet);");
+            } finally {
+                if(socket != null){
+                    socket.close();
+                }
+            }
         }
         return "";
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... values){
+        super.onProgressUpdate(values);
+        if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)){
+            Toaster.get().showToast(myContext, time_test, Toast.LENGTH_LONG);
+        }
     }
 
     private byte[] getLocalIPAddress() {
@@ -201,5 +252,26 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             ipAddrStr += ipAddr[i] & 0xFF;
         }
         return ipAddrStr;
+    }
+
+    public enum Toaster {
+        INSTANCE;
+
+        private final Handler handler = new Handler(Looper.getMainLooper());
+
+        public void showToast(final Context context, final String message, final int length) {
+            handler.post(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, message, length).show();
+                        }
+                    }
+            );
+        }
+
+        public static Toaster get() {
+            return INSTANCE;
+        }
     }
 }

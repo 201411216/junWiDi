@@ -31,8 +31,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public class ServerActivity extends BaseActivity implements MyDirectActionListener {
@@ -82,7 +84,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         btn_Refresh_List = findViewById(R.id.server_btn_refresh_list);
         btn_Server_Control = findViewById(R.id.server_btn_server_control);
 
-        btn_File_Select.setText("파일 선택");
+        btn_File_Select.setText("시간 전송");
 
         if (!isGroupExist) {
             btn_Server_Control.setText("그룹 생성");
@@ -124,7 +126,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 }
             } else if (v.equals(btn_File_Select)) {
                 Log.v(TAG, "btn_File_Select onClick");
-                callServerTask(MyServerTask.SERVER_TEST_SERVICE);
+                callServerTask(MyServerTask.SERVER_MESSAGE_SERVICE);
             }
         }
     };
