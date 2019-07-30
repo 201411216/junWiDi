@@ -367,7 +367,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                         break;
                     }
                 }
-                Log.v(TAG, tempWifiP2pDeviceList.get(i).deviceName);
                 if (!exist) {
                     DeviceInfo di = new DeviceInfo(tempWifiP2pDeviceList.get(i));
                     myDeviceInfoList.add(di);

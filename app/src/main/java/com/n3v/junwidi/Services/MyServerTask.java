@@ -87,7 +87,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 StringTokenizer st;
                 for (int i = 0; i < myDeviceInfoList.size(); i++) {
                     st = new StringTokenizer(msg, "+=+");
-                    if (myDeviceInfoList.get(i).getWifiP2pDevice().deviceName.equals(st.nextToken())) {
+                    if (myDeviceInfoList.get(i).getWifiP2pDevice().deviceAddress.equals(st.nextToken())) {
                         myDeviceInfoList.get(i).setStr_address(st.nextToken());
                         myDeviceInfoList.get(i).setPx_width(Integer.parseInt(st.nextToken()));
                         myDeviceInfoList.get(i).setPx_height(Integer.parseInt(st.nextToken()));
