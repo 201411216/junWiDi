@@ -8,10 +8,14 @@ import android.widget.ArrayAdapter;
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -25,6 +29,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     public static final String SERVER_TEST_SERVICE = "action.SERVER_TEST_SERVICE";
     public static final String SERVER_HANDSHAKE_SERVICE = "action.SERVER_HANDSHAKE_SERVICE";
     public static final String SERVER_MESSAGE_SERVICE = "action.SERVER_MESSAGE_SERVICE";
+    public static final String SERVER_FILE_TRANSFER_SERVICE = "action.SERVER_FILE_TRANSFER_SERVICE";
 
     private static final String TAG = "MyServerTask";
 
@@ -35,6 +40,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     private ArrayList<DeviceInfo> myDeviceInfoList;
     private ArrayAdapter<DeviceInfo> myServerAdapter;
 
+    String videoPath = "";
+
     public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter) {
         myContext = context;
         ACT_MODE = mode;
@@ -42,6 +49,16 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
         myDeviceInfo = deviceInfo;
         myDeviceInfoList = deviceInfoList;
         myServerAdapter = serverAdapter;
+    }
+
+    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, String videoPath) {
+        myContext = context;
+        ACT_MODE = mode;
+        host_addr = host;
+        myDeviceInfo = deviceInfo;
+        myDeviceInfoList = deviceInfoList;
+        myServerAdapter = serverAdapter;
+        this.videoPath = videoPath;
     }
 
     @Override
@@ -67,10 +84,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-            if(socket != null){
-                socket.close();
+                if (socket != null) {
+                    socket.close();
+                }
             }
-        }
             return "";
         } else if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
@@ -96,7 +113,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     }
                 }
                 publishProgress();
-            } catch (SocketTimeoutException e){
+            } catch (SocketTimeoutException e) {
                 Log.v(TAG, "SERVER_HANDSHAKE_SERVICE : Socket Time out");
             } catch (SocketException e) {
                 e.printStackTrace();
@@ -105,7 +122,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if(socket != null){
+                if (socket != null) {
                     socket.close();
                 }
             }
@@ -138,18 +155,52 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     socket.close();
                 }
             }
+        } else if (ACT_MODE.equals(SERVER_FILE_TRANSFER_SERVICE)) {
+            if (videoPath.equals("")){
+                return "";
+            }
+            Log.v(TAG, "ACT : SERVER_FILE_TANSFER_SERVICE");
+            DatagramSocket socket = null;
+            try {
+                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                socket.setReuseAddress(true);
+                socket.setBroadcast(true);
+                File myVideo = new File(videoPath);
+                if (!myVideo.exists()){
+                    Log.e(TAG, "ERROR : File Doesn't Exists");
+                    return "";
+                }
+
+                long file_Size = myVideo.length();
+                long totalReadBytes = 0;
+                byte[] buf = new byte[Constants.FILE_BUFFER_SIZE];
+                double startTime = 0;
+
+                FileInputStream fis = new FileInputStream(myVideo);
+                
+
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : UnknownHostException");
+            } catch (SocketException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : SocketException");
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : FileNotFoundExceptrion");
+            }
         }
         return "";
     }
 
     @Override
-    protected void onPostExecute(String result){
-        if(ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
+    protected void onPostExecute(String result) {
+        if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
             myServerAdapter.notifyDataSetChanged();
         }
     }
 
-    public String getStrNow(){
+    public String getStrNow() {
         long now = System.currentTimeMillis();
         Date date = new Date(now);
         SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
