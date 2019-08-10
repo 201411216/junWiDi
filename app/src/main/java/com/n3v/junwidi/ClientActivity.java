@@ -66,7 +66,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myManager = (WifiP2pManager) getSystemService(WIFI_P2P_SERVICE);
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
-        registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
+        //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         initView();
         permissionCheck(0);
         myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
@@ -138,6 +138,19 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         if(myWifiP2pInfo != null) {
             new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo).execute();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
+        registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(myBroadCastReceiver);
     }
 
     /*
