@@ -70,6 +70,25 @@
                 />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="Video Path : "
+                android:textSize="15dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/server_txt_video_path"
+                android:text="-"
+                android:textSize="15dp"
+                />
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
@@ -95,7 +114,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="전송 파일 선택"/>
+            android:textSize="12dp"
+            android:text="비디오 -"/>
+
+        <Button
+            android:id="@+id/server_btn_file_transfer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="전송"/>
 
     </LinearLayout>
 

@@ -68,7 +68,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         initView();
-        permissionCheck();
+        permissionCheck(0);
         myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
@@ -303,16 +303,28 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     해당 권한은 Dangerous Permission에 해당되므로 runtime 중에 권한을 요청하여 허가받아야함.
     해당 권한이 필요한 상황마다 확인하는 것을 권장.(현재는 Server, Client Activity의 onCreate 에서 한번씩만 호출하고 있음)
      */
-    public void permissionCheck() {
-        int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
-        int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0;
-        int permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (permissionChecker == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+    public void permissionCheck(int permission) {
+        int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // permission 1
+        int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0; // permission 2
+        int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0; // permission 3
+        int permissionChecker;
+        if (permission == 0 || permission == 1) {
+            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
         }
-        permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_MULTICAST_STATE);
-        if (permissionChecker == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CHANGE_WIFI_MULTICAST_STATE}, MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE);
+        if (permission == 0 || permission == 2) {
+            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_MULTICAST_STATE);
+            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CHANGE_WIFI_MULTICAST_STATE}, MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE);
+            }
+        }
+        if (permission == 0 || permission == 3) {
+            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            }
         }
     }
 

@@ -1,8 +1,12 @@
 package com.n3v.junwidi;
 
 import android.Manifest;
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -10,7 +14,11 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -40,7 +48,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private TextView txt_myDevice_Name;
     private TextView txt_myDevice_Address;
     private TextView txt_myDevice_State;
+    private TextView txt_Video_Path;
     private Button btn_File_Select;
+    private Button btn_File_Transfer;
     private Button btn_Refresh_List;
     private Button btn_Server_Control;
     private ListView listView_Client_List;
@@ -53,6 +63,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private DeviceInfo myDeviceInfo = null;
     private ArrayList<DeviceInfo> myDeviceInfoList = new ArrayList<>();
 
+    private String videoPath = "";
+    private boolean isFileSelected = false;
+    private static final int PICK_VIDEO_RESULT_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,19 +76,25 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
-        permissionCheck();
+        permissionCheck(0);
     }
 
     private void initView() {
         txt_myDevice_Name = findViewById(R.id.server_txt_my_device_name);
         txt_myDevice_Address = findViewById(R.id.server_txt_my_device_address);
         txt_myDevice_State = findViewById(R.id.server_txt_my_device_state);
+        txt_Video_Path = findViewById(R.id.server_txt_video_path);
         btn_File_Select = findViewById(R.id.server_btn_file_select);
+        btn_File_Transfer = findViewById(R.id.server_btn_file_transfer);
         btn_Refresh_List = findViewById(R.id.server_btn_refresh_list);
         btn_Server_Control = findViewById(R.id.server_btn_server_control);
 
         btn_File_Select.setText("시간 전송");
 
+        if (!isFileSelected) {
+            btn_File_Select.setText("비디오 선택");
+            btn_File_Transfer.setEnabled(false);
+        }
         if (!isGroupExist) {
             btn_Server_Control.setText("그룹 생성");
         }
@@ -115,13 +135,44 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 }
             } else if (v.equals(btn_File_Select)) {
                 Log.v(TAG, "btn_File_Select onClick");
-                callServerTask(MyServerTask.SERVER_MESSAGE_SERVICE);
+                if (!isFileSelected) {
+                    permissionCheck(3);
+                    Intent fileChooseIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                    fileChooseIntent.setType("video/*");
+                    startActivityForResult(fileChooseIntent, PICK_VIDEO_RESULT_CODE);
+                } else {
+                    videoPath = "";
+                    txt_Video_Path.setText("-");
+                    isFileSelected = false;
+                    btn_File_Select.setText("비디오 선택");
+                    btn_File_Transfer.setEnabled(false);
+                }
+                //callServerTask(MyServerTask.SERVER_MESSAGE_SERVICE);
+            } else if (v.equals(btn_File_Transfer)) {
+
             }
         }
     };
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case PICK_VIDEO_RESULT_CODE:
+                if (resultCode == RESULT_OK) {
+                    //videoPath = data.getData().getPath();
+                    Uri videoURI = data.getData();
+                    videoPath = RealPathUtil.getRealPath(this, videoURI);
+                    txt_Video_Path.setText(videoPath);
+                    isFileSelected = true;
+                    btn_File_Select.setText("선택 취소");
+                    btn_File_Transfer.setEnabled(true);
+                    showToast(videoPath + " selected");
+                }
+        }
+    }
+
     public void callServerTask(String mode) {
-        if(myWifiP2pInfo != null) {
+        if (myWifiP2pInfo != null) {
             new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter).execute();
         }
     }
@@ -297,16 +348,28 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     해당 권한은 Dangerous Permission에 해당되므로 runtime 중에 권한을 요청하여 허가받아야함.
     해당 권한이 필요한 상황마다 확인하는 것을 권장.(현재는 Server, Client Activity의 onCreate 에서 한번씩만 호출하고 있음)
      */
-    public void permissionCheck() {
-        int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
-        int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0;
-        int permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        if (permissionChecker == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+    public void permissionCheck(int permission) {
+        int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // permission 1
+        int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0; // permission 2
+        int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0; // permission 3
+        int permissionChecker;
+        if (permission == 0 || permission == 1) {
+            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
         }
-        permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_MULTICAST_STATE);
-        if (permissionChecker == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CHANGE_WIFI_MULTICAST_STATE}, MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE);
+        if (permission == 0 || permission == 2) {
+            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_MULTICAST_STATE);
+            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CHANGE_WIFI_MULTICAST_STATE}, MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE);
+            }
+        }
+        if (permission == 0 || permission == 3) {
+            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            }
         }
     }
 
@@ -424,4 +487,5 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         float density = dm.density;
         myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density);
     }
+
 }
