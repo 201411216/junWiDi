@@ -159,6 +159,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             }
         } else if (ACT_MODE.equals(SERVER_FILE_TRANSFER_SERVICE)) {
             if (videoPath.equals("")) {
+                Log.v(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : null path");
                 return "";
             }
             Log.v(TAG, "ACT : SERVER_FILE_TRANSFER_SERVICE");

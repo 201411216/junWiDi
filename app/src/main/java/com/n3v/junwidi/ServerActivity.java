@@ -102,6 +102,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         btn_File_Select.setOnClickListener(myClickListener);
         btn_Server_Control.setOnClickListener(myClickListener);
         btn_Refresh_List.setOnClickListener(myClickListener);
+        btn_File_Transfer.setOnClickListener(myClickListener);
 
         listView_Client_List = findViewById(R.id.server_list_client);
         myServerAdapter = new MyServerAdapter(this, R.layout.item_client, myDeviceInfoList);
@@ -149,7 +150,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 }
                 //callServerTask(MyServerTask.SERVER_MESSAGE_SERVICE);
             } else if (v.equals(btn_File_Transfer)) {
-
+                if (isFileSelected) {
+                    Log.v(TAG, "btn_File_Transfer onClick");
+                    permissionCheck(2);
+                    permissionCheck(3);
+                    callServerTask(MyServerTask.SERVER_FILE_TRANSFER_SERVICE);
+                }
             }
         }
     };
@@ -162,6 +168,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     //videoPath = data.getData().getPath();
                     Uri videoURI = data.getData();
                     videoPath = RealPathUtil.getRealPath(this, videoURI);
+                    Log.v(TAG, videoPath + " selected");
                     txt_Video_Path.setText(videoPath);
                     isFileSelected = true;
                     btn_File_Select.setText("선택 취소");
@@ -172,7 +179,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     }
 
     public void callServerTask(String mode) {
-        if (myWifiP2pInfo != null) {
+        if (myWifiP2pInfo != null && mode.equals(MyServerTask.SERVER_FILE_TRANSFER_SERVICE)) {
+            Log.v(TAG, "callServerTask : mode.FILE_TRANSFER");
+            new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this.videoPath).execute();
+        } else if (myWifiP2pInfo != null) {
             new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter).execute();
         }
     }

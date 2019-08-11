@@ -246,9 +246,13 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                         }
                         File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
                         if (!newDir.exists()) {
+                            Log.v(TAG, "mkdir1");
                             newDir.mkdir();
                         }
-                        newVideo = new File(myContext.getExternalFilesDir(null) + "TogetherTheater", fileName);
+                        newVideo = new File(myContext.getExternalFilesDir(null) + "/TogetherTheater", fileName);
+                        if (!newVideo.createNewFile()) {
+                            Log.v(TAG, "mkdir2 already exists");
+                        }
                         dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(newVideo)));
                     } else if (msg.startsWith("END")) {
                         Log.v(TAG, "CLIENT_FILE_RECEIVE_SERVICE : Receiving complete");

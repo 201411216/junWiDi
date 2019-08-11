@@ -113,6 +113,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         @Override
         public void onClick(View v) { //일반 버튼 클릭 리스너
             if (v.equals(btn_Refresh_Peer_List)) {
+                permissionCheck(1);
                 myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
                     @Override
                     public void onSuccess() {
@@ -129,6 +130,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             } else if (v.equals(btn_Request_Disconnect)) {
                 disconnect();
             } else if (v.equals(btn_Request_Multicast)) {
+                permissionCheck(2);
+                permissionCheck(4);
                 callClientTask(MyClientTask.CLIENT_FILE_RECEIVE_SERVICE);
             }
         }
