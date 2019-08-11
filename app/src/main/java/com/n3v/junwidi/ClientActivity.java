@@ -129,13 +129,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             } else if (v.equals(btn_Request_Disconnect)) {
                 disconnect();
             } else if (v.equals(btn_Request_Multicast)) {
-                callClientTask(MyClientTask.CLIENT_MESSAGE_SERVICE);
+                callClientTask(MyClientTask.CLIENT_FILE_RECEIVE_SERVICE);
             }
         }
     };
 
     public void callClientTask(String mode) {
-        if(myWifiP2pInfo != null) {
+        if (myWifiP2pInfo != null) {
             new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo).execute();
         }
     }
@@ -317,9 +317,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     해당 권한이 필요한 상황마다 확인하는 것을 권장.(현재는 Server, Client Activity의 onCreate 에서 한번씩만 호출하고 있음)
      */
     public void permissionCheck(int permission) {
-        int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // permission 1
-        int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0; // permission 2
-        int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0; // permission 3
+        int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0; // permission 1 : 정확한 위치 권한
+        int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0; // permission 2 : 멀티캐스트 상태 권한
+        int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0; // permission 3 : 외부 저장소 읽기 권한
+        int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0; // permission 4 : 외부 저장소 쓰기 권한
         int permissionChecker;
         if (permission == 0 || permission == 1) {
             permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -337,6 +338,12 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
             if (permissionChecker == PackageManager.PERMISSION_DENIED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            }
+        }
+        if (permission == 0 || permission == 4) {
+            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
             }
         }
     }

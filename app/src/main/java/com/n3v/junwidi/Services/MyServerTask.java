@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -156,10 +158,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(SERVER_FILE_TRANSFER_SERVICE)) {
-            if (videoPath.equals("")){
+            if (videoPath.equals("")) {
                 return "";
             }
-            Log.v(TAG, "ACT : SERVER_FILE_TANSFER_SERVICE");
+            Log.v(TAG, "ACT : SERVER_FILE_TRANSFER_SERVICE");
             DatagramSocket socket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
@@ -167,19 +169,55 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 socket.setReuseAddress(true);
                 socket.setBroadcast(true);
                 File myVideo = new File(videoPath);
-                if (!myVideo.exists()){
-                    Log.e(TAG, "ERROR : File Doesn't Exists");
-                    return "";
-                }
+                DatagramPacket packet;
 
                 long file_Size = myVideo.length();
-                long totalReadBytes = 0;
-                byte[] buf = new byte[Constants.FILE_BUFFER_SIZE];
                 double startTime = 0;
+                double endTime = 0;
+                double timeDiff = 0;
+                double avgTransferSpeed = 0;
+
+                byte[] buf;
+
+                startTime = System.currentTimeMillis();
+
+                StringTokenizer st = new StringTokenizer(videoPath, "/");
+                String videoName = "";
+                while (st.hasMoreTokens()) {
+                    videoName = st.nextToken();
+                }
+                String startMsg = "START+=+" + videoName + "+=+" + file_Size;
+                buf = startMsg.getBytes();
+                packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
+                socket.send(packet);
+
+                buf = new byte[Constants.FILE_BUFFER_SIZE];
 
                 FileInputStream fis = new FileInputStream(myVideo);
-                
+                DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
+                while (true) {
+                    int check = dis.read(buf, 0, buf.length);
+                    if (check == -1) {
+                        break;
+                    }
+                    packet = new DatagramPacket(buf, check, addr, Constants.FILE_SERVICE_PORT);
+                    socket.send(packet);
+                }
+
+                String endMsg = "END+=+" + videoName + "+=+" + file_Size;
+                buf = endMsg.getBytes();
+                packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
+                socket.send(packet);
+
+                endTime = System.currentTimeMillis();
+                timeDiff = (endTime - startTime) / 1000;
+                avgTransferSpeed = ((double) file_Size / 1000) / timeDiff;
+
+                Log.v(TAG, "Total Time : " + timeDiff + "(sec)" + "\n" + "Average Transfer Speed : " + avgTransferSpeed + "(KBps)");
+
+                dis.close();
+                fis.close();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : UnknownHostException");
@@ -187,7 +225,13 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : SocketException");
             } catch (FileNotFoundException e) {
-                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : FileNotFoundExceptrion");
+                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : FileNotFoundException");
+            } catch (IOException e) {
+                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : IOException");
+            } finally {
+                if (socket != null) {
+                    socket.close();
+                }
             }
         }
         return "";

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -12,7 +13,12 @@ import android.widget.Toast;
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
@@ -34,6 +40,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_HANDSHAKE_SERVICE = "action.CLIENT_HANDSHAKE_SERVICE";
     public static final String CLIENT_TEST_SERVICE = "action.CLIENT_TEST_SERVICE";
     public static final String CLIENT_MESSAGE_SERVICE = "action.CLIENT_MESSAGE_SERVICE";
+    public static final String CLIENT_FILE_RECEIVE_SERVICE = "action.CLIENT_FILE_RECEIVE_SERVICE";
 
     public String ACT_MODE = "";
 
@@ -187,13 +194,13 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
                 StringTokenizer st = new StringTokenizer(msg, "+=+");
-                if (st.hasMoreTokens()){
+                if (st.hasMoreTokens()) {
                     if (st.nextToken().equals("time_test")) {
                         time_test = st.nextToken();
                         publishProgress();
                     }
                 }
-            } catch (SocketTimeoutException e){
+            } catch (SocketTimeoutException e) {
                 Log.v(TAG, "CLIENT_MESSAGE_SERVICE : Socket Time out");
             } catch (SocketException e) {
                 e.printStackTrace();
@@ -202,19 +209,78 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if(socket != null){
+                if (socket != null) {
                     socket.close();
                     multicastLock.release();
                 }
             }
+        } else if (ACT_MODE.equals(CLIENT_FILE_RECEIVE_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_FILE_RECEIVE_SERVICE");
+            DatagramSocket socket = null;
+            DataOutputStream dos = null;
+            WifiManager.MulticastLock multicastLock = null;
+            String fileName = "";
+            long fileSize = 0;
+            String filePath = "";
+            File newVideo;
+            try {
+                WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
+                multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
+                multicastLock.acquire();
+                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                socket.setReuseAddress(true);
+                socket.setSoTimeout(Constants.LONG_TIMEOUT);
+                socket.setBroadcast(true);
+                byte[] receivebuf = new byte[Constants.FILE_BUFFER_SIZE];
+                while (true) {
+                    DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
+                    socket.receive(packet);
+                    String msg = new String(packet.getData(), 0, packet.getLength());
+                    if (msg.startsWith("START")) {
+                        StringTokenizer st = new StringTokenizer(msg, "+=+");
+                        if (st.hasMoreTokens()) {
+                            if (st.nextToken().equals("START")) {
+                                fileName = st.nextToken();
+                                fileSize = Long.valueOf(st.nextToken());
+                            }
+                        }
+                        File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
+                        if (!newDir.exists()) {
+                            newDir.mkdir();
+                        }
+                        newVideo = new File(myContext.getExternalFilesDir(null) + "TogetherTheater", fileName);
+                        dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(newVideo)));
+                    } else if (msg.startsWith("END")) {
+                        Log.v(TAG, "CLIENT_FILE_RECEIVE_SERVICE : Receiving complete");
+                        dos.close();
+                        break;
+                    } else {
+                        dos.write(receivebuf, 0, receivebuf.length);
+                    }
+                }
+            } catch (SocketTimeoutException e) {
+                Log.v(TAG, "CLIENT_MESSAGE_SERVICE : Socket Time out");
+            } catch (SocketException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : DatagramSocket socket = new DatagramSocket();");
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : socket.send(packet);");
+            } finally {
+                if (socket != null) {
+                    socket.close();
+                    multicastLock.release();
+                }
+            }
+
         }
         return "";
     }
 
     @Override
-    protected void onProgressUpdate(Integer... values){
+    protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)){
+        if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)) {
             Toaster.get().showToast(myContext, time_test + "\n" + getStrNow(), Toast.LENGTH_LONG);
         }
     }
@@ -274,7 +340,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
         }
     }
 
-    public String getStrNow(){
+    public String getStrNow() {
         long now = System.currentTimeMillis();
         Date date = new Date(now);
         SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
