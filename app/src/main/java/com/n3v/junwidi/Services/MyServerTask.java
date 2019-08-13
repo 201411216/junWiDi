@@ -2,8 +2,11 @@ package com.n3v.junwidi.Services;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
@@ -137,7 +140,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 socket.setReuseAddress(true);
                 socket.setBroadcast(true);
-                String time_msg = "time_test+=+" + getStrNow();
+                String time_msg = "time_test+=+" + getStrNow() + "+=+";
                 byte[] buf = time_msg.getBytes();
                 Log.v(TAG, "Handshake Info : " + time_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
@@ -188,7 +191,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 while (st.hasMoreTokens()) {
                     videoName = st.nextToken();
                 }
-                String startMsg = "START+=+" + videoName + "+=+" + file_Size;
+                String startMsg = "START+=+" + videoName + "+=+" + file_Size + "+=+";
                 buf = startMsg.getBytes();
                 packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
                 socket.send(packet);
@@ -199,7 +202,13 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
                 while (true) {
-                    int check = dis.read(buf, 0, buf.length);
+                    String head = "DATA+=+" + String.format("%010d", count) + "+=+"; // 20Bytes
+
+                    for (int i = 0; i < Constants.FILE_HEADER_SIZE; i++){
+                        buf[i] = head.getBytes()[i];
+                    }
+
+                    int check = dis.read(buf, Constants.FILE_HEADER_SIZE, Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE);
                     if (check == -1) {
                         break;
                     }
@@ -210,7 +219,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     Log.v(TAG, "Count : " + count);
                 }
 
-                String endMsg = "END+=+" + videoName + "+=+" + file_Size;
+                String endMsg = "END+=+" + videoName + "+=+" + file_Size + "+=+";
                 buf = endMsg.getBytes();
                 packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
                 socket.send(packet);
@@ -220,6 +229,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 avgTransferSpeed = ((double) file_Size / 1000) / timeDiff;
 
                 Log.v(TAG, "Total Time : " + timeDiff + "(sec)" + "\n" + "Average Transfer Speed : " + avgTransferSpeed + "(KBps)");
+
+                String toastMsg = "";
+                Toaster.get().showToast(myContext, toastMsg + "\n" + getStrNow(), Toast.LENGTH_LONG);
 
                 dis.close();
                 fis.close();
@@ -254,5 +266,26 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
         Date date = new Date(now);
         SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         return sdfNow.format(date);
+    }
+
+    public enum Toaster {
+        INSTANCE;
+
+        private final Handler handler = new Handler(Looper.getMainLooper());
+
+        public void showToast(final Context context, final String message, final int length) {
+            handler.post(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, message, length).show();
+                        }
+                    }
+            );
+        }
+
+        public static MyServerTask.Toaster get() {
+            return INSTANCE;
+        }
     }
 }

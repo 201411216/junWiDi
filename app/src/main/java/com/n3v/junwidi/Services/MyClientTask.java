@@ -224,7 +224,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             String filePath = "";
             File newVideo;
             int count = 0;
-            int nextPRE = 0;
+            int lastDATA = 0;
             try {
                 WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
                 multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
@@ -233,17 +233,20 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 socket.setReuseAddress(true);
                 socket.setSoTimeout(Constants.LONG_TIMEOUT);
                 socket.setBroadcast(true);
-                byte[] receivebuf = new byte[Constants.FILE_BUFFER_SIZE];
+                byte[] receivebuf;
                 while (true) {
+                    receivebuf = new byte[Constants.FILE_BUFFER_SIZE];
                     DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                     socket.receive(packet);
-                    String msg = new String(packet.getData(), 0, packet.getLength());
+                    String msg = new String(packet.getData(), 0, 200);
                     if (msg.startsWith("START")) {
                         StringTokenizer st = new StringTokenizer(msg, "+=+");
                         if (st.hasMoreTokens()) {
                             if (st.nextToken().equals("START")) {
                                 fileName = st.nextToken();
-                                fileSize = Long.valueOf(st.nextToken());
+                                if (st.hasMoreTokens()) {
+//                                    fileSize = Long.valueOf(st.nextToken());
+                                }
                             }
                         }
                         File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
@@ -260,18 +263,26 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                         Log.v(TAG, "CLIENT_FILE_RECEIVE_SERVICE : Receiving complete");
                         dos.close();
                         break;
-                    } else if (msg.startsWith("PRE")) {
+                    } else if (msg.startsWith("DATA")) {
                         StringTokenizer st = new StringTokenizer(msg, "+=+");
-                        int curPRE = -1;
+                        int curDATA = -1;
                         if (st.hasMoreTokens()) {
-                            if (st.nextToken().equals("PRE")){
-                                curPRE = Integer.valueOf(st.nextToken());
+                            if (st.nextToken().equals("DATA")) {
+                                curDATA = Integer.valueOf(st.nextToken());
                             }
                         }
-                        if (curPRE == nextPRE){
-
+                        if (curDATA <= lastDATA) {
+                            continue;
+                        } else {
+                            int difDATA = curDATA - lastDATA;
+                            for (int i = 0; i < difDATA - 1; i++){
+                                byte[] b = new byte[Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE];
+                                dos.write(b, 0, Constants.FILE_HEADER_SIZE);
+                            }
                         }
-                        dos.write(receivebuf, 0, receivebuf.length);
+                        dos.write(receivebuf, Constants.FILE_HEADER_SIZE, Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE);
+                        count++;
+                        lastDATA = curDATA;
                     } else {
                         dos.write(receivebuf, 0, receivebuf.length);
                     }

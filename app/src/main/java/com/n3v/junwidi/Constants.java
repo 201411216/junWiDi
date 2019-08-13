@@ -7,4 +7,5 @@ public class Constants {
     public static final int COMMON_TIMEOUT = 5000;
 
     public static final int FILE_BUFFER_SIZE = 1024; // 파일 전송시 기본 버퍼 사이즈
+    public static final int FILE_HEADER_SIZE = 20; // 파일 순서 번호 헤더 사이즈
 }
