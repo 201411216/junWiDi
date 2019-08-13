@@ -6,5 +6,5 @@ public class Constants {
     public static final int LONG_TIMEOUT = 10000; // socket.receive 시 사용할 Timeout (단위 : ms)
     public static final int COMMON_TIMEOUT = 5000;
 
-    public static final int FILE_BUFFER_SIZE = 5120; // 파일 전송시 기본 버퍼 사이즈
+    public static final int FILE_BUFFER_SIZE = 1024; // 파일 전송시 기본 버퍼 사이즈
 }

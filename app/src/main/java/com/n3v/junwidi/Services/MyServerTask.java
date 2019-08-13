@@ -177,6 +177,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 double endTime = 0;
                 double timeDiff = 0;
                 double avgTransferSpeed = 0;
+                int count = 0;
 
                 byte[] buf;
 
@@ -202,8 +203,11 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     if (check == -1) {
                         break;
                     }
+
                     packet = new DatagramPacket(buf, check, addr, Constants.FILE_SERVICE_PORT);
                     socket.send(packet);
+                    count++;
+                    Log.v(TAG, "Count : " + count);
                 }
 
                 String endMsg = "END+=+" + videoName + "+=+" + file_Size;

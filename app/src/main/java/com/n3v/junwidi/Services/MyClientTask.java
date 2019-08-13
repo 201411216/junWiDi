@@ -223,6 +223,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             long fileSize = 0;
             String filePath = "";
             File newVideo;
+            int count = 0;
+            int nextPRE = 0;
             try {
                 WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
                 multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
@@ -258,9 +260,23 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                         Log.v(TAG, "CLIENT_FILE_RECEIVE_SERVICE : Receiving complete");
                         dos.close();
                         break;
+                    } else if (msg.startsWith("PRE")) {
+                        StringTokenizer st = new StringTokenizer(msg, "+=+");
+                        int curPRE = -1;
+                        if (st.hasMoreTokens()) {
+                            if (st.nextToken().equals("PRE")){
+                                curPRE = Integer.valueOf(st.nextToken());
+                            }
+                        }
+                        if (curPRE == nextPRE){
+
+                        }
+                        dos.write(receivebuf, 0, receivebuf.length);
                     } else {
                         dos.write(receivebuf, 0, receivebuf.length);
                     }
+                    count++;
+                    Log.v(TAG, "Count : " + count);
                 }
             } catch (SocketTimeoutException e) {
                 Log.v(TAG, "CLIENT_MESSAGE_SERVICE : Socket Time out");
