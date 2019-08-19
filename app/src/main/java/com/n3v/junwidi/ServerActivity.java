@@ -154,7 +154,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     Log.v(TAG, "btn_File_Transfer onClick");
                     permissionCheck(2);
                     permissionCheck(3);
-                    callServerTask(MyServerTask.SERVER_FILE_TRANSFER_SERVICE);
+                    callServerTask(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE);
                 }
             }
         }
@@ -179,9 +179,11 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     }
 
     public void callServerTask(String mode) {
-        if (myWifiP2pInfo != null && mode.equals(MyServerTask.SERVER_FILE_TRANSFER_SERVICE)) {
+        if (myWifiP2pInfo != null && (mode.equals(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE) || mode.equals(MyServerTask.SERVER_FILE_TRANSFER_SERVICE))) {
             Log.v(TAG, "callServerTask : mode.FILE_TRANSFER");
-            new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this.videoPath).execute();
+            if (!this.videoPath.equals("")) {
+                new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this.videoPath).execute();
+            }
         } else if (myWifiP2pInfo != null) {
             new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter).execute();
         }

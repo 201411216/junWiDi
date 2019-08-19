@@ -14,8 +14,10 @@ import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
 
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +26,8 @@ import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -41,6 +45,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_TEST_SERVICE = "action.CLIENT_TEST_SERVICE";
     public static final String CLIENT_MESSAGE_SERVICE = "action.CLIENT_MESSAGE_SERVICE";
     public static final String CLIENT_FILE_RECEIVE_SERVICE = "action.CLIENT_FILE_RECEIVE_SERVICE";
+    public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "action.CLIENT_TCP_FILE_RECEIVE_SERVICE";
 
     public String ACT_MODE = "";
 
@@ -275,18 +280,19 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                             continue;
                         } else {
                             int difDATA = curDATA - lastDATA;
-                            for (int i = 0; i < difDATA - 1; i++){
+                            Log.v(TAG, "DATA diff : " + difDATA);
+                            for (int i = 0; i < difDATA - 1; i++) {
                                 byte[] b = new byte[Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE];
-                                dos.write(b, 0, Constants.FILE_HEADER_SIZE);
+                                dos.write(b, 0, Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE);
+                                lastDATA = curDATA;
                             }
                         }
                         dos.write(receivebuf, Constants.FILE_HEADER_SIZE, Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE);
                         count++;
-                        lastDATA = curDATA;
                     } else {
-                        dos.write(receivebuf, 0, receivebuf.length);
+                        //dos.write(receivebuf, 0, receivebuf.length);
                     }
-                    count++;
+                    //count++;
                     Log.v(TAG, "Count : " + count);
                 }
             } catch (SocketTimeoutException e) {
@@ -304,6 +310,82 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 }
             }
 
+        } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_SERVICE)) {
+            ServerSocket serverSocket = null;
+            Socket socket = null;
+
+            String fileName = "";
+            long fileSize = 0;
+
+            File newVideo = null;
+
+            double startTime = 0;
+            double endTime = 0;
+            double diffTime = 0;
+            double avgReceiveSpeed = 0;
+
+            int readByte = 0;
+            int totalReadByte = 0;
+
+            byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
+
+            try {
+                serverSocket = new ServerSocket(Constants.FILE_SERVICE_PORT);
+                socket = serverSocket.accept();
+
+                DataInputStream dis = new DataInputStream(socket.getInputStream());
+                String receiveMessage = dis.readUTF();
+                StringTokenizer st = new StringTokenizer(receiveMessage, "+=+");
+                if (st.hasMoreTokens()) {
+                    if (st.nextToken().equals("START")) {
+                        if (st.hasMoreTokens()) {
+                            fileName = st.nextToken();
+                            if (st.hasMoreTokens()) {
+                                fileSize = Long.valueOf(st.nextToken());
+                            }
+                        }
+                    }
+                }
+                File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
+                if (!newDir.exists()) {
+                    Log.v(TAG, "mkdir1");
+                    newDir.mkdir();
+                }
+                newVideo = new File(myContext.getExternalFilesDir(null) + "/TogetherTheater", fileName);
+                if (!newVideo.createNewFile()) {
+                    Log.v(TAG, "mkdir2 already exists");
+                }
+
+                Toaster.get().showToast(myContext, "File " + fileName + " receive start", Toast.LENGTH_SHORT);
+
+                startTime = System.currentTimeMillis();
+
+                FileOutputStream fos = new FileOutputStream(newVideo);
+                InputStream is = socket.getInputStream();
+
+                while ((readByte = is.read(buffer)) > 0) {
+                    fos.write(buffer, 0, readByte);
+                }
+
+                endTime = System.currentTimeMillis();
+                diffTime = (endTime - startTime);
+                avgReceiveSpeed = ((double) fileSize / 1000) / diffTime;
+
+                Log.v(TAG, "Receive " + fileName + " complete");
+                Log.v(TAG, "Time : " + diffTime + "(sec)");
+                Log.v(TAG, "AVG Receive Speed : " + avgReceiveSpeed + "(KB/s)");
+
+                Toaster.get().showToast(myContext, "Receive " + fileName + " complete", Toast.LENGTH_LONG);
+
+                dis.close();
+                is.close();
+                fos.close();
+                socket.close();
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : IOException");
+            }
         }
         return "";
     }

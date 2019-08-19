@@ -132,7 +132,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             } else if (v.equals(btn_Request_Multicast)) {
                 permissionCheck(2);
                 permissionCheck(4);
-                callClientTask(MyClientTask.CLIENT_FILE_RECEIVE_SERVICE);
+                callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_SERVICE);
             }
         }
     };

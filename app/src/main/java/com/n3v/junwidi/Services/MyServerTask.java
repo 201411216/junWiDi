@@ -13,14 +13,18 @@ import com.n3v.junwidi.DeviceInfo;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -35,6 +39,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     public static final String SERVER_HANDSHAKE_SERVICE = "action.SERVER_HANDSHAKE_SERVICE";
     public static final String SERVER_MESSAGE_SERVICE = "action.SERVER_MESSAGE_SERVICE";
     public static final String SERVER_FILE_TRANSFER_SERVICE = "action.SERVER_FILE_TRANSFER_SERVICE";
+    public static final String SERVER_TCP_FILE_TRANSFER_SERVICE = "action.SERVER_TCP_FILE_TRANSFER_SERVICE";
 
     private static final String TAG = "MyServerTask";
 
@@ -115,6 +120,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         myDeviceInfoList.get(i).setPx_height(Integer.parseInt(st.nextToken()));
                         myDeviceInfoList.get(i).setDpi(Integer.parseInt(st.nextToken()));
                         myDeviceInfoList.get(i).setDensity(Float.parseFloat(st.nextToken()));
+                        Log.v(TAG, "GET ADDRESS " + myDeviceInfoList.get(i).getStr_address());
                     }
                 }
                 publishProgress();
@@ -200,11 +206,12 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
                 FileInputStream fis = new FileInputStream(myVideo);
                 DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
+                int DATANUM = 0;
 
                 while (true) {
-                    String head = "DATA+=+" + String.format("%010d", count) + "+=+"; // 20Bytes
+                    String head = "DATA+=+" + String.format("%010d", DATANUM) + "+=+"; // 20Bytes
 
-                    for (int i = 0; i < Constants.FILE_HEADER_SIZE; i++){
+                    for (int i = 0; i < Constants.FILE_HEADER_SIZE; i++) {
                         buf[i] = head.getBytes()[i];
                     }
 
@@ -213,8 +220,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         break;
                     }
 
-                    packet = new DatagramPacket(buf, check, addr, Constants.FILE_SERVICE_PORT);
+                    packet = new DatagramPacket(buf, Constants.FILE_BUFFER_SIZE, addr, Constants.FILE_SERVICE_PORT);
                     socket.send(packet);
+                    DATANUM++;
                     count++;
                     Log.v(TAG, "Count : " + count);
                 }
@@ -250,6 +258,99 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     socket.close();
                 }
             }
+        } else if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
+            if (videoPath.equals("")) {
+                Log.v(TAG, "ERROR : SERVER_TCP_FILE_TRANSFER_SERVICE : null video path");
+                return "";
+            }
+            Log.v(TAG, "ACT : SERVER_TCP_FILE_TRANSFER_SERVICE");
+
+            Socket socket = null;
+            FileInputStream fis = null;
+
+            File myFile = new File(videoPath);
+
+            double totalStartTime = 0;
+            double totalEndTime = 0;
+            double totalDiffTime = 0;
+            double totalAvgTransferSpeed = 0;
+
+            double startTime = 0;
+            double endTime = 0;
+            double diffTime = 0;
+            double avgTransferSpeed = 0;
+
+            int readByte;
+            long totalReadByte;
+            long fileSize = myFile.length();
+
+            StringTokenizer st = new StringTokenizer(videoPath, "/");
+            String videoName = "";
+            while (st.hasMoreTokens()) {
+                videoName = st.nextToken();
+            }
+
+            byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
+
+            if (!myFile.exists()) {
+                Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : File doesn't exists");
+                return "";
+            }
+
+            try {
+                totalStartTime = System.currentTimeMillis();
+                int deviceCount = 0;
+                for (DeviceInfo di : myDeviceInfoList) {
+                    socket = new Socket(di.getStr_address(), Constants.FILE_SERVICE_PORT);
+                    if (!socket.isConnected()) {
+                        Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : Socket connecting error");
+                        socket.close();
+                        continue;
+                    }
+                    Toaster.get().showToast(myContext, "Send File to " + di.getWifiP2pDevice().deviceName, Toast.LENGTH_SHORT);
+                    startTime = System.currentTimeMillis();
+
+                    DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                    dos.writeUTF("START+=+" + videoName + "+=+" + fileSize);
+
+                    fis = new FileInputStream(myFile);
+
+                    OutputStream os = socket.getOutputStream();
+                    totalReadByte = 0;
+                    while ((readByte = fis.read(buffer)) > 0) {
+                        os.write(buffer, 0, readByte);
+                        totalReadByte += readByte;
+                    }
+                    endTime = System.currentTimeMillis();
+                    diffTime = (endTime - startTime) / 1000;
+                    avgTransferSpeed = ((double) fileSize / 1000) / diffTime;
+
+                    Log.v(TAG, "Send " + deviceCount + " complete");
+                    Log.v(TAG, "Time : " + diffTime + "(sec)");
+                    Log.v(TAG, "AVG Transfer Speed : " + avgTransferSpeed + "(KB/s)");
+
+                    String toastMessage = "#" + deviceCount + " " + di.getWifiP2pDevice().deviceName + " transfer complete";
+                    Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_SHORT);
+
+                    deviceCount++;
+                    dos.close();
+                    fis.close();
+                    os.close();
+                    socket.close();
+                }
+                totalEndTime = System.currentTimeMillis();
+                totalDiffTime = (totalEndTime - totalStartTime) / 1000;
+                totalAvgTransferSpeed = (((double) fileSize * deviceCount) / 1000) / totalDiffTime;
+                Log.v(TAG, "Send to " + deviceCount + "device(s) complete");
+                Log.v(TAG, "Total Time : " + totalDiffTime + "(sec)");
+                Log.v(TAG, "Total AVG Transfer Speed : " + totalAvgTransferSpeed + "(KB/s)");
+                String toastMessage = "Send to " + deviceCount + "device(s) complete";
+                Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_LONG);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : IOException");
+            }
+
         }
         return "";
     }
