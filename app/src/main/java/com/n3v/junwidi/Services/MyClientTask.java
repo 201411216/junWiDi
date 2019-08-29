@@ -1,6 +1,7 @@
 package com.n3v.junwidi.Services;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -40,12 +41,13 @@ import static android.content.Context.WIFI_SERVICE;
 
 public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
-    public static final String CLIENT_DOWNLOAD_SERVICE = "action.CLIENT_DOWNLOAD_SERVICE";
-    public static final String CLIENT_HANDSHAKE_SERVICE = "action.CLIENT_HANDSHAKE_SERVICE";
-    public static final String CLIENT_TEST_SERVICE = "action.CLIENT_TEST_SERVICE";
-    public static final String CLIENT_MESSAGE_SERVICE = "action.CLIENT_MESSAGE_SERVICE";
-    public static final String CLIENT_FILE_RECEIVE_SERVICE = "action.CLIENT_FILE_RECEIVE_SERVICE";
-    public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "action.CLIENT_TCP_FILE_RECEIVE_SERVICE";
+    public static final String CLIENT_DOWNLOAD_SERVICE = "tt.client.DOWNLOAD_SERVICE";
+    public static final String CLIENT_HANDSHAKE_SERVICE = "tt.client.HANDSHAKE_SERVICE";
+    public static final String CLIENT_TEST_SERVICE = "tt.client.TEST_SERVICE";
+    public static final String CLIENT_MESSAGE_SERVICE = "tt.client.MESSAGE_SERVICE";
+    public static final String CLIENT_FILE_RECEIVE_SERVICE = "tt.client.FILE_RECEIVE_SERVICE";
+    public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "tt.client.TCP_FILE_RECEIVE_SERVICE";
+    public static final String CLIENT_CONTROL_SERVICE = "tt.client.CONTROL_SERVICE";
 
     public String ACT_MODE = "";
 
@@ -385,6 +387,55 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : IOException");
+            }
+        } else if (ACT_MODE.equals(CLIENT_CONTROL_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            DatagramSocket socket = null;
+            DataOutputStream dos = null;
+            WifiManager.MulticastLock multicastLock = null;
+
+            String file_name = "";
+
+            try {
+                WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
+                multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
+                multicastLock.acquire();
+                socket = new DatagramSocket(Constants.CONTROL_SERVICE_PORT);
+                socket.setReuseAddress(true);
+                socket.setSoTimeout(Constants.LONG_TIMEOUT);
+                socket.setBroadcast(true);
+
+                byte[] receivebuf;
+
+                while (true) {
+
+                    receivebuf = new byte[Constants.CONTROL_BUFFER_SIZE];
+                    DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
+                    socket.receive(packet);
+                    String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
+
+                    if (msg.startsWith(Constants.CONTROL_PREPARE)) {
+
+                    } else if (msg.startsWith(Constants.CONTROL_PLAY)) {
+
+                    } else if (msg.startsWith(Constants.CONTROL_PAUSE)) {
+
+                    } else if (msg.startsWith(Constants.CONTROL_RESUME)) {
+
+                    } else if (msg.startsWith(Constants.CONTROL_STOP)) {
+                        break;
+                    } else if (msg.startsWith(Constants.CONTROL_MOVE)) {
+
+                    }
+
+                }
+
+            } catch (IOException e){
+
+            } finally {
+                if (!socket.isClosed()) {
+                    socket.close();
+                }
             }
         }
         return "";
