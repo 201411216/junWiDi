@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
+
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,6 +12,7 @@
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
     android:paddingTop="10dp"
+    android:background="#363940"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -15,25 +20,48 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+
         app:layout_constraintVertical_bias="0.5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
+
             android:id="@+id/btn_iam_server"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:text="Run as Server"
+            android:layout_width="250dp"
+            android:layout_height="57dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="70dp"
+
+
+            android:layout_weight="1"
+            android:background="#7289D9"
+            android:fontFamily="@font/NotoSansCJKkr-Black"
             android:onClick="enterServer"
-            android:layout_weight="1"/>
+            android:text="Send Video"
+            android:textColor="#FFFFFF"
+            android:viewportWidth="250"
+            android:viewportHeight="57" />
 
         <Button
             android:id="@+id/btn_iam_client"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:text="Run as Client"
+            android:layout_width="250dp"
+            android:layout_height="57dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="70dp"
+            android:layout_marginTop="30dp"
+            android:layout_weight="1"
+            android:background="#7289D9"
+            android:fontFamily="@font/NotoSansCJKkr-Black"
             android:onClick="enterClient"
-            android:layout_weight="1"/>
+            android:text="Receive Video"
+            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 
