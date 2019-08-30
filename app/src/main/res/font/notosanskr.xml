@@ -8,7 +8,7 @@
 
         android:fontWeight="400"
 
-        android:font="@font/NotoSansCJKkr-Regular" />
+        android:font="@font/notoregular" />
 
     <font
 
@@ -16,7 +16,7 @@
 
         android:fontWeight="700"
 
-        android:font="@font/NotoSansCJKkr-Black" />
+        android:font="@font/notoblack" />
 
 </font-family>
 
