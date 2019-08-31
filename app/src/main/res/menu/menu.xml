@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:adnroid="http://schemas.android.com/tools">
+       
+        <item
+            adnroid:id="@+id/action_setting"
+
+            android:title="설정"
+            app:showAsAction="never"
+
+            />
+
+
+</menu>

@@ -11,6 +11,8 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -80,6 +82,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 Log.e(TAG, "Discover Peer failed :: " + i);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
     }
 
     private void initView() { //Activity의 view item들 초기화

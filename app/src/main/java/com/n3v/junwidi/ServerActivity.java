@@ -21,6 +21,8 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -112,6 +114,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             }
         });
         listView_Client_List.setAdapter(myServerAdapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+
     }
 
     private View.OnClickListener myClickListener = new View.OnClickListener() {

@@ -35,6 +35,7 @@
             android:layout_marginBottom="20dp"
             android:id="@+id/imageView1"
             android:src="@drawable/tlogo"/>
+
         <TextView
             android:id="@+id/text1"
             android:layout_width="253dp"
@@ -44,12 +45,12 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="70dp"
             android:layout_marginBottom="0dp"
-            android:text="The Best Way To"
             android:fontFamily="@font/notoblack"
+            android:text="영상을 같이 즐기는"
             android:textAlignment="center"
-            android:textSize="30dp"
             android:textColor="#FFFFFF"
-            />
+            android:textSize="30dp" />
+
         <TextView
             android:id="@+id/text2"
             android:layout_width="253dp"
@@ -60,12 +61,11 @@
             android:layout_marginLeft="70dp"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="31dp"
-            android:text="Share Video"
             android:fontFamily="@font/notoblack"
+            android:text="새로운 방법"
             android:textAlignment="center"
-            android:textSize="25dp"
             android:textColor="#FFFFFF"
-            />
+            android:textSize="25dp" />
 
         <Button
 
