@@ -45,10 +45,14 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="70dp"
+            android:background="@drawable/btn_rounded"
+
+
+
 
 
             android:layout_weight="1"
-            android:background="#7289D9"
+
             android:fontFamily="@font/notoblack"
             android:onClick="enterServer"
             android:text="Send Video"
@@ -67,7 +71,7 @@
             android:layout_marginLeft="70dp"
             android:layout_marginTop="31dp"
             android:layout_weight="1"
-            android:background="#7289D9"
+            android:background="@drawable/btn_rounded"
             android:fontFamily="@font/notoblack"
             android:onClick="enterClient"
             android:text="Receive Video"
