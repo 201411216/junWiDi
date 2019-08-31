@@ -8,10 +8,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="10dp"
+    android:paddingBottom="3dp"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:paddingTop="10dp"
+    android:paddingTop="3dp"
     android:background="#363940"
     tools:context=".MainActivity">
 
@@ -32,15 +32,46 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="70dp"
-            android:layout_marginBottom="56dp"
+            android:layout_marginBottom="20dp"
             android:id="@+id/imageView1"
             android:src="@drawable/tlogo"/>
+        <TextView
+            android:id="@+id/text1"
+            android:layout_width="253dp"
+            android:layout_height="65dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="70dp"
+            android:layout_marginBottom="0dp"
+            android:text="The Best Way To"
+            android:fontFamily="@font/notoblack"
+            android:textAlignment="center"
+            android:textSize="30dp"
+            android:textColor="#FFFFFF"
+            />
+        <TextView
+            android:id="@+id/text2"
+            android:layout_width="253dp"
+            android:layout_height="55dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="70dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="31dp"
+            android:text="Share Video"
+            android:fontFamily="@font/notoblack"
+            android:textAlignment="center"
+            android:textSize="25dp"
+            android:textColor="#FFFFFF"
+            />
+
         <Button
 
             android:id="@+id/btn_iam_server"
             android:layout_width="250dp"
             android:layout_height="57dp"
-            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
