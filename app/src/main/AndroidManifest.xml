@@ -17,8 +17,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ServerActivity"/>
-        <activity android:name=".ClientActivity"/>
+        <activity
+            android:name=".ServerActivity"
+            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".ClientActivity"
+            android:parentActivityName=".MainActivity"/>
+
+
     </application>
 
     <uses-feature

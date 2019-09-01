@@ -29,7 +29,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-
 import java.util.Enumeration;
 
 public class ClientActivity extends BaseActivity implements MyDirectActionListener {
@@ -71,6 +70,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         initView();
         permissionCheck(0);
+
         myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {

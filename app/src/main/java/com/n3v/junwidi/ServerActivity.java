@@ -1,11 +1,8 @@
 package com.n3v.junwidi;
-
 import android.Manifest;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -14,11 +11,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -79,6 +72,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         permissionCheck(0);
+
     }
 
     private void initView() {
