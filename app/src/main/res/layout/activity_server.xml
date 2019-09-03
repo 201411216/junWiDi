@@ -19,22 +19,27 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:fontFamily="@font/notoregular"
-                android:text="Device Name : "
-                android:textSize="20dp"
+            <Button
+                android:id="@+id/server_btn_file_select"
+                android:layout_marginLeft="10dp"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
+                android:background="@drawable/search"
                 />
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
-                android:fontFamily="@font/notoregular"
+                android:fontFamily="@font/notoblack"
                 android:id="@+id/server_txt_my_device_name"
                 android:text="-"
                 android:textSize="20dp"
+                />
+            <Button
+                android:id="@+id/server_btn_file_transfer"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@drawable/send"
                 />
         </LinearLayout>
         <LinearLayout
@@ -103,26 +108,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-        <Button
-            android:id="@+id/server_btn_file_select"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
-            android:background="@drawable/search"
-            />
 
-        <Button
-            android:id="@+id/server_btn_file_transfer"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="@drawable/send"
-           />
-
-    </LinearLayout>
 
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
