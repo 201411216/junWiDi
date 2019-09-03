@@ -64,6 +64,7 @@
             android:text="취소"
             android:background="#FFFFFF"
             android:textColor="#FF0303"
+            android:id="@+id/rcv_dialog_btn_cancel"
             />
 
         <Button
@@ -71,7 +72,8 @@
             android:layout_height="match_parent"
             android:text="다운로드"
             android:background="#FFFFFF"
-            android:textColor="#4095FB"/>
+            android:textColor="#4095FB"
+            android:id="@+id/rcv_dialog_btn_ok"/>
 
     </LinearLayout>
 
