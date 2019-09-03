@@ -2,9 +2,9 @@ package com.n3v.junwidi.Listener;
 
 public interface MyDialogListener {
 
-    public void onProgressFinished();
+    void onProgressFinished();
 
-    public void onClickOK(int state);
-    public void onClickCancel(int state);
+    void onClickOK(int state);
+    void onClickCancel(int state);
 
 }

@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
+import com.n3v.junwidi.Listener.MyClientTaskListener;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -49,6 +50,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "tt.client.TCP_FILE_RECEIVE_SERVICE";
     public static final String CLIENT_CONTROL_SERVICE = "tt.client.CONTROL_SERVICE";
     public static final String CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE = "tt.client.TCP_FILE_RECEIVE_WAITING_SERVICE";
+    public static final String CLIENT_TCP_GO_SIGNAL_SERVICE = "tt.client.TCP_GO_SIGNAL_SERVICE";
 
     public String ACT_MODE = "";
 
@@ -67,17 +69,26 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
     private boolean end_wait = false;
 
-    public MyClientTask(Context context, String mode, String addr, DeviceInfo deviceInfo) {
+    private int progress = 0;
+
+    private MyClientTaskListener clientTaskListener = null;
+
+    private boolean needDelete = false;
+    private boolean receiveComplete = false;
+
+    public MyClientTask(Context context, String mode, String addr, DeviceInfo deviceInfo, MyClientTaskListener clientTaskListener, String fileName, long fileSize) {
         myContext = context;
         ACT_MODE = mode;
         host_addr = addr;
         myDeviceInfo = deviceInfo;
+        this.clientTaskListener = clientTaskListener;
+        this.fileName = fileName;
+        this.fileSize = fileSize;
     }
 
     @Override
     protected void onPostExecute(String result) {
         //Log.v(TAG, "onPostExecute");
-
     }
 
     @Override
@@ -118,8 +129,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 byte[] buf = myDeviceInfo.getString().getBytes();
                 Log.v(TAG, "Handshake Info : " + myDeviceInfo.getString());
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
-                Log.v(TAG, "Send message complete");
                 socket.send(packet);
+                Log.v(TAG, "Send message complete");
+                publishProgress();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : InetAddress addr = InetAddress.getByName(\"255.255.255.255\");");
@@ -156,7 +168,6 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 if (st.hasMoreTokens()) {
                     if (st.nextToken().equals("time_test")) {
                         time_test = st.nextToken();
-                        publishProgress();
                     }
                 }
             } catch (SocketTimeoutException e) {
@@ -174,18 +185,20 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE)) {
+            Log.v(TAG, "CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE act");
             ServerSocket serverSocket = null;
             Socket socket = null;
 
             byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
 
             try {
-                serverSocket = new ServerSocket(Constants.FILE_SERVICE_PORT);
+                serverSocket = new ServerSocket(Constants.FILE_TRANSFER_PORT);
                 socket = serverSocket.accept();
 
                 DataInputStream dis = new DataInputStream(socket.getInputStream());
 
                 while (true) {
+                    Log.v(TAG, "Waiting TRANSFER_START");
                     String receiveMessage = dis.readUTF();
                     StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
                     if (st.hasMoreTokens()) {
@@ -194,6 +207,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                                 fileName = st.nextToken();
                                 if (st.hasMoreTokens()) {
                                     fileSize = Long.valueOf(st.nextToken());
+                                    publishProgress();
                                     end_wait = true;
                                     break;
                                 }
@@ -208,11 +222,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : IOException");
             }
         } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_SERVICE)) {
-            ServerSocket serverSocket = null;
             Socket socket = null;
-
-            String fileName = "";
-            long fileSize = 0;
 
             File newVideo = null;
 
@@ -222,36 +232,42 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             double avgReceiveSpeed = 0;
 
             int readByte = 0;
-            int totalReadByte = 0;
+            long sumReadByte = 0;
+            long totalReadByte = 0;
+            long lastPublishedReadByte = 0;
 
             byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
 
             try {
-                serverSocket = new ServerSocket(Constants.FILE_SERVICE_PORT);
-                socket = serverSocket.accept();
+                socket = new Socket(host_addr, Constants.FILE_TRANSFER_PORT);
+
+                if (!socket.isConnected()) {
+                    Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : Socket connecting error");
+                    socket.close();
+                    return "";
+                }
+
+                String okMessage = Constants.RECEIVE_WAIT;
+
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF(okMessage);
 
                 DataInputStream dis = new DataInputStream(socket.getInputStream());
-                String receiveMessage = dis.readUTF();
-                StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
-                if (st.hasMoreTokens()) {
-                    if (st.nextToken().equals(Constants.TRANSFER_START)) {
-                        if (st.hasMoreTokens()) {
-                            fileName = st.nextToken();
-                            if (st.hasMoreTokens()) {
-                                fileSize = Long.valueOf(st.nextToken());
-                            }
-                        }
-                    }
-                }
+
                 File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
                 if (!newDir.exists()) {
                     Log.v(TAG, "mkdir1");
                     newDir.mkdir();
                 }
-                newVideo = new File(myContext.getExternalFilesDir(null) + "/TogetherTheater", fileName);
+                Log.v(TAG, fileName + "!");
+
+                newVideo = new File(newDir, fileName);
+                Log.v(TAG, newVideo.getAbsolutePath());
                 if (!newVideo.createNewFile()) {
                     Log.v(TAG, "mkdir2 already exists");
                 }
+
+                this.needDelete = true;
 
                 Toaster.get().showToast(myContext, "File " + fileName + " receive start", Toast.LENGTH_SHORT);
 
@@ -262,7 +278,15 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 while ((readByte = is.read(buffer)) > 0) {
                     fos.write(buffer, 0, readByte);
+                    sumReadByte += readByte;
+                    if (sumReadByte - lastPublishedReadByte > (fileSize / 100)) {
+                        this.progress++;
+                        lastPublishedReadByte = sumReadByte;
+                        publishProgress();
+                    }
                 }
+
+                this.needDelete = false;
 
                 endTime = System.currentTimeMillis();
                 diffTime = (endTime - startTime);
@@ -278,7 +302,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 is.close();
                 fos.close();
                 socket.close();
-                serverSocket.close();
+
+                receiveComplete = true;
+                publishProgress();
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : IOException");
@@ -337,14 +363,33 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     }
 
     @Override
+    protected void onCancelled(){
+        if (needDelete) {
+            File newVideo = new File(myContext.getExternalFilesDir(null) + "/TogetherTheater", fileName);
+            if (newVideo.exists()) {
+                newVideo.delete();
+            }
+        }
+    }
+
+    @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)) {
             Toaster.get().showToast(myContext, time_test + "\n" + getStrNow(), Toast.LENGTH_LONG);
+        } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_SERVICE)) {
+            if (receiveComplete) {
+                clientTaskListener.onReceiveFinished();
+            } else {
+                clientTaskListener.progressUpdate(this.progress);
+            }
+        } else if (ACT_MODE.equals(CLIENT_HANDSHAKE_SERVICE)) {
+            clientTaskListener.onHandshaked();
+        } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE)) {
+            clientTaskListener.setFile(fileName, fileSize);
+            clientTaskListener.onEndWait();
         }
     }
-
-
 
     private byte[] getLocalIPAddress() {
         try {

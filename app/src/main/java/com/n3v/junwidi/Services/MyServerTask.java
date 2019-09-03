@@ -210,40 +210,52 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 totalStartTime = System.currentTimeMillis();
                 int deviceCount = 0;
                 for (DeviceInfo di : myDeviceInfoList) {
-                    socket = new Socket(di.getStr_address(), Constants.FILE_SERVICE_PORT);
-                    if (!socket.isConnected()) {
-                        Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : Socket connecting error");
+                    socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
+                    while (!socket.isConnected()) {
                         socket.close();
-                        continue;
+                        socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
                     }
+ //                   if (!socket.isConnected()) {
+ //                       Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : Socket connecting error");
+ //                       socket.close();
+ //                       continue;
+ //                   }
                     Toaster.get().showToast(myContext, "Send File to " + di.getWifiP2pDevice().deviceName, Toast.LENGTH_SHORT);
                     startTime = System.currentTimeMillis();
+
+                    Log.v(TAG, "post dos open");
 
                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                     dos.writeUTF(Constants.TRANSFER_START + Constants.DELIMITER + videoName + Constants.DELIMITER + fileSize);
 
+                    dos.close();
+                    socket.close();
+
+                    Log.v(TAG, "post server open");
+
+                    ServerSocket server = new ServerSocket(Constants.FILE_TRANSFER_PORT);
+                    socket = server.accept();
                     DataInputStream dis = new DataInputStream(socket.getInputStream());
 
                     boolean receiveOK = false;
 
-                    while (true) {
-                        String okMessage = dis.readUTF();
-                        st = new StringTokenizer(okMessage, Constants.DELIMITER);
-                        if (st.hasMoreTokens()) {
-                            String receiverState = st.nextToken();
-                            if (receiverState.equals(Constants.RECEIVE_WAIT)) {
-                                receiveOK = true;
-                                break;
-                            } else if (receiverState.equals(Constants.RECEIVE_DENY)) {
-                                Toaster.get().showToast(this.myContext, di.getWifiP2pDevice().deviceName + " 수신이 거절되었습니다.", Toast.LENGTH_LONG);
-                                break;
-                            }
+                    String okMessage = dis.readUTF();
+                    st = new StringTokenizer(okMessage, Constants.DELIMITER);
+                    if (st.hasMoreTokens()) {
+                        String receiverState = st.nextToken();
+                        if (receiverState.equals(Constants.RECEIVE_WAIT)) {
+                            receiveOK = true;
+                        } else if (receiverState.equals(Constants.RECEIVE_DENY)) {
+                            Toaster.get().showToast(this.myContext, di.getWifiP2pDevice().deviceName + " 수신이 거절되었습니다.", Toast.LENGTH_LONG);
                         }
                     }
 
                     if (!receiveOK) {
                         dos.close();
                         dis.close();
+                        if (!server.isClosed()) {
+                            server.close();
+                        }
                         socket.close();
                         continue;
                     }
@@ -272,6 +284,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     fis.close();
                     os.close();
                     socket.close();
+                    if (!server.isClosed()) {
+                        server.close();
+                    }
                 }
                 totalEndTime = System.currentTimeMillis();
                 totalDiffTime = (totalEndTime - totalStartTime) / 1000;

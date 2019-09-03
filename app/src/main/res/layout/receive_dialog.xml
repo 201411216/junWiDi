@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:gravity="center"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="0dp"
             android:fontFamily="@font/notoblack"
             android:textColor="#4B4747"
             android:text="파일 이름"/>
@@ -48,10 +48,12 @@
         <TextView
             android:layout_gravity="bottom"
             android:gravity="center"
+            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:fontFamily="@font/notoregular"
             android:textColor="#4B4747"
+            android:id="@+id/rcv_dialog_txt_question"
             android:text="파일을 다운로드 하시겠습니까?"/>
 
     </LinearLayout>

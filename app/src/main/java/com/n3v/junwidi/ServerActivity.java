@@ -202,6 +202,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     }
 
     @Override
+    public void onDestroy(){
+        super.onDestroy();
+        removeGroup();
+    }
+
+    @Override
     public void setIsWifiP2pEnabled(boolean enabled) {
         this.isWifiP2pEnabled = enabled;
     }
@@ -271,8 +277,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
         txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
         txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
-
         myWifiP2pDevice = wifiP2pDevice;
+        if (!isGroupExist) {
+            createGroup();
+        }
     }
 
     /*

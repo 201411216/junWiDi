@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -71,6 +72,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     private String fileName = "";
     private long fileSize = 0;
+
+    AsyncTask nowTask = null;
+
+    boolean handshaked = false;
 
 
     @Override
@@ -182,10 +187,11 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         }
     };
 
-    public void callClientTask(String mode) {
+    public AsyncTask callClientTask(String mode) {
         if (myWifiP2pInfo != null) {
-            new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo).execute();
+            return new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, this, this.fileName, this.fileSize).execute();
         }
+        return null;
     }
 
     @Override
@@ -199,6 +205,14 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     public void onPause() {
         super.onPause();
         unregisterReceiver(myBroadCastReceiver);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (nowTask != null) {
+            nowTask.cancel(true);
+        }
     }
 
     /*
@@ -299,6 +313,9 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         host_Address = null;
         txt_Host_Ip_Address.setText("-");
         btn_Request_Disconnect.setEnabled(false);
+        if (nowTask != null) {
+            nowTask.cancel(true);
+        }
     }
 
     /*
@@ -450,23 +467,61 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     public void onProgressFinished() {
-
+        receiveDialog.cancel();
     }
 
     @Override
     public void onClickOK(int state) {
-
+        if (state == ReceiveDialog.RCV_DLG_INIT) {
+            nowTask = callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_SERVICE);
+        }
     }
 
     @Override
     public void onClickCancel(int state) {
-
+        if (nowTask != null) {
+            nowTask.cancel(true);
+        }
     }
 
     @Override
     public void onEndWait() {
         receiveDialog.setFileName(fileName);
         receiveDialog.setMyDialogListener(this);
-        receiveDialog.show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                receiveDialog.show();
+            }
+        });
     }
+
+    @Override
+    public void progressUpdate(final int progress) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                receiveDialog.setProgress(progress);
+                receiveDialog.show();
+            }
+        });
+    }
+
+    @Override
+    public void onHandshaked() {
+        handshaked = true;
+        nowTask = callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE);
+    }
+
+    @Override
+    public void setFile(String fileName, long fileSize) {
+        this.fileName = fileName;
+        this.fileSize = fileSize;
+    }
+
+    @Override
+    public void onReceiveFinished() {
+        receiveDialog.cancel();
+    }
+
 }

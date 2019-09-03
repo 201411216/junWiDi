@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -22,26 +23,23 @@ public class ReceiveDialog extends Dialog {
     public static int RCV_DLG_DOWNLOADING = 2222;
 
     MyDialogListener myDialogListener = null;
-    int progress = 0;
+    private int progress = 0;
 
     Context mContext = null;
 
-    String fileName = "";
+    private String fileName = "";
 
     private Button okButton;
     private Button cancelButton;
     private ProgressBar progressBar;
     private TextView percentage;
     private TextView videoTitle;
+    private TextView question;
 
     private int state = RCV_DLG_INIT;
 
-    public ReceiveDialog(Context context) {
-        super(context);
-        mContext = context;
-    }
 
-    public ReceiveDialog(Context context, String fileName, MyDialogListener dialogListener) {
+    public ReceiveDialog(Context context, final String fileName, MyDialogListener dialogListener) {
         super(context);
         mContext = context;
         this.fileName = fileName;
@@ -57,6 +55,7 @@ public class ReceiveDialog extends Dialog {
         progressBar = findViewById(R.id.rcv_dialog_progressbar);
         percentage = findViewById(R.id.rcv_dialog_progress_percent);
         videoTitle = findViewById(R.id.rcv_dialog_txt_file_title);
+        question = findViewById(R.id.rcv_dialog_txt_question);
         progressBar.setVisibility(View.GONE);
         percentage.setVisibility(View.GONE);
         okButton.setOnClickListener(dialogClickListner);
@@ -66,9 +65,16 @@ public class ReceiveDialog extends Dialog {
 
     public void setProgress(int progress) {
         progressBar.setProgress(progress);
+        this.progress = progress;
+        String str_Percent = Integer.toString(this.progress) + " / 100";
+        percentage.setText(str_Percent);
+        if (this.progress == 100) {
+            finish();
+        }
     }
 
-    public void setDownloading(){
+    public void setDownloading() {
+        question.setVisibility(View.GONE);
         okButton.setEnabled(false);
         percentage.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
@@ -80,18 +86,22 @@ public class ReceiveDialog extends Dialog {
         public void onClick(View view) {
             if (view.equals(okButton)) {
                 myDialogListener.onClickOK(state);
+                state = RCV_DLG_DOWNLOADING;
+                setDownloading();
             } else if (view.equals(cancelButton)) {
-                myDialogListener.onClickOK(state);
+                myDialogListener.onClickCancel(state);
             }
         }
     };
 
-    private void finish(){
-        this.dismiss();
+    private void finish() {
+        myDialogListener.onProgressFinished();
     }
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+        Log.v("ReceiveDialog", this.fileName);
+        //videoTitle.setText(this.fileName);
     }
 
     public void setMyDialogListener(MyDialogListener myDialogListener) {
