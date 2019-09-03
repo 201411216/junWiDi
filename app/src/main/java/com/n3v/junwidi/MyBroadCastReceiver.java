@@ -11,6 +11,8 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
 
+import com.n3v.junwidi.Listener.MyDirectActionListener;
+
 
 /*
 WifiP2pManager 의 intent broadcast 를 받는 BroadcastReceiver.

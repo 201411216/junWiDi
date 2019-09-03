@@ -48,6 +48,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_FILE_RECEIVE_SERVICE = "tt.client.FILE_RECEIVE_SERVICE";
     public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "tt.client.TCP_FILE_RECEIVE_SERVICE";
     public static final String CLIENT_CONTROL_SERVICE = "tt.client.CONTROL_SERVICE";
+    public static final String CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE = "tt.client.TCP_FILE_RECEIVE_WAITING_SERVICE";
 
     public String ACT_MODE = "";
 
@@ -221,6 +222,42 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     multicastLock.release();
                 }
             }
+        } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE)) {
+            ServerSocket serverSocket = null;
+            Socket socket = null;
+
+            String fileName = "";
+            long fileSize = 0;
+
+            byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
+
+            try {
+                serverSocket = new ServerSocket(Constants.FILE_SERVICE_PORT);
+                socket = serverSocket.accept();
+
+                DataInputStream dis = new DataInputStream(socket.getInputStream());
+
+                while (true) {
+                    String receiveMessage = dis.readUTF();
+                    StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
+                    if (st.hasMoreTokens()) {
+                        if (st.nextToken().equals(Constants.TRANSFER_START)) {
+                            if (st.hasMoreTokens()) {
+                                fileName = st.nextToken();
+                                if (st.hasMoreTokens()) {
+                                    fileSize = Long.valueOf(st.nextToken());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : IOException");
+            }
         } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_SERVICE)) {
             ServerSocket serverSocket = null;
             Socket socket = null;
@@ -339,7 +376,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 }
 
-            } catch (IOException e){
+            } catch (IOException e) {
 
             } finally {
                 if (!socket.isClosed()) {
