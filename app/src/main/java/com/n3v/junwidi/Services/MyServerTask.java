@@ -11,18 +11,15 @@ import android.widget.Toast;
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
 
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -83,6 +80,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                 Log.v(TAG, "Before Receive");
+
                 socket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
@@ -299,6 +297,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : IOException");
+                String toastMessage = ("ERROR : SERVER_TCP_TRANSFER_SERVICE : IOException");
+                Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_LONG);
             }
 
         }
