@@ -222,6 +222,32 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                     dos.writeUTF(Constants.TRANSFER_START + Constants.DELIMITER + videoName + Constants.DELIMITER + fileSize);
 
+                    DataInputStream dis = new DataInputStream(socket.getInputStream());
+
+                    boolean receiveOK = false;
+
+                    while (true) {
+                        String okMessage = dis.readUTF();
+                        st = new StringTokenizer(okMessage, Constants.DELIMITER);
+                        if (st.hasMoreTokens()) {
+                            String receiverState = st.nextToken();
+                            if (receiverState.equals(Constants.RECEIVE_WAIT)) {
+                                receiveOK = true;
+                                break;
+                            } else if (receiverState.equals(Constants.RECEIVE_DENY)) {
+                                Toaster.get().showToast(this.myContext, di.getWifiP2pDevice().deviceName + " 수신이 거절되었습니다.", Toast.LENGTH_LONG);
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!receiveOK) {
+                        dos.close();
+                        dis.close();
+                        socket.close();
+                        continue;
+                    }
+
                     fis = new FileInputStream(myFile);
 
                     OutputStream os = socket.getOutputStream();

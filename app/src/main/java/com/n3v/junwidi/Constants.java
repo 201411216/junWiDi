@@ -20,5 +20,7 @@ public class Constants {
     public static final String CONTROL_MOVE = "MOVE";
 
     public static final String TRANSFER_START = "TRSF_START";
+    public static final String RECEIVE_WAIT = "RCV_WAIT";
+    public static final String RECEIVE_DENY = "RCV_DENY";
     public static final String DELIMITER = "+=+";
 }
