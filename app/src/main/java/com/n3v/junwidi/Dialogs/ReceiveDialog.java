@@ -2,29 +2,31 @@ package com.n3v.junwidi.Dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.net.wifi.p2p.WifiP2pInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.n3v.junwidi.Constants;
+import com.n3v.junwidi.DeviceInfo;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.R;
-import com.n3v.junwidi.Services.MyClientTask;
 
 import java.net.InetAddress;
 
 public class ReceiveDialog extends Dialog {
 
-    MyDialogListener myDialogListener;
+    public static int RCV_DLG_INIT = 1111;
+    public static int RCV_DLG_DOWNLOADING = 2222;
+
+    MyDialogListener myDialogListener = null;
     int progress = 0;
 
-    Context mContext;
+    Context mContext = null;
 
-    String fileName;
-
-    String host_addr;
+    String fileName = "";
 
     private Button okButton;
     private Button cancelButton;
@@ -32,25 +34,18 @@ public class ReceiveDialog extends Dialog {
     private TextView percentage;
     private TextView videoTitle;
 
-    WifiP2pInfo myWifiP2pInfo;
-
-    private RCV_DIALOG_STATE state = RCV_DIALOG_STATE.RCV_DIALOG_INIT;
-
-    private enum RCV_DIALOG_STATE {
-        RCV_DIALOG_INIT, RCV_DIALOG_DOWNLOADING, RCV_DIALOG_CANCEL
-    }
-
+    private int state = RCV_DLG_INIT;
 
     public ReceiveDialog(Context context) {
         super(context);
         mContext = context;
     }
 
-    public ReceiveDialog(Context context, String fileName, String host_addr) {
+    public ReceiveDialog(Context context, String fileName, MyDialogListener dialogListener) {
         super(context);
         mContext = context;
         this.fileName = fileName;
-        this.host_addr = host_addr;
+        this.myDialogListener = dialogListener;
     }
 
     @Override
@@ -64,20 +59,29 @@ public class ReceiveDialog extends Dialog {
         videoTitle = findViewById(R.id.rcv_dialog_txt_file_title);
         progressBar.setVisibility(View.GONE);
         percentage.setVisibility(View.GONE);
+        okButton.setOnClickListener(dialogClickListner);
+        cancelButton.setOnClickListener(dialogClickListner);
+        this.setCanceledOnTouchOutside(false);
     }
 
     public void setProgress(int progress) {
         progressBar.setProgress(progress);
     }
 
+    public void setDownloading(){
+        okButton.setEnabled(false);
+        percentage.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        okButton.setTextColor(Color.parseColor(Constants.BLOCKED_GRAY));
+    }
+
     private View.OnClickListener dialogClickListner = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if (view.equals(okButton)) {
-                state = RCV_DIALOG_STATE.RCV_DIALOG_DOWNLOADING;
+                myDialogListener.onClickOK(state);
             } else if (view.equals(cancelButton)) {
-                state = RCV_DIALOG_STATE.RCV_DIALOG_CANCEL;
-                finish();
+                myDialogListener.onClickOK(state);
             }
         }
     };
@@ -86,9 +90,11 @@ public class ReceiveDialog extends Dialog {
         this.dismiss();
     }
 
-    public void callClientTask(String mode) {
-        if (myWifiP2pInfo != null) {
-            //new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo).execute();
-        }
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setMyDialogListener(MyDialogListener myDialogListener) {
+        this.myDialogListener = myDialogListener;
     }
 }

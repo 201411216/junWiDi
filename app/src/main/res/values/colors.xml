@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="server_blue">#4641D9</color>
     <color name="client_orange">#F29661</color>
+    <color name="blocked_gray">#AAAAAA</color>
 </resources>

@@ -24,6 +24,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.n3v.junwidi.Dialogs.ReceiveDialog;
+import com.n3v.junwidi.Listener.MyClientTaskListener;
+import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
 import com.n3v.junwidi.Services.MyClientTask;
 
@@ -34,7 +37,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-public class ClientActivity extends BaseActivity implements MyDirectActionListener {
+public class ClientActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyClientTaskListener {
 
     private static final String TAG = "ClientActivity";
 
@@ -62,9 +65,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private WifiP2pDevice myWifiP2pDevice = null;
     private DeviceInfo myDeviceInfo = null;
 
-    private ProgressDialog progressDialog;
+    private ReceiveDialog receiveDialog;
 
     InetAddress host_Address = null;
+
+    private String fileName = "";
+    private long fileSize = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +81,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
-        progressDialog = new ProgressDialog(this);
+        receiveDialog = new ReceiveDialog(this, fileName, this);
         //progressDialog.setP
         initView();
         permissionCheck(0);
@@ -352,6 +359,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
+
     /*
     Wi-Fi P2P Peerlist를 받아오기 위해 android 일정 버전 이상에서는 ACCESS_FINE_LOCATION 권한을 요구함.
     해당 권한은 Dangerous Permission에 해당되므로 runtime 중에 권한을 요청하여 허가받아야함.
@@ -438,5 +446,27 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         boolean isGroupOwner = false;
         myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, dpi, density, isGroupOwner);
         Log.v(TAG, "Local IP : " + getDottedDecimalIP(getLocalIPAddress()));
+    }
+
+    @Override
+    public void onProgressFinished() {
+
+    }
+
+    @Override
+    public void onClickOK(int state) {
+
+    }
+
+    @Override
+    public void onClickCancel(int state) {
+
+    }
+
+    @Override
+    public void onEndWait() {
+        receiveDialog.setFileName(fileName);
+        receiveDialog.setMyDialogListener(this);
+        receiveDialog.show();
     }
 }

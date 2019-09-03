@@ -62,6 +62,11 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
     private DeviceInfo myDeviceInfo;
 
+    private String fileName = "";
+    private long fileSize = 0;
+
+    private boolean end_wait = false;
+
     public MyClientTask(Context context, String mode, String addr, DeviceInfo deviceInfo) {
         myContext = context;
         ACT_MODE = mode;
@@ -72,6 +77,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     @Override
     protected void onPostExecute(String result) {
         //Log.v(TAG, "onPostExecute");
+
     }
 
     @Override
@@ -171,9 +177,6 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             ServerSocket serverSocket = null;
             Socket socket = null;
 
-            String fileName = "";
-            long fileSize = 0;
-
             byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
 
             try {
@@ -191,6 +194,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                                 fileName = st.nextToken();
                                 if (st.hasMoreTokens()) {
                                     fileSize = Long.valueOf(st.nextToken());
+                                    end_wait = true;
                                     break;
                                 }
                             }
@@ -339,6 +343,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             Toaster.get().showToast(myContext, time_test + "\n" + getStrNow(), Toast.LENGTH_LONG);
         }
     }
+
+
 
     private byte[] getLocalIPAddress() {
         try {
