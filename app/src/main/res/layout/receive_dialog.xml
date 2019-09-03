@@ -4,10 +4,10 @@
     android:layout_height="220dp">
 
     <LinearLayout
-        android:background="#FFFFFF"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:orientation="vertical"
+        android:background="@drawable/btn_dialog"
         >
 
         <TextView
@@ -62,7 +62,7 @@
             android:layout_width="160dp"
             android:layout_height="match_parent"
             android:text="취소"
-            android:background="#FFFFFF"
+            android:background="@drawable/btn_dialog"
             android:textColor="#FF0303"
             android:id="@+id/rcv_dialog_btn_cancel"
             />
@@ -71,9 +71,9 @@
             android:layout_width="160dp"
             android:layout_height="match_parent"
             android:text="다운로드"
-            android:background="#FFFFFF"
-            android:textColor="#4095FB"
-            android:id="@+id/rcv_dialog_btn_ok"/>
+ 
+            android:background="@drawable/btn_dialog"
+            android:textColor="#4095FB"/>
 
     </LinearLayout>
 
