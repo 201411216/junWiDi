@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.n3v.junwidi.Services.MyServerTask;
 
@@ -53,6 +54,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private Button btn_File_Transfer;
     private Button btn_Refresh_List;
     private Button btn_Server_Control;
+    private SwipeRefreshLayout layout_Server_Pull_To_Refresh;
     private ListView listView_Client_List;
 
     private ArrayList<WifiP2pDevice> myWifiP2pDeviceList = new ArrayList<>();
@@ -112,6 +114,25 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             }
         });
         listView_Client_List.setAdapter(myServerAdapter);
+
+        layout_Server_Pull_To_Refresh = findViewById(R.id.server_layout_pull_to_refresh);
+        layout_Server_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (isWifiP2pEnabled) {
+                    Log.v(TAG, "ListView onRefresh");
+                    myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() {
+                        @Override
+                        public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+                            deviceListUpdate(wifiP2pGroup);
+                        }
+                    });
+                    myServerAdapter.notifyDataSetChanged();
+                }
+                layout_Server_Pull_To_Refresh.setRefreshing(false);
+
+            }
+        });
     }
 
     private View.OnClickListener myClickListener = new View.OnClickListener() {
@@ -125,7 +146,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 }
             } else if (v.equals(btn_Refresh_List)) {
                 if (isWifiP2pEnabled) {
-                    Log.v(TAG, "btn_Refresh_List act");
+                    Log.v(TAG, "btn_Refresh_List onClick");
                     myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() {
                         @Override
                         public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
@@ -503,7 +524,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         int height = dm.heightPixels;
         int dpi = dm.densityDpi;
         float density = dm.density;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density);
+        boolean isGroupOwner = true;
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density, isGroupOwner);
     }
 
 }

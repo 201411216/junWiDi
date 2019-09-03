@@ -126,12 +126,17 @@
 
     </LinearLayout>
 
-    <ListView
-        android:layout_height="match_parent"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/server_layout_pull_to_refresh"
         android:layout_width="match_parent"
-        android:id="@+id/server_list_client">
-    </ListView>
+        android:layout_height="wrap_content">
 
+        <ListView
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:id="@+id/server_list_client">
+        </ListView>
 
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>
