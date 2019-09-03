@@ -109,22 +109,6 @@
         android:orientation="horizontal"
         >
         <Button
-            android:id="@+id/server_btn_server_control"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/notoblack"
-            android:layout_weight="1"
-            android:text="그룹 -"/>
-
-        <Button
-            android:id="@+id/server_btn_refresh_list"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/notoblack"
-            android:layout_weight="1"
-            android:text="새로고침"/>
-
-        <Button
             android:id="@+id/server_btn_file_select"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

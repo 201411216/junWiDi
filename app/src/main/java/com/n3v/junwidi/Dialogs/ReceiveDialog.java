@@ -2,6 +2,7 @@ package com.n3v.junwidi.Dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.R;
+import com.n3v.junwidi.Services.MyClientTask;
 
 import java.net.InetAddress;
 
@@ -29,6 +31,8 @@ public class ReceiveDialog extends Dialog {
     private ProgressBar progressBar;
     private TextView percentage;
     private TextView videoTitle;
+
+    WifiP2pInfo myWifiP2pInfo;
 
     private RCV_DIALOG_STATE state = RCV_DIALOG_STATE.RCV_DIALOG_INIT;
 
@@ -80,5 +84,11 @@ public class ReceiveDialog extends Dialog {
 
     private void finish(){
         this.dismiss();
+    }
+
+    public void callClientTask(String mode) {
+        if (myWifiP2pInfo != null) {
+            //new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo).execute();
+        }
     }
 }

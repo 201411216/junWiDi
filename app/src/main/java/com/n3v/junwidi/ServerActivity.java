@@ -48,8 +48,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private TextView txt_Video_Path;
     private Button btn_File_Select;
     private Button btn_File_Transfer;
-    private Button btn_Refresh_List;
-    private Button btn_Server_Control;
     private SwipeRefreshLayout layout_Server_Pull_To_Refresh;
     private ListView listView_Client_List;
 
@@ -84,8 +82,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         txt_Video_Path = findViewById(R.id.server_txt_video_path);
         btn_File_Select = findViewById(R.id.server_btn_file_select);
         btn_File_Transfer = findViewById(R.id.server_btn_file_transfer);
-        btn_Refresh_List = findViewById(R.id.server_btn_refresh_list);
-        btn_Server_Control = findViewById(R.id.server_btn_server_control);
 
         btn_File_Select.setText("시간 전송");
 
@@ -93,13 +89,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             btn_File_Select.setText("비디오 선택");
             btn_File_Transfer.setEnabled(false);
         }
-        if (!isGroupExist) {
-            btn_Server_Control.setText("그룹 생성");
-        }
 
         btn_File_Select.setOnClickListener(myClickListener);
-        btn_Server_Control.setOnClickListener(myClickListener);
-        btn_Refresh_List.setOnClickListener(myClickListener);
         btn_File_Transfer.setOnClickListener(myClickListener);
 
         listView_Client_List = findViewById(R.id.server_list_client);
@@ -142,24 +133,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private View.OnClickListener myClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (v.equals(btn_Server_Control)) {
-                if (!isGroupExist) {
-                    createGroup();
-                } else {
-                    removeGroup();
-                }
-            } else if (v.equals(btn_Refresh_List)) {
-                if (isWifiP2pEnabled) {
-                    Log.v(TAG, "btn_Refresh_List onClick");
-                    myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() {
-                        @Override
-                        public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
-                            deviceListUpdate(wifiP2pGroup);
-                        }
-                    });
-                    myServerAdapter.notifyDataSetChanged();
-                }
-            } else if (v.equals(btn_File_Select)) {
+            if (v.equals(btn_File_Select)) {
                 Log.v(TAG, "btn_File_Select onClick");
                 if (!isFileSelected) {
                     permissionCheck(3);
@@ -268,14 +242,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) { // p3
             callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
         }
-
-        if (wifiP2pInfo.groupFormed) { // p4
-            btn_Server_Control.setText("그룹 해제");
-            isGroupExist = true;
-        } else {
-            btn_Server_Control.setText("그룹 생성");
-            isGroupExist = false;
-        }
     }
 
     /*
@@ -349,7 +315,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 Log.v(TAG, "Remove Group Success");
                 showToast("Remove Group Success");
                 isGroupExist = false;
-                btn_Server_Control.setText("그룹 생성");
             }
 
             @Override
