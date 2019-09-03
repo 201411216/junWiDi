@@ -24,7 +24,6 @@
             android:name=".ClientActivity"
             android:parentActivityName=".MainActivity"/>
 
-
     </application>
 
     <uses-feature

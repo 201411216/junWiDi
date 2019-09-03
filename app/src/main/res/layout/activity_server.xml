@@ -10,10 +10,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
+            android:paddingLeft="10dp"
             android:text="Run as server"
+            android:fontFamily="@font/notoblack"
             android:textSize="25dp"
-            android:textColor="@color/server_blue"
+            android:textColor="#ffffff"
             />
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,13 +22,16 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
+                android:paddingLeft="10dp"
+                android:fontFamily="@font/notoregular"
                 android:text="Device Name : "
                 android:textSize="20dp"
                 />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:fontFamily="@font/notoregular"
                 android:id="@+id/server_txt_my_device_name"
                 android:text="-"
                 android:textSize="20dp"
@@ -40,12 +44,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
+                android:fontFamily="@font/notoregular"
                 android:text="Device Address : "
                 android:textSize="15dp"
                 />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:fontFamily="@font/notoregular"
                 android:id="@+id/server_txt_my_device_address"
                 android:text="-"
                 android:textSize="15dp"
@@ -58,12 +65,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
+                android:fontFamily="@font/notoblack"
                 android:text="Device State : "
                 android:textSize="15dp"
                 />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:fontFamily="@font/notoregular"
                 android:id="@+id/server_txt_my_device_state"
                 android:text="-"
                 android:textSize="15dp"
@@ -77,12 +87,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
+                android:fontFamily="@font/notoblack"
                 android:text="Video Path : "
                 android:textSize="15dp"
                 />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/notoregular"
                 android:id="@+id/server_txt_video_path"
                 android:text="-"
                 android:textSize="15dp"
@@ -94,11 +106,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        >
         <Button
             android:id="@+id/server_btn_server_control"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/notoblack"
             android:layout_weight="1"
             android:text="그룹 -"/>
 
@@ -106,6 +120,7 @@
             android:id="@+id/server_btn_refresh_list"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/notoblack"
             android:layout_weight="1"
             android:text="새로고침"/>
 
@@ -113,18 +128,40 @@
             android:id="@+id/server_btn_file_select"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/notoblack"
             android:layout_weight="1"
-            android:textSize="12dp"
             android:text="비디오 -"/>
 
         <Button
             android:id="@+id/server_btn_file_transfer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/notoblack"
             android:layout_weight="1"
             android:text="전송"/>
 
+
+
     </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:layout_marginBottom="0"
+        android:layout_gravity="center"
+        android:fontFamily="@font/notoblack"
+        android:text="현재 진행사항 "
+        />
+    <ProgressBar
+        android:id="@+id/progress"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="30dp"
+        android:max="100"
+        android:progress="0" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/server_layout_pull_to_refresh"
