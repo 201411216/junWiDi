@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.n3v.junwidi.Services.MyClientTask;
 
@@ -49,6 +50,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private Button btn_Request_Disconnect;
     private Button btn_Request_Multicast;
 
+    private SwipeRefreshLayout layout_Client_Pull_To_Refresh;
     private ListView listView_Server_List;
 
     private ArrayList<WifiP2pDevice> myWifiP2pDeviceList;
@@ -114,6 +116,27 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) { //ListView 아이템 클릭 리스너
                 WifiP2pDevice d = myWifiP2pDeviceList.get(position);
                 connect(d);
+            }
+        });
+        layout_Client_Pull_To_Refresh = findViewById(R.id.client_layout_pull_to_refresh);
+        layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                permissionCheck(1);
+                myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.v(TAG, "Discover Peer Success");
+                        showToast("Discover Peer Success");
+                    }
+
+                    @Override
+                    public void onFailure(int i) {
+                        Log.e(TAG, "Discover Peer Failed :: " + i);
+                        showToast("Discover Peer Failed");
+                    }
+                });
+                layout_Client_Pull_To_Refresh.setRefreshing(false);
             }
         });
     }
@@ -406,7 +429,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         int height = dm.heightPixels;
         int dpi = dm.densityDpi;
         float density = dm.density;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, dpi, density);
+        boolean isGroupOwner = false;
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, dpi, density, isGroupOwner);
         Log.v(TAG, "Local IP : " + getDottedDecimalIP(getLocalIPAddress()));
     }
 }

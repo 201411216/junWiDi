@@ -13,6 +13,7 @@ public class DeviceInfo {
     private int px_height;
     private int dpi;
     private float density;
+    private boolean isGroupOwner;
 
     public DeviceInfo(WifiP2pDevice device) {
         wifiP2pDevice = device;
@@ -21,15 +22,17 @@ public class DeviceInfo {
         px_height = -1;
         dpi = -1;
         density = -1;
+        isGroupOwner = false;
     }
 
-    public DeviceInfo(WifiP2pDevice device, String addr, int width, int height, int dpi, float density) {
+    public DeviceInfo(WifiP2pDevice device, String addr, int width, int height, int dpi, float density, boolean isGroupOwner) {
         this.wifiP2pDevice = device;
         this.str_address = addr;
         this.px_width = width;
         this.px_height = height;
         this.dpi = dpi;
         this.density = density;
+        this.isGroupOwner = isGroupOwner;
     }
 
     public int getPx_width() {
@@ -80,7 +83,15 @@ public class DeviceInfo {
         this.density = density;
     }
 
+    public boolean isGroupOwner() {
+        return isGroupOwner;
+    }
+
+    public void setGroupOwner(boolean groupOwner) {
+        isGroupOwner = groupOwner;
+    }
+
     public String getString() {
-        return wifiP2pDevice.deviceAddress + "+=+" + str_address + "+=+" + px_width + "+=+" + px_height + "+=+" + dpi + "+=+" + density;
+        return wifiP2pDevice.deviceAddress + "+=+" + str_address + "+=+" + px_width + "+=+" + px_height + "+=+" + dpi + "+=+" + density + "+=+" + isGroupOwner;
     }
 }
