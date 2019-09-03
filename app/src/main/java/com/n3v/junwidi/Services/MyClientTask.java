@@ -69,64 +69,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
         myDeviceInfo = deviceInfo;
     }
 
-    //    @Override
-//    protected String doInBackground(Void... voids) {
-//        WifiManager myWifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
-//        WifiManager.MulticastLock multiCastLock = myWifiManager.createMulticastLock("multicastLock");
-//        multiCastLock.setReferenceCounted(true);
-//        multiCastLock.acquire();
-//
-//        InetAddress address = null;
-//        MulticastSocket clientSocket = null;
-//
-//        try {
-//            clientSocket = new MulticastSocket(Constants.FILE_SERVICE_PORT);
-//            address = InetAddress.getByName("224.0.0.1");
-//            clientSocket.joinGroup(address);
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        DatagramPacket packet = null;
-//        byte[] buffer = new byte[1024];
-//        packet = new DatagramPacket(buffer, buffer.length);
-//        try {
-//            clientSocket.receive(packet);
-//            byte[] data = packet.getData();
-//            Log.d(TAG, "Data : " + data.toString());
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
-//
-//        multiCastLock.release();
-//
-//        try{
-//            clientSocket.leaveGroup(address);
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }
-//        clientSocket.close();
-//        return null;
-//    }
-//
-//
     @Override
     protected void onPostExecute(String result) {
         //Log.v(TAG, "onPostExecute");
-    }
-
-    public InetAddress getBroadcastAddress() throws IOException {
-        WifiManager myWifiManager = (WifiManager) myContext.getSystemService(WIFI_SERVICE);
-        DhcpInfo dhcp = myWifiManager.getDhcpInfo();
-
-        int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
-        byte[] quads = new byte[4];
-        for (int k = 0; k < 4; k++) {
-            quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
-        }
-
-        return InetAddress.getByAddress(quads);
     }
 
     @Override
