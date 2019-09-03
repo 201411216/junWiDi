@@ -11,7 +11,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
-            android:text="Run as server"
+            android:text="Owner"
             android:fontFamily="@font/notoblack"
             android:textSize="25dp"
             android:textColor="#ffffff"
@@ -110,19 +110,17 @@
         >
         <Button
             android:id="@+id/server_btn_file_select"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/notoblack"
-            android:layout_weight="1"
-            android:text="비디오 -"/>
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:background="@drawable/search"
+            />
 
         <Button
             android:id="@+id/server_btn_file_transfer"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/notoblack"
-            android:layout_weight="1"
-            android:text="전송"/>
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@drawable/send"
+           />
 
     </LinearLayout>
 
