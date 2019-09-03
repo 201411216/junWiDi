@@ -87,7 +87,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         receiveDialog = new ReceiveDialog(this, fileName, this);
-        //progressDialog.setP
         initView();
         permissionCheck(0);
 
@@ -482,16 +481,16 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         if (nowTask != null) {
             nowTask.cancel(true);
         }
+        receiveDialog.cancel();
     }
 
     @Override
     public void onEndWait() {
-        receiveDialog.setFileName(fileName);
-        receiveDialog.setMyDialogListener(this);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 receiveDialog.show();
+                receiveDialog.setFileName(fileName);
             }
         });
     }

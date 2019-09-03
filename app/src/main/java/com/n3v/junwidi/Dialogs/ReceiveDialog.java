@@ -73,6 +73,12 @@ public class ReceiveDialog extends Dialog {
         }
     }
 
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+        Log.v("ReceiveDialog", this.fileName);
+        videoTitle.setText(this.fileName);
+    }
+
     public void setDownloading() {
         question.setVisibility(View.GONE);
         okButton.setEnabled(false);
@@ -96,12 +102,6 @@ public class ReceiveDialog extends Dialog {
 
     private void finish() {
         myDialogListener.onProgressFinished();
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-        Log.v("ReceiveDialog", this.fileName);
-        //videoTitle.setText(this.fileName);
     }
 
     public void setMyDialogListener(MyDialogListener myDialogListener) {
