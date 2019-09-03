@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="320dp"
-    android:layout_height="200dp">
+    android:layout_height="220dp">
 
     <LinearLayout
+        android:background="#FFFFFF"
         android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:orientation="vertical">
+        android:layout_height="150dp"
+        android:orientation="vertical"
+        >
 
         <TextView
             android:id="@+id/rcv_dialog_txt_file_title"
@@ -14,17 +16,22 @@
             android:layout_height="40dp"
             android:gravity="center"
             android:layout_marginTop="10dp"
-            android:text="제목"/>
+            android:fontFamily="@font/notoblack"
+            android:textColor="#4B4747"
+            android:text="파일 이름"/>
 
         <ProgressBar
             android:id="@+id/rcv_dialog_progressbar"
             style="@android:style/Widget.ProgressBar.Horizontal"
+            android:progressDrawable="@drawable/myprogressbar"
             android:max="100"
-            android:progress="0"
+            android:progress="50"
             android:layout_gravity="top"
             android:layout_marginTop="10dp"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
             android:layout_width="match_parent"
-            android:layout_height="20dp" />
+            android:layout_height="10dp" />
         
         <TextView
             android:id="@+id/rcv_dialog_progress_percent"
@@ -32,9 +39,19 @@
             android:gravity="center"
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:fontFamily="@font/notoblack"
+            android:layout_height="20dp"
+            android:fontFamily="@font/notolight"
+            android:textColor="#4B4747"
             android:text="0 / 100"/>
+        <TextView
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:fontFamily="@font/notoregular"
+            android:textColor="#4B4747"
+            android:text="파일을 다운로드 하시겠습니까?"/>
+
 
     </LinearLayout>
     <LinearLayout
@@ -42,10 +59,18 @@
         android:layout_height="70dp">
         <Button
             android:layout_width="160dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:text="취소"
+            android:background="#FFFFFF"
+            android:textColor="#FF0303"
+            />
+
         <Button
             android:layout_width="160dp"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:text="다운로드"
+            android:background="#FFFFFF"
+            android:textColor="#4095FB"/>
 
     </LinearLayout>
 
