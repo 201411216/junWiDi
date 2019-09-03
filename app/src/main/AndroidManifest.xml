@@ -5,10 +5,11 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Together Theater"
         android:roundIcon="@mipmap/ic_launcher_round"
+
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.AppCompat">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,8 +17,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ServerActivity"/>
-        <activity android:name=".ClientActivity"/>
+        <activity
+            android:name=".ServerActivity"
+            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".ClientActivity"
+            android:parentActivityName=".MainActivity"/>
+
+
     </application>
 
     <uses-feature
