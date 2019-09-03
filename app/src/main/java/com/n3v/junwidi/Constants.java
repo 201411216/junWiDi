@@ -18,4 +18,7 @@ public class Constants {
     public static final String CONTROL_RESUME = "RESUME";
     public static final String CONTROL_STOP = "STOP";
     public static final String CONTROL_MOVE = "MOVE";
+
+    public static final String TRANSFER_START = "TRSF_START";
+    public static final String DELIMITER = "+=+";
 }

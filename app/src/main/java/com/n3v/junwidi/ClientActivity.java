@@ -1,6 +1,7 @@
 package com.n3v.junwidi;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -60,6 +61,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private WifiP2pDevice myWifiP2pDevice = null;
     private DeviceInfo myDeviceInfo = null;
 
+    private ProgressDialog progressDialog;
+
     InetAddress host_Address = null;
 
     @Override
@@ -70,6 +73,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
+        progressDialog = new ProgressDialog(this);
+        //progressDialog.setP
         initView();
         permissionCheck(0);
 

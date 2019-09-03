@@ -113,7 +113,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 Log.v(TAG, "Receive message : " + msg);
                 StringTokenizer st;
                 for (int i = 0; i < myDeviceInfoList.size(); i++) {
-                    st = new StringTokenizer(msg, "+=+");
+                    st = new StringTokenizer(msg, Constants.DELIMITER);
                     if (myDeviceInfoList.get(i).getWifiP2pDevice().deviceAddress.equals(st.nextToken())) {
                         myDeviceInfoList.get(i).setStr_address(st.nextToken());
                         myDeviceInfoList.get(i).setPx_width(Integer.parseInt(st.nextToken()));
@@ -147,7 +147,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 socket.setReuseAddress(true);
                 socket.setBroadcast(true);
-                String time_msg = "time_test+=+" + getStrNow() + "+=+";
+                String time_msg = "time_test" + Constants.DELIMITER + getStrNow();
                 byte[] buf = time_msg.getBytes();
                 Log.v(TAG, "Handshake Info : " + time_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
@@ -162,98 +162,6 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
-            } finally {
-                if (socket != null) {
-                    socket.close();
-                }
-            }
-        } else if (ACT_MODE.equals(SERVER_FILE_TRANSFER_SERVICE)) {
-            if (videoPath.equals("")) {
-                Log.v(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : null path");
-                return "";
-            }
-            Log.v(TAG, "ACT : SERVER_FILE_TRANSFER_SERVICE");
-            DatagramSocket socket = null;
-            try {
-                InetAddress addr = InetAddress.getByName("192.168.49.255");
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setBroadcast(true);
-                File myVideo = new File(videoPath);
-                DatagramPacket packet;
-
-                long file_Size = myVideo.length();
-                double startTime = 0;
-                double endTime = 0;
-                double timeDiff = 0;
-                double avgTransferSpeed = 0;
-                int count = 0;
-
-                byte[] buf;
-
-                startTime = System.currentTimeMillis();
-
-                StringTokenizer st = new StringTokenizer(videoPath, "/");
-                String videoName = "";
-                while (st.hasMoreTokens()) {
-                    videoName = st.nextToken();
-                }
-                String startMsg = "START+=+" + videoName + "+=+" + file_Size + "+=+";
-                buf = startMsg.getBytes();
-                packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
-                socket.send(packet);
-
-                buf = new byte[Constants.FILE_BUFFER_SIZE];
-
-                FileInputStream fis = new FileInputStream(myVideo);
-                DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
-                int DATANUM = 0;
-
-                while (true) {
-                    String head = "DATA+=+" + String.format("%010d", DATANUM) + "+=+"; // 20Bytes
-
-                    for (int i = 0; i < Constants.FILE_HEADER_SIZE; i++) {
-                        buf[i] = head.getBytes()[i];
-                    }
-
-                    int check = dis.read(buf, Constants.FILE_HEADER_SIZE, Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE);
-                    if (check == -1) {
-                        break;
-                    }
-
-                    packet = new DatagramPacket(buf, Constants.FILE_BUFFER_SIZE, addr, Constants.FILE_SERVICE_PORT);
-                    socket.send(packet);
-                    DATANUM++;
-                    count++;
-                    Log.v(TAG, "Count : " + count);
-                }
-
-                String endMsg = "END+=+" + videoName + "+=+" + file_Size + "+=+";
-                buf = endMsg.getBytes();
-                packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
-                socket.send(packet);
-
-                endTime = System.currentTimeMillis();
-                timeDiff = (endTime - startTime) / 1000;
-                avgTransferSpeed = ((double) file_Size / 1000) / timeDiff;
-
-                Log.v(TAG, "Total Time : " + timeDiff + "(sec)" + "\n" + "Average Transfer Speed : " + avgTransferSpeed + "(KBps)");
-
-                String toastMsg = "";
-                Toaster.get().showToast(myContext, toastMsg + "\n" + getStrNow(), Toast.LENGTH_LONG);
-
-                dis.close();
-                fis.close();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : UnknownHostException");
-            } catch (SocketException e) {
-                e.printStackTrace();
-                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : SocketException");
-            } catch (FileNotFoundException e) {
-                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : FileNotFoundException");
-            } catch (IOException e) {
-                Log.e(TAG, "ERROR : SERVER_FILE_TRANSFER_SERVICE : IOException");
             } finally {
                 if (socket != null) {
                     socket.close();
@@ -312,7 +220,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     startTime = System.currentTimeMillis();
 
                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                    dos.writeUTF("START+=+" + videoName + "+=+" + fileSize);
+                    dos.writeUTF(Constants.TRANSFER_START + Constants.DELIMITER + videoName + Constants.DELIMITER + fileSize);
 
                     fis = new FileInputStream(myFile);
 

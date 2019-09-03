@@ -72,7 +72,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
-        //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         permissionCheck(0);
 
     }

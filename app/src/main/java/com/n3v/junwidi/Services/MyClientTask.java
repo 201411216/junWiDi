@@ -200,7 +200,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 socket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
-                StringTokenizer st = new StringTokenizer(msg, "+=+");
+                StringTokenizer st = new StringTokenizer(msg, Constants.DELIMITER);
                 if (st.hasMoreTokens()) {
                     if (st.nextToken().equals("time_test")) {
                         time_test = st.nextToken();
@@ -221,97 +221,6 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     multicastLock.release();
                 }
             }
-        } else if (ACT_MODE.equals(CLIENT_FILE_RECEIVE_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_FILE_RECEIVE_SERVICE");
-            DatagramSocket socket = null;
-            DataOutputStream dos = null;
-            WifiManager.MulticastLock multicastLock = null;
-            String fileName = "";
-            long fileSize = 0;
-            String filePath = "";
-            File newVideo;
-            int count = 0;
-            int lastDATA = 0;
-            try {
-                WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
-                multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
-                multicastLock.acquire();
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.LONG_TIMEOUT);
-                socket.setBroadcast(true);
-                byte[] receivebuf;
-                while (true) {
-                    receivebuf = new byte[Constants.FILE_BUFFER_SIZE];
-                    DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
-                    socket.receive(packet);
-                    String msg = new String(packet.getData(), 0, 200);
-                    if (msg.startsWith("START")) {
-                        StringTokenizer st = new StringTokenizer(msg, "+=+");
-                        if (st.hasMoreTokens()) {
-                            if (st.nextToken().equals("START")) {
-                                fileName = st.nextToken();
-                                if (st.hasMoreTokens()) {
-//                                    fileSize = Long.valueOf(st.nextToken());
-                                }
-                            }
-                        }
-                        File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
-                        if (!newDir.exists()) {
-                            Log.v(TAG, "mkdir1");
-                            newDir.mkdir();
-                        }
-                        newVideo = new File(myContext.getExternalFilesDir(null) + "/TogetherTheater", fileName);
-                        if (!newVideo.createNewFile()) {
-                            Log.v(TAG, "mkdir2 already exists");
-                        }
-                        dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(newVideo)));
-                    } else if (msg.startsWith("END")) {
-                        Log.v(TAG, "CLIENT_FILE_RECEIVE_SERVICE : Receiving complete");
-                        dos.close();
-                        break;
-                    } else if (msg.startsWith("DATA")) {
-                        StringTokenizer st = new StringTokenizer(msg, "+=+");
-                        int curDATA = -1;
-                        if (st.hasMoreTokens()) {
-                            if (st.nextToken().equals("DATA")) {
-                                curDATA = Integer.valueOf(st.nextToken());
-                            }
-                        }
-                        if (curDATA <= lastDATA) {
-                            continue;
-                        } else {
-                            int difDATA = curDATA - lastDATA;
-                            Log.v(TAG, "DATA diff : " + difDATA);
-                            for (int i = 0; i < difDATA - 1; i++) {
-                                byte[] b = new byte[Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE];
-                                dos.write(b, 0, Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE);
-                                lastDATA = curDATA;
-                            }
-                        }
-                        dos.write(receivebuf, Constants.FILE_HEADER_SIZE, Constants.FILE_BUFFER_SIZE - Constants.FILE_HEADER_SIZE);
-                        count++;
-                    } else {
-                        //dos.write(receivebuf, 0, receivebuf.length);
-                    }
-                    //count++;
-                    Log.v(TAG, "Count : " + count);
-                }
-            } catch (SocketTimeoutException e) {
-                Log.v(TAG, "CLIENT_MESSAGE_SERVICE : Socket Time out");
-            } catch (SocketException e) {
-                e.printStackTrace();
-                Log.e(TAG, "ERROR : DatagramSocket socket = new DatagramSocket();");
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e(TAG, "ERROR : socket.send(packet);");
-            } finally {
-                if (socket != null) {
-                    socket.close();
-                    multicastLock.release();
-                }
-            }
-
         } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_SERVICE)) {
             ServerSocket serverSocket = null;
             Socket socket = null;
@@ -337,9 +246,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 DataInputStream dis = new DataInputStream(socket.getInputStream());
                 String receiveMessage = dis.readUTF();
-                StringTokenizer st = new StringTokenizer(receiveMessage, "+=+");
+                StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
                 if (st.hasMoreTokens()) {
-                    if (st.nextToken().equals("START")) {
+                    if (st.nextToken().equals(Constants.TRANSFER_START)) {
                         if (st.hasMoreTokens()) {
                             fileName = st.nextToken();
                             if (st.hasMoreTokens()) {
