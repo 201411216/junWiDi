@@ -64,12 +64,14 @@
             android:text="취소"
             android:background="@drawable/btn_dialog"
             android:textColor="#FF0303"
+            android:id="@+id/rcv_dialog_btn_cancel"
             />
 
         <Button
             android:layout_width="160dp"
             android:layout_height="match_parent"
             android:text="다운로드"
+ 
             android:background="@drawable/btn_dialog"
             android:textColor="#4095FB"/>
 
