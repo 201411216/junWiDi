@@ -42,7 +42,7 @@
             android:gravity="center"
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_height="wrap_content"
             android:fontFamily="@font/notolight"
             android:textColor="#4B4747"
             android:text="0 / 100"/>
