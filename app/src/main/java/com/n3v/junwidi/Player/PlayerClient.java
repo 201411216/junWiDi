@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.n3v.junwidi.R;
 
 
-public class Client extends AppCompatActivity {
+public class PlayerClient extends AppCompatActivity {
 
     int user = 2;//사용자 식별번호, 호스트 기기에만 미디어컨트롤러가 나오도록 하기 위함(user 변수의 값이 1인 경우에만 나오게 함)
     int H = 0;//결정된 레이아웃의 길이
@@ -31,7 +31,7 @@ public class Client extends AppCompatActivity {
         setContentView(R.layout.player_client);
         vv = findViewById(R.id.videoView1);
         //filename = this.getExternalFilesDir(null) + "/TogetherTheater";
-        Uri video = Uri.parse("android.resource://" + getPackageName() + "/"+ R.raw.test2);
+        Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
         vv.setVideoURI(video);
         ViewGroup.LayoutParams params = vv.getLayoutParams();
         params.height = H;
@@ -48,6 +48,7 @@ public class Client extends AppCompatActivity {
         stopTime = vv.getCurrentPosition();
         //vv.seekTo(stopTime);
     }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -74,16 +75,18 @@ public class Client extends AppCompatActivity {
         vv.stopPlayback();
         super.onDestroy();
     }
+
     //뒤로가기 버튼 눌러서 액티비티 종료한 경우(다른 기기로 종료 신호 인텐트 전달 기능 추가 필요)
     @Override
     public void onBackPressed() {
-        if ( back == 1){
+        if (back == 1) {
             super.onBackPressed();
             back = 0;
         }
     }
+
     //Host 액티비티로부터 액티비티 종료 인텐트를 전달받을 경우에 실행되어야 함
-    public void quitByHost(){
+    public void quitByHost() {
         finish();
     }
 }

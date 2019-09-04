@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.n3v.junwidi.R;
 
 
-public class Host extends AppCompatActivity {
+public class PlayerHost extends AppCompatActivity {
     //받아오는 데이터 목록
     public WifiP2pDevice wifiP2pDevice;
     public String str_address;
