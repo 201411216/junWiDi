@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
+import com.n3v.junwidi.Listener.MyServerTaskListener;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -52,25 +53,31 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     private DatagramSocket datagramSocket = null;
     private FileInputStream fis = null;
 
+    private MyServerTaskListener serverTaskListener = null;
+
     String videoPath = "";
 
-    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter) {
-        myContext = context;
-        ACT_MODE = mode;
-        host_addr = host;
-        myDeviceInfo = deviceInfo;
-        myDeviceInfoList = deviceInfoList;
-        myServerAdapter = serverAdapter;
+    private boolean handshaked = false;
+
+    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, MyServerTaskListener serverTaskListener) {
+        this.myContext = context;
+        this.ACT_MODE = mode;
+        this.host_addr = host;
+        this.myDeviceInfo = deviceInfo;
+        this.myDeviceInfoList = deviceInfoList;
+        this.myServerAdapter = serverAdapter;
+        this.serverTaskListener = serverTaskListener;
     }
 
-    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, String videoPath) {
-        myContext = context;
-        ACT_MODE = mode;
-        host_addr = host;
-        myDeviceInfo = deviceInfo;
-        myDeviceInfoList = deviceInfoList;
-        myServerAdapter = serverAdapter;
+    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, String videoPath, MyServerTaskListener serverTaskListener) {
+        this.myContext = context;
+        this.ACT_MODE = mode;
+        this.host_addr = host;
+        this.myDeviceInfo = deviceInfo;
+        this.myDeviceInfoList = deviceInfoList;
+        this.myServerAdapter = serverAdapter;
         this.videoPath = videoPath;
+        this.serverTaskListener = serverTaskListener;
     }
 
     @Override
@@ -265,6 +272,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         continue;
                     }
 
+                    handshaked = true;
+                    publishProgress();
+
                     fis = new FileInputStream(myFile);
 
                     OutputStream os = socket.getOutputStream();
@@ -312,6 +322,16 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
         }
         return "";
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... values){
+        super.onProgressUpdate(values);
+        if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
+            if (handshaked == true) {
+                serverTaskListener.onHandshaked();
+            }
+        }
     }
 
     @Override

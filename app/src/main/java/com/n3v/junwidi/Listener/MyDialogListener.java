@@ -10,4 +10,6 @@ public interface MyDialogListener {
     void onSendClickOK(int state);
     void onSendClickCancel(int state);
 
+    void onAllProgressFinished();
+
 }

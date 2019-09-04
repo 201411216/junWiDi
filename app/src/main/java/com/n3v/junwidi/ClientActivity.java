@@ -499,6 +499,11 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     }
 
     @Override
+    public void onAllProgressFinished() {
+
+    }
+
+    @Override
     public void onEndWait() {
         runOnUiThread(new Runnable() {
             @Override
@@ -535,11 +540,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onReceiveFinished() {
         receiveDialog.cancel();
-    }
-
-    @Override
-    public void onSendFinished() {
-
     }
 
 }

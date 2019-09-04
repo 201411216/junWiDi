@@ -5,5 +5,6 @@ public interface MyServerTaskListener {
     void progressUpdate(int progress);
     void onSendFinished();
     void onHandshaked();
+    void onAllSendFinished();
 
 }
