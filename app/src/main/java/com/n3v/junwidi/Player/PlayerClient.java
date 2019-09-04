@@ -29,6 +29,7 @@ public class PlayerClient extends AppCompatActivity {
     String filename;
     VideoView vv;
 
+    ArrayList<DeviceInfo> deviceInfoList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class PlayerClient extends AppCompatActivity {
         vv.setVideoURI(video);
 
         Intent intent = this.getIntent();
-        ArrayList deviceInfoList = new ArrayList<DeviceInfo>();
+        deviceInfoList = intent.getParcelableArrayListExtra("deviceInfoList");
 
         ViewGroup.LayoutParams params = vv.getLayoutParams();
         params.height = H;

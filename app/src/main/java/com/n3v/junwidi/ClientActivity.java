@@ -463,6 +463,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         float density = dm.density;
         boolean isGroupOwner = false;
         myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, dpi, density, isGroupOwner);
+        myDeviceInfo.convertPx();
         Log.v(TAG, "Local IP : " + getDottedDecimalIP(getLocalIPAddress()));
     }
 

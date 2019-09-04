@@ -34,6 +34,9 @@ import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class ServerActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyServerTaskListener {
@@ -581,5 +584,37 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onWaiting() {
         sendDialog.setWaiting();
+    }
+
+    public ArrayList<DeviceInfo> calcDeviceList(){
+        ArrayList<DeviceInfo> tempArr = new ArrayList<>();
+        tempArr.addAll(myDeviceInfoList);
+        myDeviceInfo.convertPx();
+        tempArr.add(myDeviceInfo);
+
+        List<Integer> wPlusH = new ArrayList<>();
+        List<Integer> positionArray = new ArrayList<>();
+
+        int arrIndex = 0;
+        for (DeviceInfo di : tempArr) {
+            if (!di.isGroupOwner()) {
+                wPlusH.add(di.getMm_height());
+            } else {
+                wPlusH.add(-1);
+            }
+            arrIndex++;
+        }
+        Collections.sort(wPlusH, Collections.<Integer>reverseOrder());
+        for (int i : wPlusH) {
+            for (DeviceInfo di : tempArr) {
+                if (i == -1) {
+                    if (di.isGroupOwner()) {
+                        
+                    }
+                }
+            }
+        }
+
+        return tempArr;
     }
 }

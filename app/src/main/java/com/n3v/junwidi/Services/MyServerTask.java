@@ -139,6 +139,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         myDeviceInfoList.get(i).setDpi(Integer.parseInt(st.nextToken()));
                         myDeviceInfoList.get(i).setDensity(Float.parseFloat(st.nextToken()));
                         myDeviceInfoList.get(i).setGroupOwner(Boolean.parseBoolean(st.nextToken()));
+                        myDeviceInfoList.get(i).setMm_width(Integer.parseInt(st.nextToken()));
+                        myDeviceInfoList.get(i).setMm_height(Integer.parseInt(st.nextToken()));
                         Log.v(TAG, "GET ADDRESS " + myDeviceInfoList.get(i).getStr_address());
                     }
                 }
