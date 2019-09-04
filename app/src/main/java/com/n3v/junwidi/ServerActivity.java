@@ -26,12 +26,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.n3v.junwidi.Dialogs.SendDialog;
+import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
+import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 
 import java.util.ArrayList;
 
-public class ServerActivity extends BaseActivity implements MyDirectActionListener {
+public class ServerActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyServerTaskListener {
 
     private static final String TAG = "ServerActivity";
 
@@ -63,6 +66,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private boolean isFileSelected = false;
     private static final int PICK_VIDEO_RESULT_CODE = 1;
 
+    SendDialog sendDialog = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +76,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
+        sendDialog = new SendDialog(this, "", this);
         permissionCheck(0);
 
     }
@@ -505,4 +511,43 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density, isGroupOwner);
     }
 
+    @Override
+    public void onProgressFinished() {
+
+    }
+
+    @Override
+    public void onRcvClickOK(int state) {
+
+    }
+
+    @Override
+    public void onRcvClickCancel(int state) {
+
+    }
+
+    @Override
+    public void onSendClickOK(int state) {
+
+    }
+
+    @Override
+    public void onSendClickCancel(int state) {
+
+    }
+
+    @Override
+    public void progressUpdate(int progress) {
+
+    }
+
+    @Override
+    public void onSendFinished() {
+
+    }
+
+    @Override
+    public void onHandshaked() {
+
+    }
 }

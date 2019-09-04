@@ -7,4 +7,5 @@ public interface MyClientTaskListener {
     void onHandshaked();
     void setFile(String fileName, long fileSize);
     void onReceiveFinished();
+
 }

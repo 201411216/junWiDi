@@ -47,6 +47,11 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     private ArrayList<DeviceInfo> myDeviceInfoList;
     private ArrayAdapter<DeviceInfo> myServerAdapter;
 
+    private Socket socket = null;
+    private ServerSocket serverSocket = null;
+    private DatagramSocket datagramSocket = null;
+    private FileInputStream fis = null;
+
     String videoPath = "";
 
     public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter) {
@@ -72,16 +77,16 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     protected String doInBackground(Void... voids) {
         if (ACT_MODE.equals(SERVER_TEST_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_TEST_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             try {
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                 Log.v(TAG, "Before Receive");
 
-                socket.receive(packet);
+                datagramSocket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
                 socket.close();
@@ -92,21 +97,21 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (datagramSocket != null) {
+                    datagramSocket.close();
                 }
             }
             return "";
         } else if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             try {
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.HANDSHAKE_TIMEOUT);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setSoTimeout(Constants.HANDSHAKE_TIMEOUT);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
-                socket.receive(packet);
+                datagramSocket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
                 StringTokenizer st;
@@ -132,25 +137,25 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (datagramSocket != null) {
+                    datagramSocket.close();
                 }
             }
         } else if (ACT_MODE.equals(SERVER_MESSAGE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_MESSAGE_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
-                socket.setReuseAddress(true);
-                socket.setBroadcast(true);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
                 String time_msg = "time_test" + Constants.DELIMITER + getStrNow();
                 byte[] buf = time_msg.getBytes();
                 Log.v(TAG, "Handshake Info : " + time_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
                 Log.v(TAG, "Send message complete");
-                socket.send(packet);
+                datagramSocket.send(packet);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : InetAddress addr = InetAddress.getByName(\"255.255.255.255\");");
@@ -161,8 +166,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (datagramSocket != null) {
+                    datagramSocket.close();
                 }
             }
         } else if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
@@ -172,8 +177,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             }
             Log.v(TAG, "ACT : SERVER_TCP_FILE_TRANSFER_SERVICE");
 
-            Socket socket = null;
-            FileInputStream fis = null;
+            socket = null;
+            fis = null;
 
             File myFile = new File(videoPath);
 
@@ -231,8 +236,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
                     Log.v(TAG, "post server open");
 
-                    ServerSocket server = new ServerSocket(Constants.FILE_TRANSFER_PORT);
-                    socket = server.accept();
+                    serverSocket = new ServerSocket(Constants.FILE_TRANSFER_PORT);
+                    socket = serverSocket.accept();
                     DataInputStream dis = new DataInputStream(socket.getInputStream());
 
                     boolean receiveOK = false;
@@ -251,10 +256,12 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     if (!receiveOK) {
                         dos.close();
                         dis.close();
-                        if (!server.isClosed()) {
-                            server.close();
+                        if (!serverSocket.isClosed()) {
+                            serverSocket.close();
                         }
-                        socket.close();
+                        if (!socket.isClosed()) {
+                            socket.close();
+                        }
                         continue;
                     }
 
@@ -281,9 +288,11 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     dos.close();
                     fis.close();
                     os.close();
-                    socket.close();
-                    if (!server.isClosed()) {
-                        server.close();
+                    if (!socket.isClosed()) {
+                        socket.close();
+                    }
+                    if (!serverSocket.isClosed()) {
+                        serverSocket.close();
                     }
                 }
                 totalEndTime = System.currentTimeMillis();
@@ -309,6 +318,23 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     protected void onPostExecute(String result) {
         if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
             myServerAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    protected void onCancelled(){
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+            if (datagramSocket != null && !datagramSocket.isClosed()) {
+                datagramSocket.close();
+            }
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
