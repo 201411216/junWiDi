@@ -11,6 +11,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -26,12 +27,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.n3v.junwidi.Dialogs.SendDialog;
+import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
+import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
-public class ServerActivity extends BaseActivity implements MyDirectActionListener {
+public class ServerActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyServerTaskListener {
 
     private static final String TAG = "ServerActivity";
 
@@ -63,6 +68,10 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private boolean isFileSelected = false;
     private static final int PICK_VIDEO_RESULT_CODE = 1;
 
+    SendDialog sendDialog = null;
+
+    AsyncTask nowTask = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +80,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
+        sendDialog = new SendDialog(this, "", this);
         permissionCheck(0);
 
     }
@@ -117,7 +127,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     myServerAdapter.notifyDataSetChanged();
                 }
                 layout_Server_Pull_To_Refresh.setRefreshing(false);
-
             }
         });
     }
@@ -153,7 +162,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     Log.v(TAG, "btn_File_Transfer onClick");
                     permissionCheck(2);
                     permissionCheck(3);
-                    callServerTask(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE);
+                    StringTokenizer st = new StringTokenizer(videoPath, "/");
+                    String videoName = "";
+                    while (st.hasMoreTokens()) {
+                        videoName = st.nextToken();
+                    }
+                    sendDialog.show();
+                    sendDialog.setFileName(videoName);
+                    sendDialog.setReceivers(myDeviceInfoList.size());
                 }
             }
         }
@@ -177,15 +193,16 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
-    public void callServerTask(String mode) {
+    public AsyncTask callServerTask(String mode) {
         if (myWifiP2pInfo != null && (mode.equals(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE) || mode.equals(MyServerTask.SERVER_FILE_TRANSFER_SERVICE))) {
             Log.v(TAG, "callServerTask : mode.FILE_TRANSFER");
             if (!this.videoPath.equals("")) {
-                new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this.videoPath).execute();
+                return new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this.videoPath, this).execute();
             }
         } else if (myWifiP2pInfo != null) {
-            new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter).execute();
+            return new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this).execute();
         }
+        return null;
     }
 
     @Override
@@ -505,4 +522,64 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density, isGroupOwner);
     }
 
+    @Override
+    public void onProgressFinished() {
+
+    }
+
+    @Override
+    public void onRcvClickOK(int state) {
+    }
+
+    @Override
+    public void onRcvClickCancel(int state) {
+
+    }
+
+    @Override
+    public void onSendClickOK(int state) {
+        if (state == SendDialog.SEND_DLG_INIT) {
+            nowTask = callServerTask(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE);
+        }
+    }
+
+    @Override
+    public void onSendClickCancel(int state) {
+        if (nowTask != null) {
+            nowTask.cancel(true);
+            nowTask = null;
+        }
+        sendDialog.cancel();
+    }
+
+    @Override
+    public void onAllProgressFinished() {
+        sendDialog.cancel();
+        nowTask = null;
+    }
+
+    @Override
+    public void progressUpdate(int progress) {
+        sendDialog.setProgress(progress);
+    }
+
+    @Override
+    public void onSendFinished() {
+        sendDialog.sendCompleteOne();
+    }
+
+    @Override
+    public void onHandshaked() {
+        sendDialog.setSending();
+    }
+
+    @Override
+    public void onAllSendFinished() {
+        sendDialog.cancel();
+    }
+
+    @Override
+    public void onWaiting() {
+        sendDialog.setWaiting();
+    }
 }

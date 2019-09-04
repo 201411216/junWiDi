@@ -76,6 +76,14 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private boolean needDelete = false;
     private boolean receiveComplete = false;
 
+    private Socket socket = null;
+    private DatagramSocket datagramSocket = null;
+    private ServerSocket serverSocket = null;
+    private DataInputStream dis = null;
+    private DataOutputStream dos = null;
+    private FileOutputStream fos = null;
+    private InputStream is = null;
+
     public MyClientTask(Context context, String mode, String addr, DeviceInfo deviceInfo, MyClientTaskListener clientTaskListener, String fileName, long fileSize) {
         myContext = context;
         ACT_MODE = mode;
@@ -95,17 +103,17 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     protected String doInBackground(Void... voids) {
         if (ACT_MODE.equals(CLIENT_TEST_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_TEST_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName(host_addr);
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 byte[] buf = getDottedDecimalIP(getLocalIPAddress()).getBytes();
                 Log.v(TAG, getDottedDecimalIP(getLocalIPAddress()));
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
                 Log.v(TAG, "Sending message");
-                socket.send(packet);
+                datagramSocket.send(packet);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : InetAddress addr = InetAddress.getByName(\"255.255.255.255\");");
@@ -116,20 +124,22 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                socket.close();
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
             }
         } else if (ACT_MODE.equals(CLIENT_HANDSHAKE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName(host_addr);
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
-                socket.setReuseAddress(true);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
                 byte[] buf = myDeviceInfo.getString().getBytes();
                 Log.v(TAG, "Handshake Info : " + myDeviceInfo.getString());
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
-                socket.send(packet);
+                datagramSocket.send(packet);
                 Log.v(TAG, "Send message complete");
                 publishProgress();
             } catch (UnknownHostException e) {
@@ -142,26 +152,26 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
+                    datagramSocket.close();
                 }
             }
         } else if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)) {
             Log.v(TAG, "ACT : CLIENT_MESSAGE_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             WifiManager.MulticastLock multicastLock = null;
             try {
                 WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
                 multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
                 multicastLock.acquire();
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.LONG_TIMEOUT);
-                socket.setBroadcast(true);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setSoTimeout(Constants.LONG_TIMEOUT);
+                datagramSocket.setBroadcast(true);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                 Log.v(TAG, "before : receive time_test");
-                socket.receive(packet);
+                datagramSocket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
                 StringTokenizer st = new StringTokenizer(msg, Constants.DELIMITER);
@@ -179,15 +189,15 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
+                    datagramSocket.close();
                     multicastLock.release();
                 }
             }
         } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE)) {
             Log.v(TAG, "CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE act");
-            ServerSocket serverSocket = null;
-            Socket socket = null;
+            serverSocket = null;
+            socket = null;
 
             byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
 
@@ -195,7 +205,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 serverSocket = new ServerSocket(Constants.FILE_TRANSFER_PORT);
                 socket = serverSocket.accept();
 
-                DataInputStream dis = new DataInputStream(socket.getInputStream());
+                dis = new DataInputStream(socket.getInputStream());
 
                 while (true) {
                     Log.v(TAG, "Waiting TRANSFER_START");
@@ -215,14 +225,23 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                         }
                     }
                 }
-
-
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : IOException");
+            } finally {
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                    }
+                    if (serverSocket != null && !serverSocket.isClosed()) {
+                        serverSocket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_SERVICE)) {
-            Socket socket = null;
+            socket = null;
 
             File newVideo = null;
 
@@ -233,7 +252,6 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
             int readByte = 0;
             long sumReadByte = 0;
-            long totalReadByte = 0;
             long lastPublishedReadByte = 0;
 
             byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
@@ -249,10 +267,10 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 String okMessage = Constants.RECEIVE_WAIT;
 
-                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                dos = new DataOutputStream(socket.getOutputStream());
                 dos.writeUTF(okMessage);
 
-                DataInputStream dis = new DataInputStream(socket.getInputStream());
+                dis = new DataInputStream(socket.getInputStream());
 
                 File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
                 if (!newDir.exists()) {
@@ -273,8 +291,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 startTime = System.currentTimeMillis();
 
-                FileOutputStream fos = new FileOutputStream(newVideo);
-                InputStream is = socket.getInputStream();
+                fos = new FileOutputStream(newVideo);
+                is = socket.getInputStream();
 
                 while ((readByte = is.read(buffer)) > 0) {
                     fos.write(buffer, 0, readByte);
@@ -308,11 +326,19 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : IOException");
+            } finally {
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         } else if (ACT_MODE.equals(CLIENT_CONTROL_SERVICE)) {
             Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
-            DatagramSocket socket = null;
-            DataOutputStream dos = null;
+            datagramSocket = null;
+            dos = null;
             WifiManager.MulticastLock multicastLock = null;
 
             String file_name = "";
@@ -321,10 +347,10 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
                 multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
                 multicastLock.acquire();
-                socket = new DatagramSocket(Constants.CONTROL_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.LONG_TIMEOUT);
-                socket.setBroadcast(true);
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SERVICE_PORT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setSoTimeout(Constants.LONG_TIMEOUT);
+                datagramSocket.setBroadcast(true);
 
                 byte[] receivebuf;
 
@@ -332,7 +358,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                     receivebuf = new byte[Constants.CONTROL_BUFFER_SIZE];
                     DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
-                    socket.receive(packet);
+                    datagramSocket.receive(packet);
                     String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
 
                     if (msg.startsWith(Constants.CONTROL_PREPARE)) {
@@ -348,14 +374,16 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     } else if (msg.startsWith(Constants.CONTROL_MOVE)) {
 
                     }
-
                 }
-
             } catch (IOException e) {
-
+                e.printStackTrace();
             } finally {
-                if (!socket.isClosed()) {
-                    socket.close();
+                try {
+                    if (!socket.isClosed()) {
+                        socket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -363,12 +391,25 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     }
 
     @Override
-    protected void onCancelled(){
+    protected void onCancelled() {
         if (needDelete) {
             File newVideo = new File(myContext.getExternalFilesDir(null) + "/TogetherTheater", fileName);
             if (newVideo.exists()) {
                 newVideo.delete();
             }
+        }
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+            if (datagramSocket != null && !datagramSocket.isClosed()) {
+                datagramSocket.close();
+            }
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

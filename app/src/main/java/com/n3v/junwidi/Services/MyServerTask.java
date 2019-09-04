@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.n3v.junwidi.Constants;
 import com.n3v.junwidi.DeviceInfo;
+import com.n3v.junwidi.Listener.MyServerTaskListener;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -47,41 +48,60 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     private ArrayList<DeviceInfo> myDeviceInfoList;
     private ArrayAdapter<DeviceInfo> myServerAdapter;
 
+    private Socket socket = null;
+    private ServerSocket serverSocket = null;
+    private DatagramSocket datagramSocket = null;
+    private FileInputStream fis = null;
+
+    private MyServerTaskListener serverTaskListener = null;
+
     String videoPath = "";
 
-    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter) {
-        myContext = context;
-        ACT_MODE = mode;
-        host_addr = host;
-        myDeviceInfo = deviceInfo;
-        myDeviceInfoList = deviceInfoList;
-        myServerAdapter = serverAdapter;
+    private boolean waiting = false;
+    private boolean handshaked = false;
+    private boolean sended = false;
+    private boolean send_finished = false;
+    private boolean sending = false;
+
+    long sumReadByte = 0;
+    long lastPublishedReadByte = 0;
+    int progress = 0;
+
+    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, MyServerTaskListener serverTaskListener) {
+        this.myContext = context;
+        this.ACT_MODE = mode;
+        this.host_addr = host;
+        this.myDeviceInfo = deviceInfo;
+        this.myDeviceInfoList = deviceInfoList;
+        this.myServerAdapter = serverAdapter;
+        this.serverTaskListener = serverTaskListener;
     }
 
-    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, String videoPath) {
-        myContext = context;
-        ACT_MODE = mode;
-        host_addr = host;
-        myDeviceInfo = deviceInfo;
-        myDeviceInfoList = deviceInfoList;
-        myServerAdapter = serverAdapter;
+    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, String videoPath, MyServerTaskListener serverTaskListener) {
+        this.myContext = context;
+        this.ACT_MODE = mode;
+        this.host_addr = host;
+        this.myDeviceInfo = deviceInfo;
+        this.myDeviceInfoList = deviceInfoList;
+        this.myServerAdapter = serverAdapter;
         this.videoPath = videoPath;
+        this.serverTaskListener = serverTaskListener;
     }
 
     @Override
     protected String doInBackground(Void... voids) {
         if (ACT_MODE.equals(SERVER_TEST_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_TEST_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             try {
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                 Log.v(TAG, "Before Receive");
 
-                socket.receive(packet);
+                datagramSocket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
                 socket.close();
@@ -92,21 +112,21 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (datagramSocket != null) {
+                    datagramSocket.close();
                 }
             }
             return "";
         } else if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             try {
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
-                socket.setReuseAddress(true);
-                socket.setSoTimeout(Constants.HANDSHAKE_TIMEOUT);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setSoTimeout(Constants.HANDSHAKE_TIMEOUT);
                 byte[] receivebuf = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
-                socket.receive(packet);
+                datagramSocket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
                 StringTokenizer st;
@@ -132,25 +152,25 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (datagramSocket != null) {
+                    datagramSocket.close();
                 }
             }
         } else if (ACT_MODE.equals(SERVER_MESSAGE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_MESSAGE_SERVICE");
-            DatagramSocket socket = null;
+            datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
-                socket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
+                datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
-                socket.setReuseAddress(true);
-                socket.setBroadcast(true);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
                 String time_msg = "time_test" + Constants.DELIMITER + getStrNow();
                 byte[] buf = time_msg.getBytes();
                 Log.v(TAG, "Handshake Info : " + time_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.FILE_SERVICE_PORT);
                 Log.v(TAG, "Send message complete");
-                socket.send(packet);
+                datagramSocket.send(packet);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : InetAddress addr = InetAddress.getByName(\"255.255.255.255\");");
@@ -161,8 +181,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (socket != null) {
-                    socket.close();
+                if (datagramSocket != null) {
+                    datagramSocket.close();
                 }
             }
         } else if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
@@ -172,8 +192,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             }
             Log.v(TAG, "ACT : SERVER_TCP_FILE_TRANSFER_SERVICE");
 
-            Socket socket = null;
-            FileInputStream fis = null;
+            socket = null;
+            fis = null;
 
             File myFile = new File(videoPath);
 
@@ -221,6 +241,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     Toaster.get().showToast(myContext, "Send File to " + di.getWifiP2pDevice().deviceName, Toast.LENGTH_SHORT);
                     startTime = System.currentTimeMillis();
 
+                    sumReadByte = 0;
+                    lastPublishedReadByte = 0;
+                    progress = 0;
+
                     Log.v(TAG, "post dos open");
 
                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -229,10 +253,13 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     dos.close();
                     socket.close();
 
+                    waiting = true;
+                    publishProgress();
+
                     Log.v(TAG, "post server open");
 
-                    ServerSocket server = new ServerSocket(Constants.FILE_TRANSFER_PORT);
-                    socket = server.accept();
+                    serverSocket = new ServerSocket(Constants.FILE_TRANSFER_PORT);
+                    socket = serverSocket.accept();
                     DataInputStream dis = new DataInputStream(socket.getInputStream());
 
                     boolean receiveOK = false;
@@ -251,24 +278,44 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     if (!receiveOK) {
                         dos.close();
                         dis.close();
-                        if (!server.isClosed()) {
-                            server.close();
+                        if (!serverSocket.isClosed()) {
+                            serverSocket.close();
                         }
-                        socket.close();
+                        if (!socket.isClosed()) {
+                            socket.close();
+                        }
                         continue;
                     }
+
+                    handshaked = true;
+                    publishProgress();
 
                     fis = new FileInputStream(myFile);
 
                     OutputStream os = socket.getOutputStream();
                     totalReadByte = 0;
+
+                    sending = true;
+
                     while ((readByte = fis.read(buffer)) > 0) {
                         os.write(buffer, 0, readByte);
                         totalReadByte += readByte;
+                        sumReadByte += readByte;
+                        if (sumReadByte - lastPublishedReadByte > (fileSize / 100)) {
+                            progress++;
+                            lastPublishedReadByte = sumReadByte;
+                            publishProgress();
+                        }
                     }
+
+                    sending = false;
+
                     endTime = System.currentTimeMillis();
                     diffTime = (endTime - startTime) / 1000;
                     avgTransferSpeed = ((double) fileSize / 1000) / diffTime;
+
+                    sended = true;
+                    publishProgress();
 
                     Log.v(TAG, "Send " + deviceCount + " complete");
                     Log.v(TAG, "Time : " + diffTime + "(sec)");
@@ -281,14 +328,20 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     dos.close();
                     fis.close();
                     os.close();
-                    socket.close();
-                    if (!server.isClosed()) {
-                        server.close();
+                    if (!socket.isClosed()) {
+                        socket.close();
+                    }
+                    if (!serverSocket.isClosed()) {
+                        serverSocket.close();
                     }
                 }
                 totalEndTime = System.currentTimeMillis();
                 totalDiffTime = (totalEndTime - totalStartTime) / 1000;
                 totalAvgTransferSpeed = (((double) fileSize * deviceCount) / 1000) / totalDiffTime;
+
+                send_finished = true;
+                publishProgress();
+
                 Log.v(TAG, "Send to " + deviceCount + "device(s) complete");
                 Log.v(TAG, "Total Time : " + totalDiffTime + "(sec)");
                 Log.v(TAG, "Total AVG Transfer Speed : " + totalAvgTransferSpeed + "(KB/s)");
@@ -306,9 +359,52 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     }
 
     @Override
+    protected void onProgressUpdate(Integer... values){
+        super.onProgressUpdate(values);
+        if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
+            if (sending == true) {
+                serverTaskListener.progressUpdate(progress);
+            }
+            if (waiting == true) {
+                serverTaskListener.onWaiting();
+                waiting = false;
+            }
+            if (handshaked == true) {
+                serverTaskListener.onHandshaked();
+                handshaked = false;
+            }
+            if (sended == true) {
+                serverTaskListener.onSendFinished();
+                sended = false;
+            }
+            if (send_finished == true) {
+                serverTaskListener.onAllSendFinished();
+                send_finished = false;
+            }
+        }
+    }
+
+    @Override
     protected void onPostExecute(String result) {
         if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
             myServerAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    protected void onCancelled(){
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+            if (datagramSocket != null && !datagramSocket.isClosed()) {
+                datagramSocket.close();
+            }
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -4,7 +4,12 @@ public interface MyDialogListener {
 
     void onProgressFinished();
 
-    void onClickOK(int state);
-    void onClickCancel(int state);
+    void onRcvClickOK(int state);
+    void onRcvClickCancel(int state);
+
+    void onSendClickOK(int state);
+    void onSendClickCancel(int state);
+
+    void onAllProgressFinished();
 
 }

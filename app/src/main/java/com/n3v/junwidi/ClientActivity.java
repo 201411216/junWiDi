@@ -26,10 +26,12 @@ import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.n3v.junwidi.Dialogs.ReceiveDialog;
+import com.n3v.junwidi.Dialogs.SendDialog;
 import com.n3v.junwidi.Listener.MyClientTaskListener;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
 import com.n3v.junwidi.Services.MyClientTask;
+import com.n3v.junwidi.Services.MyServerTask;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -66,7 +68,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private WifiP2pDevice myWifiP2pDevice = null;
     private DeviceInfo myDeviceInfo = null;
 
-    private ReceiveDialog receiveDialog;
+    private ReceiveDialog receiveDialog = null;
 
     InetAddress host_Address = null;
 
@@ -467,21 +469,40 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onProgressFinished() {
         receiveDialog.cancel();
+        nowTask = null;
     }
 
     @Override
-    public void onClickOK(int state) {
+    public void onRcvClickOK(int state) {
         if (state == ReceiveDialog.RCV_DLG_INIT) {
             nowTask = callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_SERVICE);
         }
     }
 
     @Override
-    public void onClickCancel(int state) {
+    public void onRcvClickCancel(int state) {
         if (nowTask != null) {
             nowTask.cancel(true);
+            nowTask = null;
         }
         receiveDialog.cancel();
+    }
+
+    @Override
+    public void onSendClickOK(int state) {
+        if (state == SendDialog.SEND_DLG_INIT) {
+            nowTask = callClientTask(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE);
+        }
+    }
+
+    @Override
+    public void onSendClickCancel(int state) {
+
+    }
+
+    @Override
+    public void onAllProgressFinished() {
+
     }
 
     @Override
