@@ -27,9 +27,16 @@
                 android:layout_weight="0.1"
                 android:background="@drawable/search"
                 />
+            <Button
+                android:layout_marginLeft="20dp"
+                android:layout_width="0dp"
+                android:layout_height="65dp"
+                android:layout_weight="0.1"
+                android:background="@drawable/playbutton"
+                />
             <TextView
                 android:layout_width="0dp"
-                android:layout_weight="0.6"
+                android:layout_weight="0.5"
                 android:layout_height="wrap_content"
                 android:paddingLeft="10dp"
                 android:fontFamily="@font/notoblack"
