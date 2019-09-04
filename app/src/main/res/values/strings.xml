@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">junWiDi</string>
+
+    <string name="title_activity_client">Client</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="시작">시작</string>
+    <string name="일시정지">일시정지</string>
 </resources>
