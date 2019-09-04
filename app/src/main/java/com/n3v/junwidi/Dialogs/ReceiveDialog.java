@@ -41,7 +41,7 @@ public class ReceiveDialog extends Dialog {
 
     public ReceiveDialog(Context context, final String fileName, MyDialogListener dialogListener) {
         super(context);
-        mContext = context;
+        this.mContext = context;
         this.fileName = fileName;
         this.myDialogListener = dialogListener;
     }
@@ -91,11 +91,11 @@ public class ReceiveDialog extends Dialog {
         @Override
         public void onClick(View view) {
             if (view.equals(okButton)) {
-                myDialogListener.onClickOK(state);
+                myDialogListener.onRcvClickOK(state);
                 state = RCV_DLG_DOWNLOADING;
                 setDownloading();
             } else if (view.equals(cancelButton)) {
-                myDialogListener.onClickCancel(state);
+                myDialogListener.onRcvClickCancel(state);
             }
         }
     };
