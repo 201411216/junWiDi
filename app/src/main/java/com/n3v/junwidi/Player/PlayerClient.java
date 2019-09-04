@@ -1,14 +1,19 @@
 package com.n3v.junwidi.Player;
 
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.ViewGroup;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.n3v.junwidi.DeviceInfo;
 import com.n3v.junwidi.R;
+
+import java.util.ArrayList;
 
 
 public class PlayerClient extends AppCompatActivity {
@@ -33,6 +38,10 @@ public class PlayerClient extends AppCompatActivity {
         //filename = this.getExternalFilesDir(null) + "/TogetherTheater";
         Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
         vv.setVideoURI(video);
+
+        Intent intent = this.getIntent();
+        ArrayList deviceInfoList = new ArrayList<DeviceInfo>();
+
         ViewGroup.LayoutParams params = vv.getLayoutParams();
         params.height = H;
         params.width = W;

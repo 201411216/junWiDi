@@ -1,11 +1,13 @@
 package com.n3v.junwidi;
 
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /*
 통신 및 영상 재생에 필요한 기기 정보를 저장할 객체
  */
-public class DeviceInfo {
+public class DeviceInfo implements Parcelable {
 
     private WifiP2pDevice wifiP2pDevice;
     private String str_address;
@@ -34,6 +36,28 @@ public class DeviceInfo {
         this.density = density;
         this.isGroupOwner = isGroupOwner;
     }
+
+    public DeviceInfo(Parcel in) {
+        this.wifiP2pDevice = WifiP2pDevice.CREATOR.createFromParcel(in);
+        this.str_address = in.readString();
+        this.px_width = in.readInt();
+        this.px_height = in.readInt();
+        this.dpi = in.readInt();
+        this.density = in.readFloat();
+        this.isGroupOwner = Boolean.valueOf(in.readString());
+    }
+
+    public static final Creator<DeviceInfo> CREATOR = new Creator<DeviceInfo>() {
+        @Override
+        public DeviceInfo createFromParcel(Parcel in) {
+            return new DeviceInfo(in);
+        }
+
+        @Override
+        public DeviceInfo[] newArray(int size) {
+            return new DeviceInfo[size];
+        }
+    };
 
     public int getPx_width() {
         return px_width;
@@ -93,5 +117,18 @@ public class DeviceInfo {
 
     public String getString() {
         return wifiP2pDevice.deviceAddress + "+=+" + str_address + "+=+" + px_width + "+=+" + px_height + "+=+" + dpi + "+=+" + density + "+=+" + isGroupOwner;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeParcelable(wifiP2pDevice, 0);
+        parcel.writeString(str_address);
+        parcel.writeInt(px_width);
+        parcel.writeInt(px_height);
     }
 }

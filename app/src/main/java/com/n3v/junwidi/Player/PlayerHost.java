@@ -114,9 +114,6 @@ public class PlayerHost extends AppCompatActivity {
         return dp;
     }
 
-
-
-
     //user 변수의 값이 1일 경우(=호스트 기기일 경우) 미디어 컨트롤러 생성
     public void mediaController() {
         if (isGroupOwner = true) {
