@@ -1,7 +1,6 @@
 package com.n3v.junwidi.Player;
 
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -10,7 +9,6 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.VideoView;
@@ -30,6 +28,7 @@ public class PlayerHost extends AppCompatActivity {
     public float density;
     public boolean isGroupOwner;
     //
+    DisplayMetrics metrics = new DisplayMetrics();
     int user = 1;//사용자 식별번호, 호스트 기기에만 미디어컨트롤러가 나오도록 하기 위함(user 변수의 값이 1인 경우에만 나오게 함)
     int aW, bW, cW, aH, bH, cH = 0;//화면 분할을 위한 각 디바이스 가로세로 길이
     int sH = 0;//기기 a b c 중 가장 작은 높이값
@@ -42,7 +41,6 @@ public class PlayerHost extends AppCompatActivity {
     VideoView vv;
     Button btnStart, btnPause;
     //
-    float dp;
 
 
     @Override
@@ -87,34 +85,20 @@ public class PlayerHost extends AppCompatActivity {
 
         //비디오뷰 사이즈 조절
         ViewGroup.LayoutParams params = vv.getLayoutParams();
-        //params.height = H;
-        //params.width = W;
-        dp=getResources().getDisplayMetrics().density;
-
-        int ww = DpToPx(2000);
-        params.height = PxToDp(2000);
-        int hh = DpToPx(1000);
-        params.width = PxToDp(1000);
-
+        //밀리미터 단위로 단위변환
+        int ww=300;
+        int hh=200;
+        PxToMm(ww,metrics);
+        PxToMm(hh,metrics);
+        ww=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM,ww,getResources().getDisplayMetrics());
+        hh=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM,hh,getResources().getDisplayMetrics());
+        //비디오뷰 사이즈 결정
+        params.height = ww;
+        params.width = hh;
         vv.setLayoutParams(params);
         vv.setX(aX);
         vv.setY(aY);
     }
-
-    public int DpToPx(int dp){
-        Resources resources = this.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        int px = dp * (metrics.densityDpi / 160);
-        return px;
-    }
-
-    //px을 dp로 변환 (px을 입력받아 dp를 리턴)
-    public int PxToDp(int dp){
-        float density = this.getResources().getDisplayMetrics().density;
-        return Math.round((dp*density));
-    }
-
-
 
 
     //user 변수의 값이 1일 경우(=호스트 기기일 경우) 미디어 컨트롤러 생성
@@ -127,7 +111,9 @@ public class PlayerHost extends AppCompatActivity {
 
         }
     }
-
+    public int PxToMm(int value,DisplayMetrics metrics){
+        return value * metrics.densityDpi;
+    }
 
     public void StartButton(View v) {
         playVideo();
