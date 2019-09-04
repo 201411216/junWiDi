@@ -605,15 +605,19 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             arrIndex++;
         }
         Collections.sort(wPlusH, Collections.<Integer>reverseOrder());
+        int tmp_position = 1;
         for (int i : wPlusH) {
             for (DeviceInfo di : tempArr) {
-                if (i == -1) {
-                    if (di.isGroupOwner()) {
-                        
-                    }
+                if (di.getMm_height() == i) {
+                    di.setPosition(tmp_position);
+                    tmp_position++;
+                }
+                if (i == -1 && di.isGroupOwner()) {
+                    di.setPosition(tmp_position);
                 }
             }
         }
+
 
         return tempArr;
     }
