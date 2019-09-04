@@ -469,6 +469,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onProgressFinished() {
         receiveDialog.cancel();
+        nowTask = null;
     }
 
     @Override
@@ -482,6 +483,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     public void onRcvClickCancel(int state) {
         if (nowTask != null) {
             nowTask.cancel(true);
+            nowTask = null;
         }
         receiveDialog.cancel();
     }

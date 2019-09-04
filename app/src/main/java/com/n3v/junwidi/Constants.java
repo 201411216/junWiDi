@@ -26,4 +26,5 @@ public class Constants {
     public static final String DELIMITER = "+=+";
 
     public static final String BLOCKED_GRAY = "#AAAAAA";
+    public static final String OK_SKYBLUE = "#4095FB";
 }

@@ -57,7 +57,15 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
     String videoPath = "";
 
+    private boolean waiting = false;
     private boolean handshaked = false;
+    private boolean sended = false;
+    private boolean send_finished = false;
+    private boolean sending = false;
+
+    long sumReadByte = 0;
+    long lastPublishedReadByte = 0;
+    int progress = 0;
 
     public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, MyServerTaskListener serverTaskListener) {
         this.myContext = context;
@@ -233,6 +241,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     Toaster.get().showToast(myContext, "Send File to " + di.getWifiP2pDevice().deviceName, Toast.LENGTH_SHORT);
                     startTime = System.currentTimeMillis();
 
+                    sumReadByte = 0;
+                    lastPublishedReadByte = 0;
+                    progress = 0;
+
                     Log.v(TAG, "post dos open");
 
                     DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -240,6 +252,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
                     dos.close();
                     socket.close();
+
+                    waiting = true;
+                    publishProgress();
 
                     Log.v(TAG, "post server open");
 
@@ -279,13 +294,28 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
                     OutputStream os = socket.getOutputStream();
                     totalReadByte = 0;
+
+                    sending = true;
+
                     while ((readByte = fis.read(buffer)) > 0) {
                         os.write(buffer, 0, readByte);
                         totalReadByte += readByte;
+                        sumReadByte += readByte;
+                        if (sumReadByte - lastPublishedReadByte > (fileSize / 100)) {
+                            progress++;
+                            lastPublishedReadByte = sumReadByte;
+                            publishProgress();
+                        }
                     }
+
+                    sending = false;
+
                     endTime = System.currentTimeMillis();
                     diffTime = (endTime - startTime) / 1000;
                     avgTransferSpeed = ((double) fileSize / 1000) / diffTime;
+
+                    sended = true;
+                    publishProgress();
 
                     Log.v(TAG, "Send " + deviceCount + " complete");
                     Log.v(TAG, "Time : " + diffTime + "(sec)");
@@ -308,6 +338,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 totalEndTime = System.currentTimeMillis();
                 totalDiffTime = (totalEndTime - totalStartTime) / 1000;
                 totalAvgTransferSpeed = (((double) fileSize * deviceCount) / 1000) / totalDiffTime;
+
+                send_finished = true;
+                publishProgress();
+
                 Log.v(TAG, "Send to " + deviceCount + "device(s) complete");
                 Log.v(TAG, "Total Time : " + totalDiffTime + "(sec)");
                 Log.v(TAG, "Total AVG Transfer Speed : " + totalAvgTransferSpeed + "(KB/s)");
@@ -328,8 +362,24 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     protected void onProgressUpdate(Integer... values){
         super.onProgressUpdate(values);
         if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
+            if (sending == true) {
+                serverTaskListener.progressUpdate(progress);
+            }
+            if (waiting == true) {
+                serverTaskListener.onWaiting();
+                waiting = false;
+            }
             if (handshaked == true) {
                 serverTaskListener.onHandshaked();
+                handshaked = false;
+            }
+            if (sended == true) {
+                serverTaskListener.onSendFinished();
+                sended = false;
+            }
+            if (send_finished == true) {
+                serverTaskListener.onAllSendFinished();
+                send_finished = false;
             }
         }
     }

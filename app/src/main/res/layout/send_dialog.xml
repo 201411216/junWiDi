@@ -55,7 +55,7 @@
             android:fontFamily="@font/notoregular"
             android:textColor="#4B4747"
             android:id="@+id/send_dialog_txt_question"
-            android:text="파일을 전송 하시겠습니까?"/>
+            android:text="파일을 전송하시겠습니까?"/>
 
     </LinearLayout>
     <LinearLayout

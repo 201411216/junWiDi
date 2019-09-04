@@ -6,5 +6,6 @@ public interface MyServerTaskListener {
     void onSendFinished();
     void onHandshaked();
     void onAllSendFinished();
+    void onWaiting();
 
 }

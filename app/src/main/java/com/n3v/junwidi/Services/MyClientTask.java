@@ -252,7 +252,6 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
             int readByte = 0;
             long sumReadByte = 0;
-            long totalReadByte = 0;
             long lastPublishedReadByte = 0;
 
             byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
