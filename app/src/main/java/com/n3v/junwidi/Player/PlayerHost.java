@@ -1,7 +1,6 @@
 package com.n3v.junwidi.Player;
 
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -10,7 +9,6 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.VideoView;
@@ -30,6 +28,7 @@ public class PlayerHost extends AppCompatActivity {
     public float density;
     public boolean isGroupOwner;
     //
+    DisplayMetrics metrics = new DisplayMetrics();
     int user = 1;//사용자 식별번호, 호스트 기기에만 미디어컨트롤러가 나오도록 하기 위함(user 변수의 값이 1인 경우에만 나오게 함)
     int aW, bW, cW, aH, bH, cH = 0;//화면 분할을 위한 각 디바이스 가로세로 길이
     int sH = 0;//기기 a b c 중 가장 작은 높이값
@@ -42,7 +41,6 @@ public class PlayerHost extends AppCompatActivity {
     VideoView vv;
     Button btnStart, btnPause;
     //
-
 
 
     @Override
@@ -87,13 +85,16 @@ public class PlayerHost extends AppCompatActivity {
 
         //비디오뷰 사이즈 조절
         ViewGroup.LayoutParams params = vv.getLayoutParams();
-        //params.height = H;
-        //params.width = W;
-        int ww = DpToPx(2000);
+        //밀리미터 단위로 단위변환
+        int ww=300;
+        int hh=200;
+        PxToMm(ww,metrics);
+        PxToMm(hh,metrics);
+        ww=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM,ww,getResources().getDisplayMetrics());
+        hh=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM,hh,getResources().getDisplayMetrics());
+        //비디오뷰 사이즈 결정
         params.height = ww;
-        int hh = DpToPx(1000);
         params.width = hh;
-
         vv.setLayoutParams(params);
         vv.setX(aX);
         vv.setY(aY);
@@ -124,7 +125,9 @@ public class PlayerHost extends AppCompatActivity {
 
         }
     }
-
+    public int PxToMm(int value,DisplayMetrics metrics){
+        return value * metrics.densityDpi;
+    }
 
     public void StartButton(View v) {
         playVideo();

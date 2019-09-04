@@ -11,8 +11,8 @@
 
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
-        <activity android:name=".Player.Client"></activity>
-        <activity android:name=".Player.Host">
+        <activity android:name=".Player.PlayerClient"></activity>
+        <activity android:name=".Player.PlayerHost">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
