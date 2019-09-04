@@ -42,7 +42,7 @@ public class PlayerHost extends AppCompatActivity {
     VideoView vv;
     Button btnStart, btnPause;
     //
-
+    float dp;
 
 
     @Override
@@ -89,10 +89,12 @@ public class PlayerHost extends AppCompatActivity {
         ViewGroup.LayoutParams params = vv.getLayoutParams();
         //params.height = H;
         //params.width = W;
+        dp=getResources().getDisplayMetrics().density;
+
         int ww = DpToPx(2000);
-        params.height = ww;
+        params.height = PxToDp(2000);
         int hh = DpToPx(1000);
-        params.width = hh;
+        params.width = PxToDp(1000);
 
         vv.setLayoutParams(params);
         vv.setX(aX);
@@ -107,11 +109,9 @@ public class PlayerHost extends AppCompatActivity {
     }
 
     //px을 dp로 변환 (px을 입력받아 dp를 리턴)
-    public int PxToDp(int px){
-        Resources resources = this.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        int dp = px / (metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return dp;
+    public int PxToDp(int dp){
+        float density = this.getResources().getDisplayMetrics().density;
+        return Math.round((dp*density));
     }
 
 
