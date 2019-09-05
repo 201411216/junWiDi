@@ -1,4 +1,4 @@
-package com.n3v.junwidi;
+package com.n3v.junwidi.BroadcastReceiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

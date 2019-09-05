@@ -10,12 +10,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.n3v.junwidi.Constants;
-import com.n3v.junwidi.DeviceInfo;
+import com.n3v.junwidi.Utils.Constants;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.R;
-
-import java.net.InetAddress;
 
 public class ReceiveDialog extends Dialog {
 

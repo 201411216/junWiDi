@@ -1,9 +1,11 @@
-package com.n3v.junwidi;
+package com.n3v.junwidi.Datas;
 
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.DisplayMetrics;
+
+import com.n3v.junwidi.Utils.Constants;
 
 /*
 통신 및 영상 재생에 필요한 기기 정보를 저장할 객체

@@ -1,16 +1,15 @@
-package com.n3v.junwidi.Player;
+package com.n3v.junwidi;
 
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.ViewGroup;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.n3v.junwidi.DeviceInfo;
+import com.n3v.junwidi.Datas.DeviceInfo;
 import com.n3v.junwidi.R;
 
 import java.util.ArrayList;

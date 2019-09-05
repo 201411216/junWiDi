@@ -1,4 +1,4 @@
-package com.n3v.junwidi;
+package com.n3v.junwidi.Utils;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;

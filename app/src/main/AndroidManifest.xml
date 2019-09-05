@@ -24,9 +24,9 @@
         <activity
             android:name=".ClientActivity"
             android:parentActivityName=".MainActivity"/>
-        <activity android:name=".Player.PlayerClient"/>
+        <activity android:name=".PlayerClient"/>
 
-        <activity android:name=".Player.PlayerHost">
+        <activity android:name=".PlayerHost">
         </activity>
 
     </application>

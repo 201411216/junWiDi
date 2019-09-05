@@ -1,13 +1,15 @@
-package com.n3v.junwidi;
+package com.n3v.junwidi.Adapter;
 
 import android.content.Context;
 import android.net.wifi.p2p.WifiP2pDevice;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.n3v.junwidi.Datas.DeviceInfo;
+import com.n3v.junwidi.R;
 
 import java.util.ArrayList;
 import java.util.Collection;

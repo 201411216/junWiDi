@@ -1,4 +1,4 @@
-package com.n3v.junwidi.Player;
+package com.n3v.junwidi;
 
 
 import android.content.res.Resources;

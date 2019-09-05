@@ -1,4 +1,4 @@
-package com.n3v.junwidi;
+package com.n3v.junwidi.Utils;
 
 public class Constants {
     public static final int FILE_SERVICE_PORT = 8888; // File 전송에 사용할 PORT 번호

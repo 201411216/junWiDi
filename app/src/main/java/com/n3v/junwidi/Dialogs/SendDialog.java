@@ -10,10 +10,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.n3v.junwidi.Constants;
+import com.n3v.junwidi.Utils.Constants;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.R;
-import com.n3v.junwidi.Services.MyClientTask;
 
 public class SendDialog extends Dialog {
 

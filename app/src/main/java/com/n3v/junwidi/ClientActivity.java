@@ -1,7 +1,6 @@
 package com.n3v.junwidi;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -25,6 +24,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.n3v.junwidi.Adapter.MyClientAdapter;
+import com.n3v.junwidi.BroadcastReceiver.MyBroadCastReceiver;
+import com.n3v.junwidi.Datas.DeviceInfo;
 import com.n3v.junwidi.Dialogs.ReceiveDialog;
 import com.n3v.junwidi.Dialogs.SendDialog;
 import com.n3v.junwidi.Listener.MyClientTaskListener;

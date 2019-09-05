@@ -6,7 +6,7 @@
         android:id="@+id/cL1"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        tools:context="Player.PlayerHost">
+        tools:context=".PlayerHost">
 
     <VideoView
         android:id="@+id/videoView1"

@@ -1,25 +1,20 @@
 package com.n3v.junwidi.Services;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.n3v.junwidi.Constants;
-import com.n3v.junwidi.DeviceInfo;
+import com.n3v.junwidi.Utils.Constants;
+import com.n3v.junwidi.Datas.DeviceInfo;
 import com.n3v.junwidi.Listener.MyClientTaskListener;
 
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
-
-import static android.content.Context.WIFI_SERVICE;
 
 public class MyClientTask extends AsyncTask<Void, Integer, String> {
 

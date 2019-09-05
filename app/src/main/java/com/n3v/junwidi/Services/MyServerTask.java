@@ -8,8 +8,8 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import com.n3v.junwidi.Constants;
-import com.n3v.junwidi.DeviceInfo;
+import com.n3v.junwidi.Utils.Constants;
+import com.n3v.junwidi.Datas.DeviceInfo;
 import com.n3v.junwidi.Listener.MyServerTaskListener;
 
 import java.io.DataInputStream;
