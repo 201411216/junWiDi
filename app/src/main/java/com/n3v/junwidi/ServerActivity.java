@@ -14,6 +14,7 @@ import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -39,6 +40,8 @@ import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 import com.n3v.junwidi.Utils.RealPathUtil;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -103,11 +106,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
         btn_File_Select.setText("시간 전송");
 
-        if (!isFileSelected) {
-            btn_File_Select.setText("비디오 선택");
-            btn_File_Transfer.setEnabled(false);
-        }
-
         btn_File_Select.setOnClickListener(myClickListener);
         btn_File_Transfer.setOnClickListener(myClickListener);
 
@@ -143,8 +141,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+        getSupportActionBar().setTitle("Group Status");
         return true;
-
     }
 
     private View.OnClickListener myClickListener = new View.OnClickListener() {
@@ -161,7 +159,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     videoPath = "";
                     txt_Video_Path.setText("-");
                     isFileSelected = false;
-                    btn_File_Select.setText("비디오 선택");
+
                     btn_File_Transfer.setEnabled(false);
                 }
                 //callServerTask(MyServerTask.SERVER_MESSAGE_SERVICE);
@@ -194,7 +192,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     Log.v(TAG, videoPath + " selected");
                     txt_Video_Path.setText(videoPath);
                     isFileSelected = true;
-                    btn_File_Select.setText("선택 취소");
+
                     btn_File_Transfer.setEnabled(true);
                     showToast(videoPath + " selected");
                 }
@@ -218,6 +216,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         super.onResume();
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
+        myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
+            @Override
+            public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+                deviceListUpdate(wifiP2pGroup);
+                Log.v(TAG, "onGroupInfoAvailable()");
+            }
+        });
     }
 
     @Override
@@ -230,6 +235,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onDestroy() {
         super.onDestroy();
         removeGroup();
+        myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
+            @Override
+            public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+                deviceListUpdate(wifiP2pGroup);
+                Log.v(TAG, "onGroupInfoAvailable()");
+            }
+        });
     }
 
     @Override
@@ -262,17 +274,31 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             setMyDeviceInfo(wifiP2pInfo);
         }
 
+        int tmpListSize = myDeviceInfoList.size();
+
+        Log.v(TAG, "testest0 : " + tmpListSize);
+
         myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
-                Log.v(TAG, "onGroupInfoAvailable()");
                 deviceListUpdate(wifiP2pGroup);
+                Log.v(TAG, "onGroupInfoAvailable()");
             }
         });
 
-        if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) { // p3
-            callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
+        Log.v(TAG, "testest1 : " + myDeviceInfoList.size());
+/*
+        if (myDeviceInfoList.size() > tmpListSize) {
+
+            Log.v(TAG, "testest2");
+
+            if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) { // p3
+                Log.v(TAG, "testest3");
+                callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
+            }
+
         }
+*/
     }
 
     /*
@@ -475,6 +501,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     DeviceInfo di = new DeviceInfo(tempWifiP2pDeviceList.get(i));
                     myDeviceInfoList.add(di);
                     Log.v(TAG, "added : " + tempWifiP2pDeviceList.get(i).deviceName);
+                    callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
                     return;
                 }
             }
@@ -521,12 +548,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     }
 
     public void setMyDeviceInfo(WifiP2pInfo wifiP2pInfo) {
+        String brandName = Build.BRAND;
+        String modelName = Build.MODEL;
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
         int height = dm.heightPixels;
         int densityDpi = dm.densityDpi;
         boolean isGroupOwner = true;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, densityDpi, isGroupOwner);
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, densityDpi, isGroupOwner);
     }
 
     @Override

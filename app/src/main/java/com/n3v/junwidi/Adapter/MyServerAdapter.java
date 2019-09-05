@@ -46,8 +46,12 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
         if (tempDevice != null) {
             TextView item_Client_Device_Name = (TextView) v.findViewById(R.id.item_client_device_name);
             TextView item_Client_Device_Model = (TextView) v.findViewById(R.id.item_client_device_model);
-            if (tempDevice.getWifiP2pDevice().deviceName != null) {
+            if (tempDevice.getWifiP2pDevice().deviceName != "") {
                 item_Client_Device_Name.setText(tempDevice.getWifiP2pDevice().deviceName);
+            }
+            if (tempDevice.getBrand_Name() != "" && tempDevice.getModel_Name() != "") {
+                String brandPlusModel = tempDevice.getBrand_Name() + " " + tempDevice.getModel_Name();
+                item_Client_Device_Model.setText(brandPlusModel);
             }
 
         }

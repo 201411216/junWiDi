@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -109,8 +110,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+        getSupportActionBar().setTitle("Receive");
         return true;
     }
 
@@ -458,12 +461,15 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     }
 
     public void setMyDeviceInfo(WifiP2pInfo wifiP2pInfo) {
+        String brandName = Build.BRAND;
+        String modelName = Build.MODEL;
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
         int height = dm.heightPixels;
         int densityDpi = dm.densityDpi;
         boolean isGroupOwner = false;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, densityDpi, isGroupOwner);
+
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, getDottedDecimalIP(getLocalIPAddress()), width, height, densityDpi, isGroupOwner);
         myDeviceInfo.convertPx();
         Log.v(TAG, "Local IP : " + getDottedDecimalIP(getLocalIPAddress()));
     }
