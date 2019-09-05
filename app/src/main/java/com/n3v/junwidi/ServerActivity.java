@@ -144,8 +144,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+        getSupportActionBar().setTitle("Group Status");
         return true;
-
     }
 
     private View.OnClickListener myClickListener = new View.OnClickListener() {
