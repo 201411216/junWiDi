@@ -24,19 +24,11 @@ public class DeviceInfo implements Parcelable {
 
     private int position = -1;
 
-    private int mm_video_width = -1;
-    private int mm_video_height = -1;
+    private int mm_videoview_width = -1;
+    private int mm_videoview_height = -1;
 
     private int setXValue = -1;
     private int setYValue = -1;
-
-    public void setMm_width(int mm_width) {
-        this.mm_width = mm_width;
-    }
-
-    public void setMm_height(int mm_height) {
-        this.mm_height = mm_height;
-    }
 
     public DeviceInfo(WifiP2pDevice device) {
         wifiP2pDevice = device;
@@ -128,6 +120,46 @@ public class DeviceInfo implements Parcelable {
 
     public void setDensityDpi(int densityDpi) {
         this.densityDpi = densityDpi;
+    }
+
+    public void setMm_width(int mm_width) {
+        this.mm_width = mm_width;
+    }
+
+    public void setMm_height(int mm_height) {
+        this.mm_height = mm_height;
+    }
+
+    public int getMm_videoview_width() {
+        return mm_videoview_width;
+    }
+
+    public void setMm_videoview_width(int mm_videoview_width) {
+        this.mm_videoview_width = mm_videoview_width;
+    }
+
+    public int getMm_videoview_height() {
+        return mm_videoview_height;
+    }
+
+    public void setMm_videoview_height(int mm_videoview_height) {
+        this.mm_videoview_height = mm_videoview_height;
+    }
+
+    public int getSetXValue() {
+        return setXValue;
+    }
+
+    public void setSetXValue(int setXValue) {
+        this.setXValue = setXValue;
+    }
+
+    public int getSetYValue() {
+        return setYValue;
+    }
+
+    public void setSetYValue(int setYValue) {
+        this.setYValue = setYValue;
     }
 
     public boolean isGroupOwner() {

@@ -46,26 +46,8 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
         if (tempDevice != null) {
             TextView item_Client_Device_Name = (TextView) v.findViewById(R.id.item_client_device_name);
             TextView item_Client_Device_Model = (TextView) v.findViewById(R.id.item_client_device_model);
-            TextView item_Client_Device_State = (TextView) v.findViewById(R.id.item_client_device_state);
-            TextView item_Client_Device_Address = (TextView) v.findViewById(R.id.item_client_device_address);
-            TextView item_Client_Device_Width_Px = (TextView) v.findViewById(R.id.item_client_device_width_px);
-            TextView item_Client_Device_Height_Px = (TextView) v.findViewById(R.id.item_client_device_height_px);
-            TextView item_Client_Device_Dpi = (TextView) v.findViewById(R.id.item_client_device_dpi);
             if (tempDevice.getWifiP2pDevice().deviceName != null) {
                 item_Client_Device_Name.setText(tempDevice.getWifiP2pDevice().deviceName);
-            }
-            item_Client_Device_State.setText(getDeviceState(tempDevice.getWifiP2pDevice().status));
-            if (tempDevice.getStr_address() != null) {
-                item_Client_Device_Address.setText(tempDevice.getStr_address());
-            }
-            if (tempDevice.getPx_width() != -1) {
-                item_Client_Device_Width_Px.setText(Integer.toString(tempDevice.getPx_width()));
-            }
-            if (tempDevice.getPx_height() != -1) {
-                item_Client_Device_Height_Px.setText(Integer.toString(tempDevice.getPx_height()));
-            }
-            if (tempDevice.getDpi() != -1) {
-                item_Client_Device_Dpi.setText(Float.toString(tempDevice.getDpi()));
             }
 
         }

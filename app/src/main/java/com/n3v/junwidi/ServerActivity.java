@@ -590,30 +590,5 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         sendDialog.setWaiting();
     }
 
-    public void calcVideoSize() {
-        int videoWidth = 0;
-        int videoHeight = 0;
 
-        DisplayMetrics dm = new DisplayMetrics();
-
-        int temp;
-        //해상도 넓이,높이값 최대공약수
-        int gcd;
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource("android.resource://" + getPackageName() + "/" + R.raw.test2);
-        videoWidth = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-        videoHeight = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-        retriever.release();
-        int a = videoWidth;
-        int b = videoHeight;
-        while (a != 0) {
-            if (a < b) {
-                temp = a;
-                a = b;
-                b = temp;
-            }
-            a = a - b;
-        }
-        gcd = b;
-    }
 }
