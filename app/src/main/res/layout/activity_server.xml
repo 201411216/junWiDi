@@ -120,7 +120,16 @@
                 android:textSize="15dp"
                 />
         </LinearLayout>
-
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notoblack"
+            android:paddingLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="Client"
+            android:textColor="#ffffff"
+            android:textSize="14dp" />
     </LinearLayout>
 
 

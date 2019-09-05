@@ -106,11 +106,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
         btn_File_Select.setText("시간 전송");
 
-        if (!isFileSelected) {
-            btn_File_Select.setText("비디오 선택");
-            btn_File_Transfer.setEnabled(false);
-        }
-
         btn_File_Select.setOnClickListener(myClickListener);
         btn_File_Transfer.setOnClickListener(myClickListener);
 
@@ -164,7 +159,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     videoPath = "";
                     txt_Video_Path.setText("-");
                     isFileSelected = false;
-                    btn_File_Select.setText("비디오 선택");
+
                     btn_File_Transfer.setEnabled(false);
                 }
                 //callServerTask(MyServerTask.SERVER_MESSAGE_SERVICE);
@@ -197,7 +192,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     Log.v(TAG, videoPath + " selected");
                     txt_Video_Path.setText(videoPath);
                     isFileSelected = true;
-                    btn_File_Select.setText("선택 취소");
+
                     btn_File_Transfer.setEnabled(true);
                     showToast(videoPath + " selected");
                 }
