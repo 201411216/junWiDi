@@ -125,6 +125,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
             datagramSocket = null;
             try {
+                /*
                 InetAddress addr = InetAddress.getByName(host_addr);
                 datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 datagramSocket.setSoTimeout(Constants.COMMON_TIMEOUT);
@@ -135,6 +136,22 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 datagramSocket.send(packet);
                 Log.v(TAG, "Send message complete");
                 publishProgress();
+                */
+                socket = new Socket(host_addr, Constants.FILE_SERVICE_PORT);
+
+                /*
+                if (!socket.isConnected()) {
+                    Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : Socket connecting error");
+                    socket.close();
+                    return "";
+                }
+                */
+
+                String okMessage = myDeviceInfo.getString();
+
+                dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF(okMessage);
+
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : InetAddress addr = InetAddress.getByName(\"255.255.255.255\");");
@@ -145,8 +162,12 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (datagramSocket != null && !datagramSocket.isClosed()) {
-                    datagramSocket.close();
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         } else if (ACT_MODE.equals(CLIENT_MESSAGE_SERVICE)) {

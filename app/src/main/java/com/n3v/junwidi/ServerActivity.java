@@ -40,6 +40,8 @@ import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 import com.n3v.junwidi.Utils.RealPathUtil;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -219,6 +221,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         super.onResume();
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
+        myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
+            @Override
+            public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+                deviceListUpdate(wifiP2pGroup);
+                Log.v(TAG, "onGroupInfoAvailable()");
+            }
+        });
     }
 
     @Override
@@ -231,6 +240,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onDestroy() {
         super.onDestroy();
         removeGroup();
+        myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
+            @Override
+            public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
+                deviceListUpdate(wifiP2pGroup);
+                Log.v(TAG, "onGroupInfoAvailable()");
+            }
+        });
     }
 
     @Override
@@ -263,17 +279,31 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             setMyDeviceInfo(wifiP2pInfo);
         }
 
+        int tmpListSize = myDeviceInfoList.size();
+
+        Log.v(TAG, "testest0 : " + tmpListSize);
+
         myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
-                Log.v(TAG, "onGroupInfoAvailable()");
                 deviceListUpdate(wifiP2pGroup);
+                Log.v(TAG, "onGroupInfoAvailable()");
             }
         });
 
-        if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) { // p3
-            callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
+        Log.v(TAG, "testest1 : " + myDeviceInfoList.size());
+/*
+        if (myDeviceInfoList.size() > tmpListSize) {
+
+            Log.v(TAG, "testest2");
+
+            if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) { // p3
+                Log.v(TAG, "testest3");
+                callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
+            }
+
         }
+*/
     }
 
     /*
@@ -476,6 +506,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     DeviceInfo di = new DeviceInfo(tempWifiP2pDeviceList.get(i));
                     myDeviceInfoList.add(di);
                     Log.v(TAG, "added : " + tempWifiP2pDeviceList.get(i).deviceName);
+                    callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
                     return;
                 }
             }

@@ -193,7 +193,7 @@ public class DeviceInfo implements Parcelable {
     }
 
     public String getString() {
-        return wifiP2pDevice.deviceAddress + Constants.DELIMITER  + brand_Name + Constants.DELIMITER + model_Name + Constants.DELIMITER + str_address + Constants.DELIMITER + px_width + Constants.DELIMITER + px_height + Constants.DELIMITER + densityDpi + Constants.DELIMITER
+        return wifiP2pDevice.deviceAddress + Constants.DELIMITER + brand_Name + Constants.DELIMITER + model_Name + Constants.DELIMITER + str_address + Constants.DELIMITER + px_width + Constants.DELIMITER + px_height + Constants.DELIMITER + densityDpi + Constants.DELIMITER
                 + isGroupOwner + Constants.DELIMITER + mm_width + Constants.DELIMITER + mm_height;
     }
 
@@ -228,6 +228,10 @@ public class DeviceInfo implements Parcelable {
 
     public int pxToMm(int value) {
         return value * this.densityDpi;
+    }
+
+    public int mmToPx(int value) {
+        return value / this.densityDpi;
     }
 
 }
