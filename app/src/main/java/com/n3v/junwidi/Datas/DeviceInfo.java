@@ -214,6 +214,11 @@ public class DeviceInfo implements Parcelable {
         parcel.writeString(Boolean.toString(isGroupOwner));
         parcel.writeInt(mm_width);
         parcel.writeInt(mm_height);
+        parcel.writeInt(position);
+        parcel.writeInt(mm_videoview_width);
+        parcel.writeInt(mm_videoview_height);
+        parcel.writeInt(setXValue);
+        parcel.writeInt(setYValue);
     }
 
     public void convertPx() {

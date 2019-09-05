@@ -16,8 +16,9 @@ public class DeviceInfoListUtil {
 
     public String videoPath = "";
 
-    public DeviceInfoListUtil(final ArrayList<DeviceInfo> deviceInfoArrayList) {
+    public DeviceInfoListUtil(final ArrayList<DeviceInfo> deviceInfoArrayList, String videoPath) {
         this.deviceInfoArrayList = deviceInfoArrayList;
+        this.videoPath = videoPath;
     }
 
     public DeviceInfoListUtil(final ArrayList<DeviceInfo> dial, final DeviceInfo myDeviceInfo, final String videoPath) {
@@ -56,21 +57,11 @@ public class DeviceInfoListUtil {
 
 
 
-    public void makePosition() {
-
-    }
-
-    public ArrayList<DeviceInfo> calcDeviceList(){
-        ArrayList<DeviceInfo> tempArr = new ArrayList<>();
-//        tempArr.addAll(myDeviceInfoList);
-//        myDeviceInfo.convertPx();
-//        tempArr.add(myDeviceInfo);
-
+    public void makeAndSortPosition() {
         List<Integer> wPlusH = new ArrayList<>();
         List<Integer> positionArray = new ArrayList<>();
-
         int arrIndex = 0;
-        for (DeviceInfo di : tempArr) {
+        for (DeviceInfo di : deviceInfoArrayList) {
             if (!di.isGroupOwner()) {
                 wPlusH.add(di.getMm_height());
             } else {
@@ -79,9 +70,11 @@ public class DeviceInfoListUtil {
             arrIndex++;
         }
         Collections.sort(wPlusH, Collections.<Integer>reverseOrder());
+
         int tmp_position = 1;
+
         for (int i : wPlusH) {
-            for (DeviceInfo di : tempArr) {
+            for (DeviceInfo di : deviceInfoArrayList) {
                 if (di.getMm_height() == i) {
                     di.setPosition(tmp_position);
                     tmp_position++;
@@ -92,9 +85,23 @@ public class DeviceInfoListUtil {
             }
         }
 
+        ArrayList<DeviceInfo> newDeviceInfoList = new ArrayList<>();
+        for (int positionIndex = 0; positionIndex < deviceInfoArrayList.size(); positionIndex++) {
+            for (DeviceInfo di : deviceInfoArrayList) {
+                if (di.getPosition() == positionIndex + 1) {
+                    newDeviceInfoList.add(di);
+                }
+            }
+        }
 
-        return tempArr;
+        this.deviceInfoArrayList = newDeviceInfoList;
     }
+
+    public void calcVideoViewSize(){
+
+    }
+
+
 
     public int PxToMm(int value, DisplayMetrics dm){
         return value * dm.densityDpi;
