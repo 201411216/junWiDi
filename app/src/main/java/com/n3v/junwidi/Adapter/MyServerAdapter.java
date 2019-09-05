@@ -51,7 +51,7 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
             }
             if (tempDevice.getBrand_Name() != "" && tempDevice.getModel_Name() != "") {
                 String brandPlusModel = tempDevice.getBrand_Name() + " " + tempDevice.getModel_Name();
-                item_Client_Device_Name.setText(brandPlusModel);
+                item_Client_Device_Model.setText(brandPlusModel);
             }
 
         }
