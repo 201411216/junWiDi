@@ -121,6 +121,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
             datagramSocket = null;
             try {
+                /*
                 datagramSocket = new DatagramSocket(Constants.FILE_SERVICE_PORT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setSoTimeout(Constants.HANDSHAKE_TIMEOUT);
@@ -129,6 +130,13 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 datagramSocket.receive(packet);
                 String msg = new String(packet.getData(), 0, packet.getLength());
                 Log.v(TAG, "Receive message : " + msg);
+                */
+
+                serverSocket = new ServerSocket(Constants.FILE_SERVICE_PORT);
+                socket = serverSocket.accept();
+                DataInputStream dis = new DataInputStream(socket.getInputStream());
+                String msg = dis.readUTF();
+
                 StringTokenizer st;
                 for (int i = 0; i < myDeviceInfoList.size(); i++) {
                     st = new StringTokenizer(msg, Constants.DELIMITER);
@@ -147,16 +155,23 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
                 publishProgress();
             } catch (SocketTimeoutException e) {
-                Log.v(TAG, "SERVER_HANDSHAKE_SERVICE : Socket Time out");
+                e.printStackTrace();
             } catch (SocketException e) {
                 e.printStackTrace();
-                Log.e(TAG, "ERROR : DatagramSocket socket = new DatagramSocket();");
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e(TAG, "ERROR : socket.send(packet);");
             } finally {
-                if (datagramSocket != null) {
-                    datagramSocket.close();
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                        Log.v(TAG, "HANDSHAKE : socket closed");
+                    }
+                    if (serverSocket != null && !serverSocket.isClosed()) {
+                        serverSocket.close();
+                        Log.v(TAG, "HANDSHAKE : serverSocket closed");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         } else if (ACT_MODE.equals(SERVER_MESSAGE_SERVICE)) {
@@ -236,11 +251,11 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         socket.close();
                         socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
                     }
- //                   if (!socket.isConnected()) {
- //                       Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : Socket connecting error");
- //                       socket.close();
- //                       continue;
- //                   }
+                    //                   if (!socket.isConnected()) {
+                    //                       Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : Socket connecting error");
+                    //                       socket.close();
+                    //                       continue;
+                    //                   }
                     Toaster.get().showToast(myContext, "Send File to " + di.getWifiP2pDevice().deviceName, Toast.LENGTH_SHORT);
                     startTime = System.currentTimeMillis();
 
@@ -362,7 +377,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     }
 
     @Override
-    protected void onProgressUpdate(Integer... values){
+    protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
             if (sending == true) {
@@ -395,7 +410,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     }
 
     @Override
-    protected void onCancelled(){
+    protected void onCancelled() {
         try {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
