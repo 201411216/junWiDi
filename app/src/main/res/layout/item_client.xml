@@ -12,8 +12,8 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             android:layout_weight="0.1"
             android:background="@drawable/smile1" />
@@ -30,18 +30,42 @@
                 <TextView
                     android:id="@+id/item_client_device_name"
                     android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_paddingbottom="10dp"
                     android:layout_weight="0.6"
-                    android:padding="10dip"
+                    android:fontFamily="@font/notoregular"
                     android:text="Device Name"
-                    android:textSize="20dp" />
+
+                    android:textSize="25dp" />
             </TableRow>
             <TableRow>
 
                 <TextView
                     android:id="@+id/item_client_device_model"
-                    android:layout_weight="0.6"
-                    android:padding="10dip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="10dp"
                     android:text="Device Model"
+                    android:fontFamily="@font/notoregular"
+                    android:textSize="15dp" />
+
+                <TextView
+                    android:id="@+id/item_client_device_model2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="0dp"
+                    android:text="준비됨"
+                    android:textColor="#3FA60F"
+                    android:textSize="15dp" />
+
+                <TextView
+                    android:layout_width="20dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/iconfinder"
+                    android:padding="10dip"
                     android:textSize="15dp" />
             </TableRow>
         </TableLayout>
@@ -49,8 +73,8 @@
         <Button
             android:layout_width="0dp"
             android:layout_height="10dp"
+            android:layout_marginTop="50dp"
             android:layout_marginRight="20dp"
-            android:layout_marginTop="40dp"
             android:layout_weight="0.05"
             android:background="@drawable/rright" />
 

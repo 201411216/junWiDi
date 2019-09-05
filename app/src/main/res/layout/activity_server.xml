@@ -13,45 +13,49 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/notoblack"
             android:paddingLeft="10dp"
+            android:layout_marginBottom="20dp"
             android:text="Owner"
             android:textColor="#ffffff"
             android:textSize="14dp" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <Button
                 android:id="@+id/server_btn_file_select"
-                android:layout_marginLeft="20dp"
                 android:layout_width="0dp"
                 android:layout_height="65dp"
-                android:layout_weight="0.1"
-                android:background="@drawable/search"
-                />
-            <Button
                 android:layout_marginLeft="20dp"
-                android:layout_width="0dp"
-                android:layout_height="65dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
                 android:layout_weight="0.1"
-                android:background="@drawable/playbutton"
-                />
+                android:background="@drawable/search" />
+
             <TextView
-                android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:fontFamily="@font/notoblack"
                 android:id="@+id/server_txt_my_device_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.45"
+                android:fontFamily="@font/notoblack"
+                android:paddingLeft="10dp"
                 android:text="-"
-                android:textSize="20dp"
-                />
+                android:textSize="20dp" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="0.1"
+                android:background="@drawable/playbutton" />
+
             <Button
                 android:id="@+id/server_btn_file_transfer"
-                android:layout_marginRight="20dp"
-                android:layout_width="0dp"
+                android:layout_width="7dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="10dp"
                 android:layout_weight="0.1"
-                android:layout_height="35dp"
-                android:background="@drawable/send"
-                />
+                android:background="@drawable/send" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
