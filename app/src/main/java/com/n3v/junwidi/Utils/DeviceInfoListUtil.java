@@ -16,6 +16,18 @@ public class DeviceInfoListUtil {
 
     public String videoPath = "";
 
+    private int px_video_width = 0;
+    private int px_video_height = 0;
+
+    private int video_width_rate = 0;
+    private int video_height_rate = 0;
+
+    private int mm_videoview_width = 0;
+    private int mm_videoview_height = 0;
+
+    private int mm_min_height = 0;
+    private int mm_sum_width = 0;
+
     public DeviceInfoListUtil(final ArrayList<DeviceInfo> deviceInfoArrayList, String videoPath) {
         this.deviceInfoArrayList = deviceInfoArrayList;
         this.videoPath = videoPath;
@@ -98,6 +110,11 @@ public class DeviceInfoListUtil {
     }
 
     public void calcVideoViewSize(){
+
+        int calculated_mm_vv_width = 0;
+        int calculated_mm_vv_height = 0;
+
+
 
     }
 

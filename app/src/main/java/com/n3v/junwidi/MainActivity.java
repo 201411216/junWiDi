@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         return true;
-
     }
 
 
