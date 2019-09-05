@@ -14,6 +14,7 @@ import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -521,12 +522,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     }
 
     public void setMyDeviceInfo(WifiP2pInfo wifiP2pInfo) {
+        String brandName = Build.BRAND;
+        String modelName = Build.MODEL;
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
         int height = dm.heightPixels;
         int densityDpi = dm.densityDpi;
         boolean isGroupOwner = true;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, densityDpi, isGroupOwner);
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, densityDpi, isGroupOwner);
     }
 
     @Override

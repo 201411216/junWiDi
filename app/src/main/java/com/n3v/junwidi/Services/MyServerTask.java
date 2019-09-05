@@ -133,6 +133,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 for (int i = 0; i < myDeviceInfoList.size(); i++) {
                     st = new StringTokenizer(msg, Constants.DELIMITER);
                     if (myDeviceInfoList.get(i).getWifiP2pDevice().deviceAddress.equals(st.nextToken())) {
+                        myDeviceInfoList.get(i).setBrand_Name(st.nextToken());
+                        myDeviceInfoList.get(i).setModel_Name(st.nextToken());
                         myDeviceInfoList.get(i).setStr_address(st.nextToken());
                         myDeviceInfoList.get(i).setPx_width(Integer.parseInt(st.nextToken()));
                         myDeviceInfoList.get(i).setPx_height(Integer.parseInt(st.nextToken()));

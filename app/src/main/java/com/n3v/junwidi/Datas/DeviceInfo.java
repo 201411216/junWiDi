@@ -13,6 +13,8 @@ import com.n3v.junwidi.Utils.Constants;
 public class DeviceInfo implements Parcelable {
 
     private WifiP2pDevice wifiP2pDevice = null;
+    private String brand_Name = "";
+    private String model_Name = "";
     private String str_address = "";
     private int px_width = -1;
     private int px_height = -1;
@@ -34,8 +36,10 @@ public class DeviceInfo implements Parcelable {
         wifiP2pDevice = device;
     }
 
-    public DeviceInfo(WifiP2pDevice device, String addr, int width, int height, int densityDpi, boolean isGroupOwner) {
+    public DeviceInfo(WifiP2pDevice device, String brand_Name, String model_Name, String addr, int width, int height, int densityDpi, boolean isGroupOwner) {
         this.wifiP2pDevice = device;
+        this.brand_Name = brand_Name;
+        this.model_Name = model_Name;
         this.str_address = addr;
         this.px_width = width;
         this.px_height = height;
@@ -45,6 +49,8 @@ public class DeviceInfo implements Parcelable {
 
     public DeviceInfo(Parcel in) {
         this.wifiP2pDevice = WifiP2pDevice.CREATOR.createFromParcel(in);
+        this.brand_Name = in.readString();
+        this.model_Name = in.readString();
         this.str_address = in.readString();
         this.px_width = in.readInt();
         this.px_height = in.readInt();
@@ -162,6 +168,22 @@ public class DeviceInfo implements Parcelable {
         this.setYValue = setYValue;
     }
 
+    public String getBrand_Name() {
+        return brand_Name;
+    }
+
+    public void setBrand_Name(String brand_Name) {
+        this.brand_Name = brand_Name;
+    }
+
+    public String getModel_Name() {
+        return model_Name;
+    }
+
+    public void setModel_Name(String model_Name) {
+        this.model_Name = model_Name;
+    }
+
     public boolean isGroupOwner() {
         return isGroupOwner;
     }
@@ -171,7 +193,7 @@ public class DeviceInfo implements Parcelable {
     }
 
     public String getString() {
-        return wifiP2pDevice.deviceAddress + Constants.DELIMITER + str_address + Constants.DELIMITER + px_width + Constants.DELIMITER + px_height + Constants.DELIMITER + densityDpi + Constants.DELIMITER
+        return wifiP2pDevice.deviceAddress + Constants.DELIMITER  + brand_Name + Constants.DELIMITER + model_Name + Constants.DELIMITER + str_address + Constants.DELIMITER + px_width + Constants.DELIMITER + px_height + Constants.DELIMITER + densityDpi + Constants.DELIMITER
                 + isGroupOwner + Constants.DELIMITER + mm_width + Constants.DELIMITER + mm_height;
     }
 
@@ -183,6 +205,8 @@ public class DeviceInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeParcelable(wifiP2pDevice, 0);
+        parcel.writeString(brand_Name);
+        parcel.writeString(model_Name);
         parcel.writeString(str_address);
         parcel.writeInt(px_width);
         parcel.writeInt(px_height);
