@@ -1,8 +1,10 @@
 package com.n3v.junwidi;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -225,7 +227,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         removeGroup();
     }
@@ -522,10 +524,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
         int height = dm.heightPixels;
-        int dpi = dm.densityDpi;
-        float density = dm.density;
+        int densityDpi = dm.densityDpi;
         boolean isGroupOwner = true;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, dpi, density, isGroupOwner);
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, densityDpi, isGroupOwner);
     }
 
     @Override
@@ -589,39 +590,30 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         sendDialog.setWaiting();
     }
 
-    public ArrayList<DeviceInfo> calcDeviceList(){
-        ArrayList<DeviceInfo> tempArr = new ArrayList<>();
-        tempArr.addAll(myDeviceInfoList);
-        myDeviceInfo.convertPx();
-        tempArr.add(myDeviceInfo);
+    public void calcVideoSize() {
+        int videoWidth = 0;
+        int videoHeight = 0;
 
-        List<Integer> wPlusH = new ArrayList<>();
-        List<Integer> positionArray = new ArrayList<>();
+        DisplayMetrics dm = new DisplayMetrics();
 
-        int arrIndex = 0;
-        for (DeviceInfo di : tempArr) {
-            if (!di.isGroupOwner()) {
-                wPlusH.add(di.getMm_height());
-            } else {
-                wPlusH.add(-1);
+        int temp;
+        //해상도 넓이,높이값 최대공약수
+        int gcd;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource("android.resource://" + getPackageName() + "/" + R.raw.test2);
+        videoWidth = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+        videoHeight = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+        retriever.release();
+        int a = videoWidth;
+        int b = videoHeight;
+        while (a != 0) {
+            if (a < b) {
+                temp = a;
+                a = b;
+                b = temp;
             }
-            arrIndex++;
+            a = a - b;
         }
-        Collections.sort(wPlusH, Collections.<Integer>reverseOrder());
-        int tmp_position = 1;
-        for (int i : wPlusH) {
-            for (DeviceInfo di : tempArr) {
-                if (di.getMm_height() == i) {
-                    di.setPosition(tmp_position);
-                    tmp_position++;
-                }
-                if (i == -1 && di.isGroupOwner()) {
-                    di.setPosition(tmp_position);
-                }
-            }
-        }
-
-
-        return tempArr;
+        gcd = b;
     }
 }

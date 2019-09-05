@@ -461,10 +461,9 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
         int width = dm.widthPixels;
         int height = dm.heightPixels;
-        int dpi = dm.densityDpi;
-        float density = dm.density;
+        int densityDpi = dm.densityDpi;
         boolean isGroupOwner = false;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, dpi, density, isGroupOwner);
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, getDottedDecimalIP(getLocalIPAddress()), width, height, densityDpi, isGroupOwner);
         myDeviceInfo.convertPx();
         Log.v(TAG, "Local IP : " + getDottedDecimalIP(getLocalIPAddress()));
     }

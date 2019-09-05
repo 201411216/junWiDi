@@ -13,17 +13,22 @@ import com.n3v.junwidi.Utils.Constants;
 public class DeviceInfo implements Parcelable {
 
     private WifiP2pDevice wifiP2pDevice = null;
-    private String str_address;
-    private int px_width;
-    private int px_height;
-    private int dpi;
-    private float density;
-    private boolean isGroupOwner;
+    private String str_address = "";
+    private int px_width = -1;
+    private int px_height = -1;
+    private int densityDpi = -1;
+    private boolean isGroupOwner = false;
 
-    private int mm_width;
-    private int mm_height;
+    private int mm_width = -1;
+    private int mm_height = -1;
 
-    private int position;
+    private int position = -1;
+
+    private int mm_video_width = -1;
+    private int mm_video_height = -1;
+
+    private int setXValue = -1;
+    private int setYValue = -1;
 
     public void setMm_width(int mm_width) {
         this.mm_width = mm_width;
@@ -35,24 +40,14 @@ public class DeviceInfo implements Parcelable {
 
     public DeviceInfo(WifiP2pDevice device) {
         wifiP2pDevice = device;
-        str_address = "";
-        px_width = -1;
-        px_height = -1;
-        dpi = -1;
-        density = -1;
-        isGroupOwner = false;
-        mm_width = -1;
-        mm_height = -1;
-        position = -1;
     }
 
-    public DeviceInfo(WifiP2pDevice device, String addr, int width, int height, int dpi, float density, boolean isGroupOwner) {
+    public DeviceInfo(WifiP2pDevice device, String addr, int width, int height, int densityDpi, boolean isGroupOwner) {
         this.wifiP2pDevice = device;
         this.str_address = addr;
         this.px_width = width;
         this.px_height = height;
-        this.dpi = dpi;
-        this.density = density;
+        this.densityDpi = densityDpi;
         this.isGroupOwner = isGroupOwner;
     }
 
@@ -61,8 +56,7 @@ public class DeviceInfo implements Parcelable {
         this.str_address = in.readString();
         this.px_width = in.readInt();
         this.px_height = in.readInt();
-        this.dpi = in.readInt();
-        this.density = in.readFloat();
+        this.densityDpi = in.readInt();
         this.isGroupOwner = Boolean.valueOf(in.readString());
         this.mm_width = in.readInt();
         this.mm_height = in.readInt();
@@ -88,12 +82,8 @@ public class DeviceInfo implements Parcelable {
         return px_height;
     }
 
-    public int getDpi() {
-        return dpi;
-    }
-
-    public float getDensity() {
-        return density;
+    public int getDensityDpi() {
+        return densityDpi;
     }
 
     public WifiP2pDevice getWifiP2pDevice() {
@@ -136,12 +126,8 @@ public class DeviceInfo implements Parcelable {
         this.px_height = px_height;
     }
 
-    public void setDpi(int dpi) {
-        this.dpi = dpi;
-    }
-
-    public void setDensity(float density) {
-        this.density = density;
+    public void setDensityDpi(int densityDpi) {
+        this.densityDpi = densityDpi;
     }
 
     public boolean isGroupOwner() {
@@ -153,7 +139,7 @@ public class DeviceInfo implements Parcelable {
     }
 
     public String getString() {
-        return wifiP2pDevice.deviceAddress + Constants.DELIMITER + str_address + Constants.DELIMITER + px_width + Constants.DELIMITER + px_height + Constants.DELIMITER + dpi + Constants.DELIMITER + density + Constants.DELIMITER
+        return wifiP2pDevice.deviceAddress + Constants.DELIMITER + str_address + Constants.DELIMITER + px_width + Constants.DELIMITER + px_height + Constants.DELIMITER + densityDpi + Constants.DELIMITER
                 + isGroupOwner + Constants.DELIMITER + mm_width + Constants.DELIMITER + mm_height;
     }
 
@@ -168,20 +154,19 @@ public class DeviceInfo implements Parcelable {
         parcel.writeString(str_address);
         parcel.writeInt(px_width);
         parcel.writeInt(px_height);
-        parcel.writeInt(dpi);
-        parcel.writeFloat(density);
+        parcel.writeInt(densityDpi);
         parcel.writeString(Boolean.toString(isGroupOwner));
         parcel.writeInt(mm_width);
         parcel.writeInt(mm_height);
     }
 
-    public void convertPx(){
-        DisplayMetrics dm = new DisplayMetrics();
-        mm_width = PxToMm(px_width, dm);
-        mm_height = PxToMm(px_height, dm);
+    public void convertPx() {
+        mm_width = pxToMm(px_width);
+        mm_height = pxToMm(px_height);
     }
 
-    public int PxToMm(int value, DisplayMetrics dm){
-        return value * dm.densityDpi;
+    public int pxToMm(int value) {
+        return value * this.densityDpi;
     }
+
 }
