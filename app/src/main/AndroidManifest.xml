@@ -2,6 +2,44 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.n3v.junwidi">
 
+    <uses-feature
+        android:name="android.hardware.wifi.direct"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.CHANGE_WIFI_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_MULTICAST_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.CHANGE_NETWORK_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:required="true" />
+
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:required="true" />
+
 
     <application
         android:allowBackup="true"
@@ -10,62 +48,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            </activity>
+        </activity>
         <activity
             android:name=".ServerActivity"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".ClientActivity"
-            android:parentActivityName=".MainActivity"/>
-        <activity android:name=".PlayerClient"/>
+            android:parentActivityName=".MainActivity" />
 
-        <activity android:name=".PlayerHost">
-        </activity>
+        <activity android:name=".PlayerClient" />
+        <activity android:name=".PlayerHost"/>
+        <activity android:name=".GuideLineClient"/>
+        <activity android:name=".GuideLineHost"/>
+
 
     </application>
 
-    <uses-feature
-        android:required="true"
-        android:name="android.hardware.wifi.direct"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.ACCESS_WIFI_MULTICAST_STATE"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.INTERNET"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.CHANGE_NETWORK_STATE"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission
-        android:required="true"
-        android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 </manifest>
