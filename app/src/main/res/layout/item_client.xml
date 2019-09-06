@@ -32,12 +32,11 @@
                     android:layout_width="0dp"
                     android:layout_height="50dp"
                     android:layout_marginTop="10dp"
-                    android:layout_paddingbottom="10dp"
                     android:layout_weight="0.6"
                     android:fontFamily="@font/notoregular"
                     android:text="Device Name"
 
-                    android:textSize="25dp" />
+                    android:textSize="25sp" />
             </TableRow>
             <TableRow>
 
