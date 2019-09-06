@@ -25,10 +25,10 @@
 
     <Button
             android:id="@+id/btnStart"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:text="@string/시작"
+            android:layout_width="70dp"
+            android:layout_height="35dp"
             android:onClick="StartButton"
+            android:background="@drawable/play"
             app:layout_constraintEnd_toStartOf="@+id/btnPause"
             android:layout_marginEnd="68dp" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" app:layout_constraintHorizontal_bias="0.841" android:layout_marginTop="8dp"
@@ -38,9 +38,9 @@
     <Button
 
             android:id="@+id/btnPause"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:text="@string/일시정지"
+            android:layout_width="70dp"
+            android:layout_height="35dp"
+            android:background="@drawable/pause"
             android:onClick="PauseButton" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="72dp" android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
             android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"

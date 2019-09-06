@@ -39,7 +39,7 @@
                 android:fontFamily="@font/notoblack"
                 android:paddingLeft="10dp"
                 android:text="-"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <Button
                 android:layout_width="0dp"
@@ -116,7 +116,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/notoregular"
                 android:id="@+id/server_txt_video_path"
-                android:text="-"
+                android:text="비디오를 선택"
                 android:textSize="15dp"
                 />
         </LinearLayout>

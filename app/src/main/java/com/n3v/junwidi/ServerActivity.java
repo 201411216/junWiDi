@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -40,11 +39,7 @@ import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 import com.n3v.junwidi.Utils.RealPathUtil;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.StringTokenizer;
 
 public class ServerActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyServerTaskListener {
@@ -104,7 +99,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         btn_File_Select = findViewById(R.id.server_btn_file_select);
         btn_File_Transfer = findViewById(R.id.server_btn_file_transfer);
 
-        btn_File_Select.setText("시간 전송");
 
         btn_File_Select.setOnClickListener(myClickListener);
         btn_File_Transfer.setOnClickListener(myClickListener);
@@ -157,7 +151,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     startActivityForResult(fileChooseIntent, PICK_VIDEO_RESULT_CODE);
                 } else {
                     videoPath = "";
-                    txt_Video_Path.setText("-");
+                    txt_Video_Path.setText("비디오를 선택해 주세요");
                     isFileSelected = false;
 
                     btn_File_Transfer.setEnabled(false);
