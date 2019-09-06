@@ -43,6 +43,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "tt.client.TCP_FILE_RECEIVE_SERVICE";
     public static final String CLIENT_CONTROL_SERVICE = "tt.client.CONTROL_SERVICE";
     public static final String CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE = "tt.client.TCP_FILE_RECEIVE_WAITING_SERVICE";
+    public static final String CLIENT_TCP_CANCEL_WAITING_SERVICE = "tt.client.TCP_CANCEL_WAITING_SERVICE";
     public static final String CLIENT_TCP_GO_SIGNAL_SERVICE = "tt.client.TCP_GO_SIGNAL_SERVICE";
 
     public String ACT_MODE = "";
@@ -66,6 +67,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
     private MyClientTaskListener clientTaskListener = null;
 
+    private boolean waitingCancelled = false;
     private boolean needDelete = false;
     private boolean receiveComplete = false;
 
@@ -76,6 +78,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private DataOutputStream dos = null;
     private FileOutputStream fos = null;
     private InputStream is = null;
+
+    private String result = "";
 
     public MyClientTask(Context context, String mode, String addr, DeviceInfo deviceInfo, MyClientTaskListener clientTaskListener, String fileName, long fileSize) {
         myContext = context;
@@ -123,7 +127,6 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             }
         } else if (ACT_MODE.equals(CLIENT_HANDSHAKE_SERVICE)) {
             Log.v(TAG, "ACT : SERVER_HANDSHAKE_SERVICE");
-            datagramSocket = null;
             try {
                 /*
                 InetAddress addr = InetAddress.getByName(host_addr);
@@ -147,11 +150,18 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 }
                 */
 
+                Log.v(TAG, "socket accepted");
+
                 String okMessage = myDeviceInfo.getString();
 
-                dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF(okMessage);
+                while (!socket.isConnected()) {
+                }
 
+                dos = new DataOutputStream(socket.getOutputStream());
+
+                dos.writeUTF(okMessage);
+                Log.v(TAG, "HANDSHAKE message : " + okMessage);
+                publishProgress();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : InetAddress addr = InetAddress.getByName(\"255.255.255.255\");");
@@ -164,6 +174,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } finally {
                 try {
                     if (socket != null && !socket.isClosed()) {
+                        Log.v(TAG, "handshake socket closing");
                         socket.close();
                     }
                 } catch (IOException e) {
@@ -216,39 +227,71 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             byte[] buffer = new byte[Constants.FILE_BUFFER_SIZE];
 
             try {
-                serverSocket = new ServerSocket(Constants.FILE_TRANSFER_PORT);
-                socket = serverSocket.accept();
+                try {
 
-                dis = new DataInputStream(socket.getInputStream());
 
-                while (true) {
-                    Log.v(TAG, "Waiting TRANSFER_START");
+                    Log.v(TAG, Boolean.toString(isCancelled()));
+                    serverSocket = new ServerSocket(Constants.FILE_TRANSFER_PORT);
+                    socket = serverSocket.accept();
+                    socket.setSoTimeout(1000);
+                    Log.v(TAG, Boolean.toString(socket.isConnected()));
+
+                    dis = new DataInputStream(socket.getInputStream());
+
                     String receiveMessage = dis.readUTF();
-                    StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
-                    if (st.hasMoreTokens()) {
-                        if (st.nextToken().equals(Constants.TRANSFER_START)) {
-                            if (st.hasMoreTokens()) {
-                                fileName = st.nextToken();
+                    if (receiveMessage.startsWith(Constants.CANCEL_WAITING)) {
+                        Log.v(TAG, "Waiting loop is cancelled");
+                        waitingCancelled = true;
+                    } else {
+                        StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
+                        if (st.hasMoreTokens()) {
+                            if (st.nextToken().equals(Constants.TRANSFER_START)) {
                                 if (st.hasMoreTokens()) {
-                                    fileSize = Long.valueOf(st.nextToken());
-                                    publishProgress();
-                                    end_wait = true;
-                                    break;
+                                    fileName = st.nextToken();
+                                    if (st.hasMoreTokens()) {
+                                        fileSize = Long.valueOf(st.nextToken());
+                                        publishProgress();
+                                        end_wait = true;
+                                        //break;
+                                    }
                                 }
                             }
                         }
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e(TAG, "ERROR : CLIENT_TCP_FILE_RECEIVE_SERVICE : IOException");
             } finally {
                 try {
                     if (socket != null && !socket.isClosed()) {
                         socket.close();
+                        socket = null;
                     }
                     if (serverSocket != null && !serverSocket.isClosed()) {
                         serverSocket.close();
+                        socket = null;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } else if (ACT_MODE.equals(CLIENT_TCP_CANCEL_WAITING_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_TCP_CANCEL_WAITING_SERVICE");
+            try {
+                socket = new Socket(myDeviceInfo.getStr_address(), Constants.FILE_TRANSFER_PORT);
+
+                dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF(Constants.CANCEL_WAITING);
+
+                socket.close();
+                socket = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -308,7 +351,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 fos = new FileOutputStream(newVideo);
                 is = socket.getInputStream();
 
-                while ((readByte = is.read(buffer)) > 0) {
+                while ((readByte = is.read(buffer)) > 0 && !isCancelled()) {
                     fos.write(buffer, 0, readByte);
                     sumReadByte += readByte;
                     if (sumReadByte - lastPublishedReadByte > (fileSize / 100)) {
@@ -318,7 +361,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     }
                 }
 
-                this.needDelete = false;
+                if (!isCancelled()) {
+                    this.needDelete = false;
+                }
 
                 endTime = System.currentTimeMillis();
                 diffTime = (endTime - startTime);
@@ -334,8 +379,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 is.close();
                 fos.close();
                 socket.close();
-
-                receiveComplete = true;
+                if (!needDelete) {
+                    receiveComplete = true;
+                }
                 publishProgress();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -368,7 +414,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 byte[] receivebuf;
 
-                while (true) {
+                while (!this.isCancelled()) {
 
                     receivebuf = new byte[Constants.CONTROL_BUFFER_SIZE];
                     DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
@@ -406,25 +452,45 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
     @Override
     protected void onCancelled() {
+        Log.v(TAG, "normal cancel");
+        handleOnCancelled(this.result);
+        super.onCancelled();
+    }
+
+    @Override
+    protected void onCancelled(String result) {
+        Log.v(TAG, "result cancel");
+        handleOnCancelled(result);
+        super.onCancelled(result);
+    }
+
+    private void handleOnCancelled(String result) {
+        Log.v(TAG, "onCancel");
         if (needDelete) {
             File newVideo = new File(myContext.getExternalFilesDir(null) + "/TogetherTheater", fileName);
             if (newVideo.exists()) {
                 newVideo.delete();
+                Toaster.get().showToast(myContext, "영상 수신이 취소되어 작성중이던 파일을 삭제합니다", Toast.LENGTH_SHORT);
             }
         }
         try {
             if (socket != null && !socket.isClosed()) {
+                Log.v(TAG, "socket closed by cancel");
                 socket.close();
             }
             if (datagramSocket != null && !datagramSocket.isClosed()) {
+                Log.v(TAG, "datagram socket closed by cancel");
                 datagramSocket.close();
             }
             if (serverSocket != null && !serverSocket.isClosed()) {
+                Log.v(TAG, "server socket closed by cancel");
                 serverSocket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Log.v(TAG, "MyClientTask : onCancelled");
+        super.onCancelled();
     }
 
     @Override

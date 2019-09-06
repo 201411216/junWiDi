@@ -246,10 +246,12 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 totalStartTime = System.currentTimeMillis();
                 int deviceCount = 0;
                 for (DeviceInfo di : myDeviceInfoList) {
+                    Log.v(TAG, di.getStr_address());
                     socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
                     while (!socket.isConnected()) {
                         socket.close();
                         socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
+                        Log.v(TAG, "connecting loop");
                     }
                     //                   if (!socket.isConnected()) {
                     //                       Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : Socket connecting error");

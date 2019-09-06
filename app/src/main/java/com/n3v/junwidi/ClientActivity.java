@@ -57,9 +57,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private TextView txt_myDevice_Address;
     private TextView txt_myDevice_State;
     private TextView txt_Host_Ip_Address;
-    private Button btn_Refresh_Peer_List;
-    private Button btn_Request_Disconnect;
-    private Button btn_Request_Multicast;
 
     private SwipeRefreshLayout layout_Client_Pull_To_Refresh;
     private ListView listView_Server_List;
@@ -121,18 +118,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
         txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
 
-        btn_Refresh_Peer_List = findViewById(R.id.client_btn_refresh_peer_list);
-        btn_Request_Disconnect = findViewById(R.id.client_btn_request_disconnect);
-        btn_Request_Disconnect.setEnabled(false);
-        btn_Request_Multicast = findViewById(R.id.client_btn_request_multicast);
-
         listView_Server_List = findViewById(R.id.client_list_server);
         myWifiP2pDeviceList = new ArrayList<>();
         myClientAdapter = new MyClientAdapter(this, R.layout.item_server, myWifiP2pDeviceList);
         listView_Server_List.setAdapter(myClientAdapter);
-        btn_Request_Multicast.setOnClickListener(myClickListener);
-        btn_Refresh_Peer_List.setOnClickListener(myClickListener);
-        btn_Request_Disconnect.setOnClickListener(myClickListener);
         listView_Server_List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) { //ListView 아이템 클릭 리스너
@@ -166,57 +155,43 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private View.OnClickListener myClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) { //일반 버튼 클릭 리스너
-            if (v.equals(btn_Refresh_Peer_List)) {
-                permissionCheck(1);
-                myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Log.v(TAG, "Discover Peer Success");
-                        showToast("Discover Peer Success");
-                    }
 
-                    @Override
-                    public void onFailure(int i) {
-                        Log.e(TAG, "Discover Peer Failed :: " + i);
-                        showToast("Discover Peer Failed");
-                    }
-                });
-            } else if (v.equals(btn_Request_Disconnect)) {
-                disconnect();
-            } else if (v.equals(btn_Request_Multicast)) {
-                permissionCheck(2);
-                permissionCheck(4);
-                callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_SERVICE);
-            }
         }
     };
 
     public AsyncTask callClientTask(String mode) {
         if (myWifiP2pInfo != null) {
-            return new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, this, this.fileName, this.fileSize).execute();
+            return new MyClientTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, this, this.fileName, this.fileSize).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         return null;
     }
 
     @Override
     public void onResume() {
-        super.onResume();
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
+        super.onResume();
     }
 
     @Override
     public void onPause() {
-        super.onPause();
         unregisterReceiver(myBroadCastReceiver);
+        super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        if (nowTask != null) {
-            nowTask.cancel(true);
+        Log.v(TAG, "onDestroy");
+        // && !nowTask.isCancelled()
+        disconnect();
+        if (nowTask != null && !nowTask.isCancelled()) {
+            Log.v(TAG, "onDestroy : call cancel");
+            callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
+            Log.v(TAG, "onDestroy : call cancel complete");
+            nowTask.cancel(false);
+            nowTask = null;
         }
+        super.onDestroy();
     }
 
     /*
@@ -256,6 +231,24 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             public void onSuccess() {
                 Log.v(TAG, "Disconnect Success");
                 showToast("Disconnect Success");
+                if (nowTask != null  && !nowTask.isCancelled()) {
+                    callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
+                    Log.v(TAG, "Disconnect call nowTask Cancel");
+                    nowTask.cancel(true);
+                    nowTask = null;
+                }
+                /*
+                handshaked = false;
+                myWifiP2pDeviceList.clear();
+                myClientAdapter.notifyDataSetChanged();
+                host_Address = null;
+                txt_Host_Ip_Address.setText("-");
+                if (nowTask != null  && !nowTask.isCancelled()) {
+                    Log.v(TAG, "Disconnect call nowTask Cancel");
+                    nowTask.cancel(true);
+                    nowTask = null;
+                }
+                */
             }
 
             @Override
@@ -288,7 +281,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
         myWifiP2pInfo = wifiP2pInfo;
-        btn_Request_Disconnect.setEnabled(true);
         if (wifiP2pInfo.groupFormed) {
             host_Address = wifiP2pInfo.groupOwnerAddress;
             String temp_Addr = String.valueOf(host_Address).replace("/", "");
@@ -302,7 +294,15 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
             Log.e(TAG, "Client Can't be GroupOwner");
         } else if (wifiP2pInfo.groupFormed) { // p2
-            callClientTask(MyClientTask.CLIENT_HANDSHAKE_SERVICE);
+            if (nowTask != null && !nowTask.isCancelled()) {
+                callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
+                nowTask.cancel(true);
+                nowTask = null;
+            }
+            if (handshaked == false) {
+                Log.v(TAG, "Call HANDSHAKE TASK");
+                nowTask = callClientTask(MyClientTask.CLIENT_HANDSHAKE_SERVICE);
+            }
         }
     }
 
@@ -311,15 +311,17 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
      */
     @Override
     public void onDisconnection() {
+
         Log.e(TAG, "onDisconnection");
+        handshaked = false;
         myWifiP2pDeviceList.clear();
         myClientAdapter.notifyDataSetChanged();
         host_Address = null;
         txt_Host_Ip_Address.setText("-");
-        btn_Request_Disconnect.setEnabled(false);
-        if (nowTask != null) {
-            nowTask.cancel(true);
+        if (nowTask != null  && !nowTask.isCancelled()) {
+            callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
         }
+
     }
 
     /*
@@ -475,19 +477,22 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onProgressFinished() {
         receiveDialog.cancel();
-        nowTask = null;
     }
 
     @Override
     public void onRcvClickOK(int state) {
         if (state == ReceiveDialog.RCV_DLG_INIT) {
+            if (nowTask != null && !nowTask.isCancelled()) {
+                nowTask.cancel(true);
+                nowTask = null;
+            }
             nowTask = callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_SERVICE);
         }
     }
 
     @Override
     public void onRcvClickCancel(int state) {
-        if (nowTask != null) {
+        if (nowTask != null && !nowTask.isCancelled()) {
             nowTask.cancel(true);
             nowTask = null;
         }
@@ -497,6 +502,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onSendClickOK(int state) {
         if (state == SendDialog.SEND_DLG_INIT) {
+            if (nowTask != null && !nowTask.isCancelled()) {
+                nowTask.cancel(true);
+                nowTask = null;
+            }
             nowTask = callClientTask(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE);
         }
     }
@@ -536,7 +545,12 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onHandshaked() {
         handshaked = true;
+        if (nowTask != null && !nowTask.isCancelled()) {
+            //nowTask.cancel(true);
+            //nowTask = null;
+        }
         nowTask = callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE);
+        Log.v(TAG, "now Task : WAITING SERVICE");
     }
 
     @Override
@@ -548,6 +562,12 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onReceiveFinished() {
         receiveDialog.cancel();
+    }
+
+    @Override
+    public void onReceiveCancelled() {
+        receiveDialog.cancel();
+        showToast("영상 수신이 취소되었습니다");
     }
 
 }

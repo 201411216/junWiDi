@@ -379,6 +379,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 Log.v(TAG, "Remove Group Success");
                 showToast("Remove Group Success");
                 isGroupExist = false;
+                myDeviceInfo = null;
+                myDeviceInfoList.clear();
+                myServerAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -527,6 +530,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     if (!exist) {
                         Log.v(TAG, myDeviceInfoList.get(i).getWifiP2pDevice().deviceName + " disconnected");
                         myDeviceInfoList.remove(i);
+                        myServerAdapter.notifyDataSetChanged();
                     }
                 }
             }
@@ -612,6 +616,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onHandshaked() {
         sendDialog.setSending();
+
     }
 
     @Override

@@ -64,7 +64,7 @@ public class MyBroadCastReceiver extends BroadcastReceiver {
                         mListener.onConnectionInfoAvailable(info);
                     }
                 });
-                Log.e(TAG, "P2P Device is already connected");
+                Log.e(TAG, "P2P Device is connected");
             } else {
                 mListener.onDisconnection();
                 Log.e(TAG, "P2P Device is disconnected");
