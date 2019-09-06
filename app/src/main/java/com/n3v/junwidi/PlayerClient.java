@@ -1,6 +1,7 @@
 package com.n3v.junwidi;
 
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -14,7 +15,6 @@ public class PlayerClient extends AppCompatActivity {
     int user = 0;//사용자 식별번호, 호스트 기기에만 미디어컨트롤러가 나오도록 하기 위함(user 변수의 값이 1인 경우에만 나오게 함)
     int H = 0;//결정된 레이아웃의 길이
     int W = 0;
-    int aW, bW, cW, aH, bH, cH = 0;
     int aX, bX, cX = 0;//좌표 이동을 위한 각 기기의 X값
     int aY, bY, cY = 0;//좌표 이동을 위한 각 기기의 Y값
     boolean start = false;
@@ -27,6 +27,14 @@ public class PlayerClient extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.player_client);
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        W = bundle.getInt("videoWidth",0);
+        H = bundle.getInt("videoHeight",0);
+        aX = bundle.getInt("videoX",0);
+        aY = bundle.getInt("videoY",0);
+
         vv = findViewById(R.id.videoView1);
         //filename = this.getExternalFilesDir(null) + "/TogetherTheater";
         Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
@@ -37,9 +45,7 @@ public class PlayerClient extends AppCompatActivity {
         params.width = W;
         vv.setLayoutParams(params);
         //좌표는 픽셀단위임
-        vv.setX(bX);
-        vv.setY(bY);
-
+        vv.setX(aX);
     }
     public void playVideo(){
         vv.seekTo(stopTime);

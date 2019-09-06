@@ -12,9 +12,7 @@
         android:id="@+id/GL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|clip_vertical"
-        android:layout_marginTop="100dp"
-        android:layout_marginEnd="-10dp"
+        android:layout_gravity="bottom"
         android:layout_marginBottom="0dp"
         android:accessibilityLiveRegion="polite"
         android:background="@drawable/guideline"
@@ -22,23 +20,30 @@
 
     <ImageView
         android:id="@+id/order3"
-        android:layout_gravity="center_horizontal|bottom"
         android:layout_width="200dp"
         android:layout_height="300dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:clipChildren="true"
-        android:background="@drawable/order3" />
+        android:layout_gravity="bottom|center_horizontal|center_vertical"
+        android:layout_marginStart="100dp"
+        android:layout_marginEnd="100dp"
+        android:background="@drawable/order3"
+        android:clipChildren="true" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="100dp"
         android:layout_height="50dp"
-        android:layout_marginLeft="160dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginStart="160dp"
+        android:layout_marginEnd="160dp"
         android:background="@drawable/btn_rounded"
         android:fontFamily="@font/notoblack"
-        android:layout_marginTop="0dp"
         android:text="@string/배치완료" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

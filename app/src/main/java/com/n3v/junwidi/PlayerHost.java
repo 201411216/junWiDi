@@ -1,10 +1,9 @@
 package com.n3v.junwidi;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -14,36 +13,39 @@ import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-
-
 public class PlayerHost extends AppCompatActivity {
     //받아오는 데이터 목록
     public boolean isGroupOwner;
-    //비디오파일 해상도에서 넓이,높이값
-    public int videoWidth;
-    public int videoHeight;
     //모든 변수는 밀리미터 단위를 사용하도록 함
     DisplayMetrics metrics = new DisplayMetrics();
     int aW, bW, cW, aH, bH, cH = 0;//화면 분할을 위한 각 디바이스 가로세로 길이
     int sH = 0;//기기 a b c 중 가장 작은 높이값
-    int H = 0;//결정된 레이아웃의 길이
-    int W = 0;
-    int aX, bX, cX = 0;//좌표 이동을 위한 각 기기의 X값
-    int aY, bY, cY = 0;
+    public int H;//결정된 레이아웃의 길이
+    public int W;
+    int aX, bX, cX;//좌표 이동을 위한 각 기기의 X값
+    int aY, bY, cY;
     public int stopTime = 0;
     public int back = 0;
     VideoView vv;
     Button btnStart, btnPause;
-    //
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.player_host);
+        //가이드라인 액티비티에서 비디오뷰 가로세로값,XY 좌표값 받아옴
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        W = bundle.getInt("videoWidth",0);
+        H = bundle.getInt("videoHeight",0);
+        aX = bundle.getInt("videoX",0);
+        aY = bundle.getInt("videoY",0);
+
         //시작,일시정지 버튼
         btnStart = findViewById(R.id.btnStart);
         btnPause = findViewById(R.id.btnPause);
+
         //비디오뷰 생성
         vv = findViewById(R.id.videoView1);
         Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
@@ -51,54 +53,14 @@ public class PlayerHost extends AppCompatActivity {
         mediaController();
         vv.seekTo(1);
 
-
-        //비디오뷰의 높이 설정을 위한 디바이스들 중 높이 최소값 구해 sH에 저장
-        if (aH < bH) {
-            if (aH < cH) {
-                sH = aH;
-            } else {
-                sH = cH;
-            }
-        } else {
-            if (cH < bH) {
-                sH = cH;
-            } else {
-                sH = bH;
-            }
-        }
-
-        //결정된 레이아웃의 높이, 넓이값 정의
-        W = aW + bW + cW;
-        H = W / 16 * 9;
-        if (H > sH) {
-            W = sH / 9 * 16;
-        }
-
-        //기기마다 다른 setX,Y값 지정을 위함
-        aX = 0;
-        bX = -aW;
-        cX = -aW - bW;
-        aY = aH - H;
-        bY = bH - H;
-        cY = cH - H;
-
         //비디오뷰 사이즈 조절
         ViewGroup.LayoutParams params = vv.getLayoutParams();
-        //밀리미터 단위로 단위변환
-        int ww = 100;
-        int hh = 50;
-        PxToMm(ww, metrics);
-        PxToMm(hh, metrics);
-        ww = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 100, getResources().getDisplayMetrics());
-        hh = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 50, getResources().getDisplayMetrics());
-        //비디오뷰 사이즈 결정
-        params.height = hh;
-        params.width = ww;
+        params.width = W;
+        params.height = H;
         vv.setLayoutParams(params);
         vv.setX(aX);
 
     }
-
 
 
     //user 변수의 값이 1일 경우(=호스트 기기일 경우) 미디어 컨트롤러 생성
@@ -170,10 +132,7 @@ public class PlayerHost extends AppCompatActivity {
     //뒤로가기 버튼 눌러서 액티비티 종료한 경우(다른 기기로 종료 신호 인텐트 전달 기능 추가 필요)
     @Override
     public void onBackPressed() {
-        if (back == 1) {
-            super.onBackPressed();
-            back = 0;
-        }
+        super.onBackPressed();
     }
 
     //Client 액티비티로부터 액티비티 종료 인텐트를 전달받았을 때 실행되어야 함
