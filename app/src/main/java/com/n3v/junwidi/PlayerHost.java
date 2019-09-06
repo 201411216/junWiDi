@@ -1,12 +1,10 @@
 package com.n3v.junwidi;
 
-
-import android.content.res.Resources;
 import android.net.Uri;
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -15,25 +13,21 @@ import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.n3v.junwidi.R;
+
 
 
 public class PlayerHost extends AppCompatActivity {
     //받아오는 데이터 목록
-    public WifiP2pDevice wifiP2pDevice;
-    public String str_address;
-    public int px_width;
-    public int px_height;
-    public int dpi;
-    public float density;
     public boolean isGroupOwner;
-    //
+    //비디오파일 해상도에서 넓이,높이값
+    public int videoWidth;
+    public int videoHeight;
+    //모든 변수는 밀리미터 단위를 사용하도록 함
     DisplayMetrics metrics = new DisplayMetrics();
-    int user = 1;//사용자 식별번호, 호스트 기기에만 미디어컨트롤러가 나오도록 하기 위함(user 변수의 값이 1인 경우에만 나오게 함)
     int aW, bW, cW, aH, bH, cH = 0;//화면 분할을 위한 각 디바이스 가로세로 길이
     int sH = 0;//기기 a b c 중 가장 작은 높이값
-    int H = 1500;//결정된 레이아웃의 길이
-    int W = 3000;
+    int H = 0;//결정된 레이아웃의 길이
+    int W = 0;
     int aX, bX, cX = 0;//좌표 이동을 위한 각 기기의 X값
     int aY, bY, cY = 0;
     public int stopTime = 0;
@@ -55,6 +49,9 @@ public class PlayerHost extends AppCompatActivity {
         Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
         vv.setVideoURI(video);
         mediaController();
+        vv.seekTo(1);
+
+
         //비디오뷰의 높이 설정을 위한 디바이스들 중 높이 최소값 구해 sH에 저장
         if (aH < bH) {
             if (aH < cH) {
@@ -69,12 +66,14 @@ public class PlayerHost extends AppCompatActivity {
                 sH = bH;
             }
         }
+
         //결정된 레이아웃의 높이, 넓이값 정의
         W = aW + bW + cW;
         H = W / 16 * 9;
         if (H > sH) {
             W = sH / 9 * 16;
         }
+
         //기기마다 다른 setX,Y값 지정을 위함
         aX = 0;
         bX = -aW;
@@ -86,34 +85,21 @@ public class PlayerHost extends AppCompatActivity {
         //비디오뷰 사이즈 조절
         ViewGroup.LayoutParams params = vv.getLayoutParams();
         //밀리미터 단위로 단위변환
-        int ww=300;
-        int hh=200;
-        PxToMm(ww,metrics);
-        PxToMm(hh,metrics);
-        ww=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM,ww,getResources().getDisplayMetrics());
-        hh=(int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM,hh,getResources().getDisplayMetrics());
+        int ww = 100;
+        int hh = 50;
+        PxToMm(ww, metrics);
+        PxToMm(hh, metrics);
+        ww = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 100, getResources().getDisplayMetrics());
+        hh = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 50, getResources().getDisplayMetrics());
         //비디오뷰 사이즈 결정
-        params.height = ww;
-        params.width = hh;
+        params.height = hh;
+        params.width = ww;
         vv.setLayoutParams(params);
         vv.setX(aX);
-        vv.setY(aY);
+
     }
 
-    public int DpToPx(int dp){
-        Resources resources = this.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        int px = dp * (metrics.densityDpi / 160);
-        return px;
-    }
 
-    //px을 dp로 변환 (px을 입력받아 dp를 리턴)
-    public int PxToDp(int px){
-        Resources resources = this.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        int dp = px / (metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return dp;
-    }
 
     //user 변수의 값이 1일 경우(=호스트 기기일 경우) 미디어 컨트롤러 생성
     public void mediaController() {
@@ -125,7 +111,8 @@ public class PlayerHost extends AppCompatActivity {
 
         }
     }
-    public int PxToMm(int value,DisplayMetrics metrics){
+
+    public int PxToMm(int value, DisplayMetrics metrics) {
         return value * metrics.densityDpi;
     }
 

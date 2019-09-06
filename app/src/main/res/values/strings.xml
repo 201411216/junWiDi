@@ -6,4 +6,5 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="시작">시작</string>
     <string name="일시정지">일시정지</string>
+    <string name="배치완료">배치완료</string>
 </resources>

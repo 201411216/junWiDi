@@ -1,7 +1,6 @@
 package com.n3v.junwidi;
 
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -9,26 +8,20 @@ import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.n3v.junwidi.Datas.DeviceInfo;
-import com.n3v.junwidi.R;
-
-import java.util.ArrayList;
-
 
 public class PlayerClient extends AppCompatActivity {
-
-    int user = 2;//사용자 식별번호, 호스트 기기에만 미디어컨트롤러가 나오도록 하기 위함(user 변수의 값이 1인 경우에만 나오게 함)
+    //모든 변수는 밀리미터 단위를 사용하도록 함
+    int user = 0;//사용자 식별번호, 호스트 기기에만 미디어컨트롤러가 나오도록 하기 위함(user 변수의 값이 1인 경우에만 나오게 함)
     int H = 0;//결정된 레이아웃의 길이
     int W = 0;
     int aW, bW, cW, aH, bH, cH = 0;
     int aX, bX, cX = 0;//좌표 이동을 위한 각 기기의 X값
     int aY, bY, cY = 0;//좌표 이동을 위한 각 기기의 Y값
+    boolean start = false;
     public int back = 0;
     public int stopTime = 0;
     String filename;
     VideoView vv;
-
-    ArrayList<DeviceInfo> deviceInfoList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,9 +32,6 @@ public class PlayerClient extends AppCompatActivity {
         Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
         vv.setVideoURI(video);
 
-        Intent intent = this.getIntent();
-        deviceInfoList = intent.getParcelableArrayListExtra("deviceInfoList");
-
         ViewGroup.LayoutParams params = vv.getLayoutParams();
         params.height = H;
         params.width = W;
@@ -49,8 +39,12 @@ public class PlayerClient extends AppCompatActivity {
         //좌표는 픽셀단위임
         vv.setX(bX);
         vv.setY(bY);
-    }
 
+    }
+    public void playVideo(){
+        vv.seekTo(stopTime);
+        vv.start();
+    }
     public void pauseVideo() {
         vv.getCurrentPosition();
         vv.pause();
