@@ -63,6 +63,7 @@ public class SendDialog extends Dialog {
         okButton.setOnClickListener(dialogClickListener);
         cancelButton.setOnClickListener(dialogClickListener);
         initDialog();
+        this.setCanceledOnTouchOutside(false);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class SendDialog extends Dialog {
         super.cancel();
     }
 
-    private void initDialog(){
+    public void initDialog(){
         progress = 0;
         fileName = "";
         state = SEND_DLG_INIT;

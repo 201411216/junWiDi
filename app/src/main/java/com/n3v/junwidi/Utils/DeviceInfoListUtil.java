@@ -87,6 +87,7 @@ public class DeviceInfoListUtil {
             }
             arrIndex++;
         }
+
         Collections.sort(wPlusH, Collections.<Integer>reverseOrder());
 
         int tmp_position = 1;
@@ -111,7 +112,6 @@ public class DeviceInfoListUtil {
                 }
             }
         }
-
         this.deviceInfoArrayList = newDeviceInfoList;
     }
 

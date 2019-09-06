@@ -153,7 +153,14 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         Log.v(TAG, "GET ADDRESS " + myDeviceInfoList.get(i).getStr_address());
                     }
                 }
+
+
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF(Constants.HANDSHAKE_SERVER_RECEIVE);
+
                 publishProgress();
+
+
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
             } catch (SocketException e) {
@@ -253,11 +260,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
                         Log.v(TAG, "connecting loop");
                     }
-                    //                   if (!socket.isConnected()) {
-                    //                       Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : Socket connecting error");
-                    //                       socket.close();
-                    //                       continue;
-                    //                   }
+
                     Toaster.get().showToast(myContext, "Send File to " + di.getWifiP2pDevice().deviceName, Toast.LENGTH_SHORT);
                     startTime = System.currentTimeMillis();
 
@@ -316,8 +319,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     totalReadByte = 0;
 
                     sending = true;
+                    boolean sending_complete = false;
 
-                    while ((readByte = fis.read(buffer)) > 0) {
+                    while ((readByte = fis.read(buffer)) > 0 && !isCancelled()) {
                         os.write(buffer, 0, readByte);
                         totalReadByte += readByte;
                         sumReadByte += readByte;
@@ -328,23 +332,28 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         }
                     }
 
-                    sending = false;
+                    if (!isCancelled()) {
+                        sending = false;
 
-                    endTime = System.currentTimeMillis();
-                    diffTime = (endTime - startTime) / 1000;
-                    avgTransferSpeed = ((double) fileSize / 1000) / diffTime;
+                        endTime = System.currentTimeMillis();
+                        diffTime = (endTime - startTime) / 1000;
+                        avgTransferSpeed = ((double) fileSize / 1000) / diffTime;
 
-                    sended = true;
-                    publishProgress();
+                        sended = true;
+                        publishProgress();
 
-                    Log.v(TAG, "Send " + deviceCount + " complete");
-                    Log.v(TAG, "Time : " + diffTime + "(sec)");
-                    Log.v(TAG, "AVG Transfer Speed : " + avgTransferSpeed + "(KB/s)");
+                        Log.v(TAG, "Send " + deviceCount + " complete");
+                        Log.v(TAG, "Time : " + diffTime + "(sec)");
+                        Log.v(TAG, "AVG Transfer Speed : " + avgTransferSpeed + "(KB/s)");
 
-                    String toastMessage = "#" + deviceCount + " " + di.getWifiP2pDevice().deviceName + " transfer complete";
-                    Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_SHORT);
+                        String toastMessage = "#" + deviceCount + " " + di.getWifiP2pDevice().deviceName + " transfer complete";
+                        Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_SHORT);
 
-                    deviceCount++;
+                        deviceCount++;
+                    } else {
+                        break;
+                    }
+
                     dos.close();
                     fis.close();
                     os.close();
@@ -355,23 +364,43 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         serverSocket.close();
                     }
                 }
-                totalEndTime = System.currentTimeMillis();
-                totalDiffTime = (totalEndTime - totalStartTime) / 1000;
-                totalAvgTransferSpeed = (((double) fileSize * deviceCount) / 1000) / totalDiffTime;
 
-                send_finished = true;
-                publishProgress();
 
-                Log.v(TAG, "Send to " + deviceCount + "device(s) complete");
-                Log.v(TAG, "Total Time : " + totalDiffTime + "(sec)");
-                Log.v(TAG, "Total AVG Transfer Speed : " + totalAvgTransferSpeed + "(KB/s)");
-                String toastMessage = "Send to " + deviceCount + "device(s) complete";
-                Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_LONG);
+                if (!isCancelled()) {
+
+                    totalEndTime = System.currentTimeMillis();
+                    totalDiffTime = (totalEndTime - totalStartTime) / 1000;
+                    totalAvgTransferSpeed = (((double) fileSize * deviceCount) / 1000) / totalDiffTime;
+
+
+                    send_finished = true;
+                    publishProgress();
+
+                    Log.v(TAG, "Send to " + deviceCount + "device(s) complete");
+                    Log.v(TAG, "Total Time : " + totalDiffTime + "(sec)");
+                    Log.v(TAG, "Total AVG Transfer Speed : " + totalAvgTransferSpeed + "(KB/s)");
+                    String toastMessage = "Send to " + deviceCount + "device(s) complete";
+                    Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_LONG);
+
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "ERROR : SERVER_TCP_TRANSFER_SERVICE : IOException");
                 String toastMessage = ("ERROR : SERVER_TCP_TRANSFER_SERVICE : IOException");
                 Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_LONG);
+            } finally {
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                        Log.v(TAG, "HANDSHAKE : socket closed");
+                    }
+                    if (serverSocket != null && !serverSocket.isClosed()) {
+                        serverSocket.close();
+                        Log.v(TAG, "HANDSHAKE : serverSocket closed");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
         }
@@ -413,6 +442,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
     @Override
     protected void onCancelled() {
+        if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
+            serverTaskListener.onCancelTransfer();
+        }
         try {
             if (socket != null && !socket.isClosed()) {
                 socket.close();

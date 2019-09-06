@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
@@ -70,6 +71,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private boolean waitingCancelled = false;
     private boolean needDelete = false;
     private boolean receiveComplete = false;
+    private boolean receiveFailed = false;
 
     private Socket socket = null;
     private DatagramSocket datagramSocket = null;
@@ -154,13 +156,29 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 String okMessage = myDeviceInfo.getString();
 
-                while (!socket.isConnected()) {
-                }
-
                 dos = new DataOutputStream(socket.getOutputStream());
 
-                dos.writeUTF(okMessage);
-                Log.v(TAG, "HANDSHAKE message : " + okMessage);
+                boolean receiveCheck = false;
+
+                while (!receiveCheck) {
+                    try {
+                        dos.writeUTF(okMessage);
+                        Log.v(TAG, "HANDSHAKE message : " + okMessage);
+
+                        socket.setSoTimeout(Constants.SHORT_TIMEOUT);
+                        DataInputStream dis = new DataInputStream(socket.getInputStream());
+                        String server_receive_check = dis.readUTF();
+
+                        if (server_receive_check.equals(Constants.HANDSHAKE_SERVER_RECEIVE)) {
+                            Log.v(TAG, "get receive message");
+                            receiveCheck = true;
+                        }
+
+                    } catch (SocketTimeoutException ste) {
+                        Log.e(TAG, "Handshake receive message timeout!");
+                    }
+                }
+
                 publishProgress();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -228,9 +246,6 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
             try {
                 try {
-
-
-                    Log.v(TAG, Boolean.toString(isCancelled()));
                     serverSocket = new ServerSocket(Constants.FILE_TRANSFER_PORT);
                     socket = serverSocket.accept();
                     socket.setSoTimeout(1000);
@@ -286,6 +301,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 socket.close();
                 socket = null;
+            } catch (ConnectException ce) {
+
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -361,19 +378,29 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     }
                 }
 
-                if (!isCancelled()) {
+                Log.v(TAG, newVideo.length() + "/" + fileSize);
+
+                if (!isCancelled() && newVideo.length() == fileSize) {
                     this.needDelete = false;
+
+                    endTime = System.currentTimeMillis();
+                    diffTime = (endTime - startTime);
+                    avgReceiveSpeed = ((double) fileSize / 1000) / diffTime;
+
+                    Log.v(TAG, "Receive " + fileName + " complete");
+                    Log.v(TAG, "Time : " + diffTime + "(sec)");
+                    Log.v(TAG, "AVG Receive Speed : " + avgReceiveSpeed + "(KB/s)");
+
+                    Toaster.get().showToast(myContext, "Receive " + fileName + " complete", Toast.LENGTH_LONG);
+                } else {
+                    if (newVideo.exists()) {
+                        newVideo.delete();
+                        Log.v(TAG, "onCancel : receiving file deleted");
+                        Toaster.get().showToast(myContext, "영상 수신이 취소되어 작성중이던 파일을 삭제합니다", Toast.LENGTH_SHORT);
+                    }
+                    receiveFailed = true;
                 }
 
-                endTime = System.currentTimeMillis();
-                diffTime = (endTime - startTime);
-                avgReceiveSpeed = ((double) fileSize / 1000) / diffTime;
-
-                Log.v(TAG, "Receive " + fileName + " complete");
-                Log.v(TAG, "Time : " + diffTime + "(sec)");
-                Log.v(TAG, "AVG Receive Speed : " + avgReceiveSpeed + "(KB/s)");
-
-                Toaster.get().showToast(myContext, "Receive " + fileName + " complete", Toast.LENGTH_LONG);
 
                 dis.close();
                 is.close();
@@ -470,6 +497,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             File newVideo = new File(myContext.getExternalFilesDir(null) + "/TogetherTheater", fileName);
             if (newVideo.exists()) {
                 newVideo.delete();
+                Log.v(TAG, "onCancel : receiving file deleted");
                 Toaster.get().showToast(myContext, "영상 수신이 취소되어 작성중이던 파일을 삭제합니다", Toast.LENGTH_SHORT);
             }
         }
@@ -501,6 +529,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
         } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_SERVICE)) {
             if (receiveComplete) {
                 clientTaskListener.onReceiveFinished();
+            } else if (receiveFailed) {
+                clientTaskListener.onReceiveCancelled();
             } else {
                 clientTaskListener.progressUpdate(this.progress);
             }

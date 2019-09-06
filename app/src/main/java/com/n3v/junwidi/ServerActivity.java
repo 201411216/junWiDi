@@ -174,6 +174,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                         videoName = st.nextToken();
                     }
                     sendDialog.show();
+                    sendDialog.initDialog();
                     sendDialog.setFileName(videoName);
                     sendDialog.setReceivers(myDeviceInfoList.size());
                 }
@@ -622,6 +623,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onWaiting() {
         sendDialog.setWaiting();
+    }
+
+    @Override
+    public void onCancelTransfer() {
+        sendDialog.cancel();
+        showToast("영상 전송이 취소되었습니다");
     }
 
 

@@ -7,6 +7,7 @@ public class Constants {
     public static final int HANDSHAKE_TIMEOUT = 3000; // socket.receive 시 사용할 Timeout (단위 : ms)
     public static final int LONG_TIMEOUT = 10000; // socket.receive 시 사용할 Timeout (단위 : ms)
     public static final int COMMON_TIMEOUT = 5000;
+    public static final int SHORT_TIMEOUT = 2000;
 
     public static final int FILE_BUFFER_SIZE = 512; // 파일 전송시 기본 버퍼 사이즈
     public static final int FILE_HEADER_SIZE = 20; // 파일 순서 번호 헤더 사이즈
@@ -21,6 +22,7 @@ public class Constants {
     public static final String CONTROL_MOVE = "MOVE";
 
     public static final String CANCEL_WAITING = "CANCEL_HANDSHAKE";
+    public static final String HANDSHAKE_SERVER_RECEIVE = "HANDSHAKE_SERVER_RECEIVE";
     public static final String TRANSFER_START = "TRSF_START";
     public static final String RECEIVE_WAIT = "RCV_WAIT";
     public static final String RECEIVE_DENY = "RCV_DENY";

@@ -53,11 +53,18 @@ public class ReceiveDialog extends Dialog {
         percentage = findViewById(R.id.rcv_dialog_progress_percent);
         videoTitle = findViewById(R.id.rcv_dialog_txt_file_title);
         question = findViewById(R.id.rcv_dialog_txt_question);
-        progressBar.setVisibility(View.GONE);
-        percentage.setVisibility(View.GONE);
         okButton.setOnClickListener(dialogClickListner);
         cancelButton.setOnClickListener(dialogClickListner);
+        initDialog();
         this.setCanceledOnTouchOutside(false);
+    }
+
+    public void initDialog(){
+        state = RCV_DLG_INIT;
+        progressBar.setProgress(0);
+        percentage.setText("0 / 100");
+        progressBar.setVisibility(View.GONE);
+        percentage.setVisibility(View.GONE);
     }
 
     public void setProgress(int progress) {

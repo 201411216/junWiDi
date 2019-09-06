@@ -7,5 +7,5 @@ public interface MyServerTaskListener {
     void onHandshaked();
     void onAllSendFinished();
     void onWaiting();
-
+    void onCancelTransfer();
 }

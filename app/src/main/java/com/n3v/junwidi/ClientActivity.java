@@ -78,6 +78,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     AsyncTask nowTask = null;
 
     boolean handshaked = false;
+    boolean downloading = false;
 
 
     @Override
@@ -296,8 +297,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
             Log.e(TAG, "Client Can't be GroupOwner");
         } else if (wifiP2pInfo.groupFormed) { // p2
+            callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
             if (nowTask != null && !nowTask.isCancelled()) {
-                callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
                 nowTask.cancel(true);
                 nowTask = null;
             }
@@ -488,6 +489,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 nowTask.cancel(true);
                 nowTask = null;
             }
+            downloading = true;
             nowTask = callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_SERVICE);
         }
     }
