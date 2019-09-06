@@ -16,8 +16,13 @@ import com.n3v.junwidi.R;
 
 public class ReceiveDialog extends Dialog {
 
-    public static int RCV_DLG_INIT = 1111;
-    public static int RCV_DLG_DOWNLOADING = 2222;
+    public static final int RCV_DLG_INIT = 1111;
+    public static final int RCV_DLG_DOWNLOADING = 2222;
+    public static final int RCV_DLG_VIDEO_ALREADY_EXISTS = 3333;
+    public static final String RCV_DLG_VIDEO_ALREADY_EXISTS_STR = "영상이 이미 존재합니다";
+    public static final String RCV_DLG_DEFAULT_QUESTION_STR = "파일을 다운로드 하시겠습니까?";
+    public static final String RCV_DLG_DEFAULT_OK_BUTTON_STR = "다운로드";
+    public static final String RCV_DLG_CHECK_OK_BUTTON_STR = "확인";
 
     MyDialogListener myDialogListener = null;
     private int progress = 0;
@@ -61,10 +66,19 @@ public class ReceiveDialog extends Dialog {
 
     public void initDialog(){
         state = RCV_DLG_INIT;
+        question.setText(RCV_DLG_DEFAULT_QUESTION_STR);
+        question.setVisibility(View.VISIBLE);
+        videoTitle.setText("-");
+        videoTitle.setVisibility(View.VISIBLE);
         progressBar.setProgress(0);
-        percentage.setText("0 / 100");
         progressBar.setVisibility(View.GONE);
+        percentage.setText("0 / 100");
         percentage.setVisibility(View.GONE);
+        okButton.setTextColor(Color.parseColor(Constants.COLOR_OK_SKYBLUE));
+        okButton.setText(RCV_DLG_DEFAULT_OK_BUTTON_STR);
+        okButton.setEnabled(true);
+        cancelButton.setTextColor(Color.parseColor(Constants.COLOR_CANCEL_RED));
+        cancelButton.setEnabled(true);
     }
 
     public void setProgress(int progress) {
@@ -86,9 +100,27 @@ public class ReceiveDialog extends Dialog {
     public void setDownloading() {
         question.setVisibility(View.GONE);
         okButton.setEnabled(false);
+        okButton.setTextColor(Color.parseColor(Constants.COLOR_BLOCKED_GRAY));
+        cancelButton.setEnabled(true);
+        cancelButton.setTextColor(Color.parseColor(Constants.COLOR_CANCEL_RED));
+        percentage.setText("0 / 100");
         percentage.setVisibility(View.VISIBLE);
+        progressBar.setProgress(0);
         progressBar.setVisibility(View.VISIBLE);
-        okButton.setTextColor(Color.parseColor(Constants.BLOCKED_GRAY));
+    }
+
+    public void setAlreadyExists() {
+        state = RCV_DLG_VIDEO_ALREADY_EXISTS;
+        cancelButton.setEnabled(false);
+        okButton.setEnabled(true);
+        cancelButton.setTextColor(Color.parseColor(Constants.COLOR_BLOCKED_GRAY));
+        okButton.setText(RCV_DLG_CHECK_OK_BUTTON_STR);
+        okButton.setTextColor(Color.parseColor(Constants.COLOR_OK_SKYBLUE));
+        percentage.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+        question.setText(RCV_DLG_VIDEO_ALREADY_EXISTS_STR);
+        question.setVisibility(View.VISIBLE);
+        videoTitle.setVisibility(View.VISIBLE);
     }
 
     private View.OnClickListener dialogClickListner = new View.OnClickListener() {

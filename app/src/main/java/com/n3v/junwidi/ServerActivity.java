@@ -601,6 +601,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onSendFinished() {
         sendDialog.sendCompleteOne();
+        myServerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -623,6 +624,11 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onCancelTransfer() {
         sendDialog.cancel();
         showToast("영상 전송이 취소되었습니다");
+    }
+
+    @Override
+    public void onNotify() {
+        myServerAdapter.notifyDataSetChanged();
     }
 
 

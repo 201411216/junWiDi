@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.n3v.junwidi.Datas.DeviceInfo;
@@ -46,12 +47,21 @@ public class MyServerAdapter extends ArrayAdapter<DeviceInfo> {
         if (tempDevice != null) {
             TextView item_Client_Device_Name = (TextView) v.findViewById(R.id.item_client_device_name);
             TextView item_Client_Device_Model = (TextView) v.findViewById(R.id.item_client_device_model);
+            TextView item_Client_Device_Ready_Str = (TextView) v.findViewById(R.id.item_client_device_ready_str);
+            TextView item_Client_Device_Ready_Image = (TextView) v.findViewById(R.id.item_client_device_ready_image);
             if (tempDevice.getWifiP2pDevice().deviceName != "") {
                 item_Client_Device_Name.setText(tempDevice.getWifiP2pDevice().deviceName);
             }
             if (tempDevice.getBrand_Name() != "" && tempDevice.getModel_Name() != "") {
                 String brandPlusModel = tempDevice.getBrand_Name() + " " + tempDevice.getModel_Name();
                 item_Client_Device_Model.setText(brandPlusModel);
+            }
+            if (tempDevice.isHasVideo()) {
+                item_Client_Device_Ready_Str.setVisibility(View.VISIBLE);
+                item_Client_Device_Ready_Image.setVisibility(View.VISIBLE);
+            } else {
+                item_Client_Device_Ready_Str.setVisibility(View.GONE);
+                item_Client_Device_Ready_Image.setVisibility(View.GONE);
             }
 
         }

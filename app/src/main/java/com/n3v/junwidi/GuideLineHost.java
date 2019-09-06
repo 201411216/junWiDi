@@ -46,9 +46,6 @@ public class GuideLineHost extends AppCompatActivity {
         ivGL.setLayoutParams(params);
         fL.setLayoutParams(params2);
         button.setLayoutParams(params3);
-
-
-
     }
     public int PxToMm(int value, DisplayMetrics metrics) {
         return value * metrics.densityDpi;

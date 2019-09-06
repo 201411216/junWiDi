@@ -32,6 +32,8 @@ public class DeviceInfo implements Parcelable {
     private int setXValue = -1;
     private int setYValue = -1;
 
+    private boolean hasVideo = false;
+
     public DeviceInfo(WifiP2pDevice device) {
         wifiP2pDevice = device;
     }
@@ -58,6 +60,8 @@ public class DeviceInfo implements Parcelable {
         this.isGroupOwner = Boolean.valueOf(in.readString());
         this.mm_width = in.readInt();
         this.mm_height = in.readInt();
+
+        this.hasVideo = Boolean.valueOf(in.readString());
     }
 
     public static final Creator<DeviceInfo> CREATOR = new Creator<DeviceInfo>() {
@@ -197,6 +201,14 @@ public class DeviceInfo implements Parcelable {
                 + isGroupOwner + Constants.DELIMITER + mm_width + Constants.DELIMITER + mm_height;
     }
 
+    public boolean isHasVideo() {
+        return hasVideo;
+    }
+
+    public void setHasVideo(boolean hasVideo) {
+        this.hasVideo = hasVideo;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -219,6 +231,8 @@ public class DeviceInfo implements Parcelable {
         parcel.writeInt(mm_videoview_height);
         parcel.writeInt(setXValue);
         parcel.writeInt(setYValue);
+
+        parcel.writeString(Boolean.toString(hasVideo));
     }
 
     public void convertPx() {

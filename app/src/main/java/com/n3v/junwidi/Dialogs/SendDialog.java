@@ -16,11 +16,11 @@ import com.n3v.junwidi.R;
 
 public class SendDialog extends Dialog {
 
-    public final static int SEND_DLG_INIT = 1111;
-    public final static int SEND_DLG_SENDING = 2222;
-    public final static int SEND_DLG_WAITING = 3333;
-    public final static String SEND_DLG_QUESTION_SEND_STR = "영상을 전송하시겠습니까?";
-    public final static String SEND_DLG_WAITING_STR = "수락 대기중";
+    public static final int SEND_DLG_INIT = 1111;
+    public static final int SEND_DLG_SENDING = 2222;
+    public static final int SEND_DLG_WAITING = 3333;
+    public static final String SEND_DLG_QUESTION_SEND_STR = "영상을 전송하시겠습니까?";
+    public static final String SEND_DLG_WAITING_STR = "수락 대기중";
 
     Context mContext = null;
 
@@ -84,7 +84,8 @@ public class SendDialog extends Dialog {
         progressBar.setVisibility(View.GONE);
         percentage.setVisibility(View.GONE);
         question.setVisibility(View.VISIBLE);
-        okButton.setTextColor(Color.parseColor(Constants.OK_SKYBLUE));
+        okButton.setTextColor(Color.parseColor(Constants.COLOR_OK_SKYBLUE));
+        cancelButton.setTextColor(Color.parseColor(Constants.COLOR_CANCEL_RED));
         okButton.setEnabled(true);
     }
 
@@ -129,7 +130,7 @@ public class SendDialog extends Dialog {
         percentage.setText(str_Percent);
         percentage.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
-        okButton.setTextColor(Color.parseColor(Constants.BLOCKED_GRAY));
+        okButton.setTextColor(Color.parseColor(Constants.COLOR_BLOCKED_GRAY));
 
     }
 
@@ -139,7 +140,7 @@ public class SendDialog extends Dialog {
         progressBar.setVisibility(View.VISIBLE);
         percentage.setText(receiver_Str);
         okButton.setEnabled(false);
-        okButton.setTextColor(Color.parseColor(Constants.BLOCKED_GRAY));
+        okButton.setTextColor(Color.parseColor(Constants.COLOR_BLOCKED_GRAY));
     }
 
     public void setReceivers(int receivers) {

@@ -72,6 +72,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private boolean needDelete = false;
     private boolean receiveComplete = false;
     private boolean receiveFailed = false;
+    private boolean videoAlreadyExists = false;
 
     private Socket socket = null;
     private DatagramSocket datagramSocket = null;
@@ -265,9 +266,27 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                                     fileName = st.nextToken();
                                     if (st.hasMoreTokens()) {
                                         fileSize = Long.valueOf(st.nextToken());
-                                        publishProgress();
+                                        File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
+                                        if (!newDir.exists()) {
+                                            newDir.mkdir();
+                                        }
+                                        Log.v(TAG, fileName + "!");
+                                        File newVideo = new File(newDir, fileName);
+                                        Log.v(TAG, newVideo.getAbsolutePath());
+                                        if (!newVideo.createNewFile() && newVideo.length() == fileSize) {
+                                            Log.v(TAG, "file already exists");
+                                            videoAlreadyExists = true;
+                                        }
+                                        if (videoAlreadyExists) {
+                                            socket.close();
+                                            socket = new Socket(host_addr, Constants.FILE_TRANSFER_PORT);
+                                            Log.v(TAG, "send ExistMessage");
+                                            String existMessage = Constants.VIDEO_ALREADY_EXIST;
+                                            dos = new DataOutputStream(socket.getOutputStream());
+                                            dos.writeUTF(existMessage);
+                                        }
                                         end_wait = true;
-                                        //break;
+                                        publishProgress();
                                     }
                                 }
                             }
@@ -339,25 +358,25 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     return "";
                 }
 
-                String okMessage = Constants.RECEIVE_WAIT;
-
-                dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF(okMessage);
-
-                dis = new DataInputStream(socket.getInputStream());
-
                 File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
                 if (!newDir.exists()) {
                     Log.v(TAG, "mkdir1");
                     newDir.mkdir();
                 }
                 Log.v(TAG, fileName + "!");
-
                 newVideo = new File(newDir, fileName);
                 Log.v(TAG, newVideo.getAbsolutePath());
-                if (!newVideo.createNewFile()) {
-                    Log.v(TAG, "mkdir2 already exists");
+                if (!newVideo.createNewFile() && newVideo.length() == fileSize) {
+                    Log.v(TAG, "file already exists");
+                    videoAlreadyExists = true;
                 }
+
+
+                String okMessage = Constants.RECEIVE_WAIT;
+
+                dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF(okMessage);
+                dis = new DataInputStream(socket.getInputStream());
 
                 this.needDelete = true;
 
@@ -402,10 +421,18 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 }
 
 
-                dis.close();
-                is.close();
-                fos.close();
-                socket.close();
+                if (dis != null) {
+                    dis.close();
+                }
+                if (is != null) {
+                    is.close();
+                }
+                if (fos != null) {
+                    fos.close();
+                }
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
                 if (!needDelete) {
                     receiveComplete = true;
                 }
@@ -531,14 +558,21 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 clientTaskListener.onReceiveFinished();
             } else if (receiveFailed) {
                 clientTaskListener.onReceiveCancelled();
+            } else if (videoAlreadyExists) {
+                clientTaskListener.onVideoAlreadyExist();
             } else {
                 clientTaskListener.progressUpdate(this.progress);
             }
         } else if (ACT_MODE.equals(CLIENT_HANDSHAKE_SERVICE)) {
             clientTaskListener.onHandshaked();
         } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE)) {
-            clientTaskListener.setFile(fileName, fileSize);
-            clientTaskListener.onEndWait();
+            if (!videoAlreadyExists && end_wait) {
+                clientTaskListener.setFile(fileName, fileSize);
+                clientTaskListener.onEndWait();
+            } else {
+                clientTaskListener.setFile(fileName, fileSize);
+                clientTaskListener.onVideoAlreadyExist();
+            }
         }
     }
 

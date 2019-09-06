@@ -62,6 +62,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     private boolean sended = false;
     private boolean send_finished = false;
     private boolean sending = false;
+    private boolean already_exists = false;
 
     long sumReadByte = 0;
     long lastPublishedReadByte = 0;
@@ -253,6 +254,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 totalStartTime = System.currentTimeMillis();
                 int deviceCount = 0;
                 for (DeviceInfo di : myDeviceInfoList) {
+                    if (di.isHasVideo()) {
+                        Toaster.get().showToast(this.myContext, di.getWifiP2pDevice().deviceName + " 영상을 이미 가지고 있습니다.", Toast.LENGTH_LONG);
+                        continue;
+                    }
                     Log.v(TAG, di.getStr_address());
                     socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
                     while (!socket.isConnected()) {
@@ -295,6 +300,11 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                             receiveOK = true;
                         } else if (receiverState.equals(Constants.RECEIVE_DENY)) {
                             Toaster.get().showToast(this.myContext, di.getWifiP2pDevice().deviceName + " 수신이 거절되었습니다.", Toast.LENGTH_LONG);
+                        } else if (receiverState.equals(Constants.VIDEO_ALREADY_EXIST)) {
+                            Toaster.get().showToast(this.myContext, di.getWifiP2pDevice().deviceName + " 영상을 이미 가지고 있습니다.", Toast.LENGTH_LONG);
+                            di.setHasVideo(true);
+                            waiting = false;
+                            already_exists = true;
                         }
                     }
 
@@ -307,6 +317,18 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         if (!socket.isClosed()) {
                             socket.close();
                         }
+                        continue;
+                    }
+                    if (di.isHasVideo()) {
+                        dos.close();
+                        dis.close();
+                        if (!serverSocket.isClosed()) {
+                            serverSocket.close();
+                        }
+                        if (!socket.isClosed()) {
+                            socket.close();
+                        }
+                        publishProgress();
                         continue;
                     }
 
@@ -348,6 +370,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
                         String toastMessage = "#" + deviceCount + " " + di.getWifiP2pDevice().deviceName + " transfer complete";
                         Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_SHORT);
+
+                        di.setHasVideo(true);
 
                         deviceCount++;
                     } else {
@@ -411,22 +435,27 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         if (ACT_MODE.equals(SERVER_TCP_FILE_TRANSFER_SERVICE)) {
-            if (sending == true) {
+            if (sending) {
                 serverTaskListener.progressUpdate(progress);
             }
-            if (waiting == true) {
+            if (waiting) {
                 serverTaskListener.onWaiting();
                 waiting = false;
             }
-            if (handshaked == true) {
+            if (handshaked) {
                 serverTaskListener.onHandshaked();
                 handshaked = false;
             }
-            if (sended == true) {
+            if (already_exists) {
+                already_exists = false;
+                serverTaskListener.onNotify();
+            }
+            if (sended) {
                 serverTaskListener.onSendFinished();
+                serverTaskListener.onNotify();
                 sended = false;
             }
-            if (send_finished == true) {
+            if (send_finished) {
                 serverTaskListener.onAllSendFinished();
                 send_finished = false;
             }
@@ -436,8 +465,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     @Override
     protected void onPostExecute(String result) {
         if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
-            myServerAdapter.notifyDataSetChanged();
         }
+        serverTaskListener.onNotify();
     }
 
     @Override

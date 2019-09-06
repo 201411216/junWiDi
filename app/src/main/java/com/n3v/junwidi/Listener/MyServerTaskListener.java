@@ -8,4 +8,5 @@ public interface MyServerTaskListener {
     void onAllSendFinished();
     void onWaiting();
     void onCancelTransfer();
+    void onNotify();
 }

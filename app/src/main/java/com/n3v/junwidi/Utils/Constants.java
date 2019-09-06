@@ -24,10 +24,12 @@ public class Constants {
     public static final String CANCEL_WAITING = "CANCEL_HANDSHAKE";
     public static final String HANDSHAKE_SERVER_RECEIVE = "HANDSHAKE_SERVER_RECEIVE";
     public static final String TRANSFER_START = "TRSF_START";
+    public static final String VIDEO_ALREADY_EXIST = "VIDEO_ALREADY_EXIST";
     public static final String RECEIVE_WAIT = "RCV_WAIT";
     public static final String RECEIVE_DENY = "RCV_DENY";
     public static final String DELIMITER = "+=+";
 
-    public static final String BLOCKED_GRAY = "#AAAAAA";
-    public static final String OK_SKYBLUE = "#4095FB";
+    public static final String COLOR_BLOCKED_GRAY = "#AAAAAA";
+    public static final String COLOR_OK_SKYBLUE = "#4095FB";
+    public static final String COLOR_CANCEL_RED = "#FF0303";
 }

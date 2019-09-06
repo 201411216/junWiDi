@@ -491,27 +491,27 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             }
             downloading = true;
             nowTask = callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_SERVICE);
+        } else if (state == ReceiveDialog.RCV_DLG_VIDEO_ALREADY_EXISTS) {
+            receiveDialog.cancel();
         }
     }
 
     @Override
     public void onRcvClickCancel(int state) {
-        if (nowTask != null && !nowTask.isCancelled()) {
-            nowTask.cancel(true);
-            nowTask = null;
-        }
-        receiveDialog.cancel();
-    }
-
-    @Override
-    public void onSendClickOK(int state) {
-        if (state == SendDialog.SEND_DLG_INIT) {
+        if (state == ReceiveDialog.RCV_DLG_VIDEO_ALREADY_EXISTS) {
+            receiveDialog.initDialog();
+            receiveDialog.cancel();
+        } else {
             if (nowTask != null && !nowTask.isCancelled()) {
                 nowTask.cancel(true);
                 nowTask = null;
             }
-            nowTask = callClientTask(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE);
+            receiveDialog.cancel();
         }
+    }
+
+    @Override
+    public void onSendClickOK(int state) {
     }
 
     @Override
@@ -530,6 +530,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void run() {
                 receiveDialog.show();
+                receiveDialog.initDialog();
                 receiveDialog.setFileName(fileName);
             }
         });
@@ -572,6 +573,19 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     public void onReceiveCancelled() {
         receiveDialog.cancel();
         showToast("영상 수신이 취소되었습니다");
+    }
+
+    @Override
+    public void onVideoAlreadyExist() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                receiveDialog.show();
+                receiveDialog.initDialog();
+                receiveDialog.setFileName(fileName);
+                receiveDialog.setAlreadyExists();
+            }
+        });
     }
 
 }

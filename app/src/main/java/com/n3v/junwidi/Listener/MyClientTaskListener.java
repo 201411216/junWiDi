@@ -8,5 +8,6 @@ public interface MyClientTaskListener {
     void setFile(String fileName, long fileSize);
     void onReceiveFinished();
     void onReceiveCancelled();
+    void onVideoAlreadyExist();
 
 }
