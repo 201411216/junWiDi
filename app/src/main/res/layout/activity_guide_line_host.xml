@@ -36,6 +36,8 @@
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:layout_marginLeft="160dp"
+        android:background="@drawable/btn_rounded"
+        android:fontFamily="@font/notoblack"
         android:layout_marginTop="0dp"
         android:text="@string/배치완료" />
 
