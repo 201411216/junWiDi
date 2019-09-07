@@ -226,6 +226,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         unregisterReceiver(myBroadCastReceiver);
     }
 
+    public void finish() {
+        super.finish();
+
+        // activity가 사라질 때 transition 효과 지정
+        overridePendingTransition(android.R.anim.slide_in_left, R.anim.anim_slide_out_right);
+    }
     @Override
     public void onDestroy() {
         super.onDestroy();

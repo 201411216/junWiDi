@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -29,12 +28,10 @@ import com.n3v.junwidi.Adapter.MyClientAdapter;
 import com.n3v.junwidi.BroadcastReceiver.MyBroadCastReceiver;
 import com.n3v.junwidi.Datas.DeviceInfo;
 import com.n3v.junwidi.Dialogs.ReceiveDialog;
-import com.n3v.junwidi.Dialogs.SendDialog;
 import com.n3v.junwidi.Listener.MyClientTaskListener;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
 import com.n3v.junwidi.Services.MyClientTask;
-import com.n3v.junwidi.Services.MyServerTask;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -180,6 +177,12 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     public void onPause() {
         unregisterReceiver(myBroadCastReceiver);
         super.onPause();
+    }
+    public void finish() {
+        super.finish();
+
+        // activity가 사라질 때 transition 효과 지정
+        overridePendingTransition(android.R.anim.slide_in_left, R.anim.anim_slide_out_right);
     }
 
     @Override

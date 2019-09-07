@@ -33,10 +33,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void enterServer(View view) {
         startActivity(new Intent(this, ServerActivity.class));
+        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
     } //xml 파일을 통해 onClick으로 호출됨
 
     public void enterClient(View view) {
         startActivity(new Intent(this, ClientActivity.class));
+        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
     } //xml 파일을 통해 onClick으로 호출됨
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+    }
 }
