@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.n3v.junwidi.Adapter.MyServerAdapter;
 import com.n3v.junwidi.BroadcastReceiver.MyBroadCastReceiver;
 import com.n3v.junwidi.Datas.DeviceInfo;
@@ -181,6 +182,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             }
         }
     };
+
+    public void enterExoplay(View view) {
+        startActivity(new Intent(this, Exoplay.class));
+        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
+    } //xml 파일을 통해 onClick으로 호출됨
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

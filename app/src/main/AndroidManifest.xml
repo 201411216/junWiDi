@@ -2,6 +2,47 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.n3v.junwidi">
 
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Together Theater"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat">
+        <activity android:name=".Exoplay"></activity>
+        <activity
+            android:name=".SplashActivity"
+            android:label="Together Theater"
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity"></activity>
+        <activity
+            android:name=".ServerActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".ClientActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".PlayerClient"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PlayerHost"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".GuideLineClient"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".GuideLineHost"
+            android:screenOrientation="portrait"></activity>
+    </application>
+
     <uses-feature
         android:name="android.hardware.wifi.direct"
         android:required="true" />
@@ -39,52 +80,5 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:required="true" />
-
-
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="Together Theater"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat">
-        <activity android:name=".SplashActivity"
-            android:theme="@style/SplashTheme"
-            android:label="Together Theater"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-
-        </activity>
-
-        <activity android:name=".MainActivity">
-
-        </activity>
-        <activity
-            android:name=".ServerActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".ClientActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".PlayerClient"
-            android:screenOrientation="portrait" />
-        <activity android:name=".PlayerHost"
-            android:screenOrientation="portrait">
-        </activity>
-        <activity
-            android:name=".GuideLineClient"
-            android:screenOrientation="portrait">
-        </activity>
-        <activity
-            android:name=".GuideLineHost"
-            android:screenOrientation="portrait">
-        </activity>
-        
-    </application>
-
 
 </manifest>
