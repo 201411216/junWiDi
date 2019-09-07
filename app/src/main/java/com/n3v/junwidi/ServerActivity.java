@@ -15,6 +15,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -41,6 +42,8 @@ import com.n3v.junwidi.Utils.RealPathUtil;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+
+import static java.lang.Thread.sleep;
 
 public class ServerActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyServerTaskListener {
 
@@ -83,10 +86,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server);
         initView();
+
         myManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         sendDialog = new SendDialog(this, "", this);
+
+
         permissionCheck(0);
 
     }
@@ -261,6 +267,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         onPostExecute() 를 통해 adapter 에 직접 notifyDataSetChanged()를 보내 ListView 를 최신화함.
     p4 : 그룹이 생성된 경우와 그렇지 않은 경우 btn 정보 변경.
      */
+
+
+
     @Override
     public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
         //btn_Server_Control.setEnabled(true);
