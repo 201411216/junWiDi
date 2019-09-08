@@ -121,18 +121,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
         txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
         txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
-
-        listView_Server_List = findViewById(R.id.client_list_server);
-        myWifiP2pDeviceList = new ArrayList<>();
-        myClientAdapter = new MyClientAdapter(this, R.layout.item_server, myWifiP2pDeviceList);
-        listView_Server_List.setAdapter(myClientAdapter);
-        listView_Server_List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) { //ListView 아이템 클릭 리스너
-                WifiP2pDevice d = myWifiP2pDeviceList.get(position);
-                connect(d);
-            }
-        });
         layout_Client_Pull_To_Refresh = findViewById(R.id.client_layout_pull_to_refresh);
         layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -154,7 +142,22 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 layout_Client_Pull_To_Refresh.setRefreshing(false);
             }
         });
+        listView_Server_List = findViewById(R.id.client_list_server);
+        myWifiP2pDeviceList = new ArrayList<>();
+        myClientAdapter = new MyClientAdapter(this, R.layout.item_server, myWifiP2pDeviceList);
+        listView_Server_List.setAdapter(myClientAdapter);
+        listView_Server_List.setOnItemClickListener(onItemClickListener);
+
     }
+
+    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            Log.v(TAG, "onClickItem pos = " + position);
+            WifiP2pDevice d = myWifiP2pDeviceList.get(position);
+            connect(d);
+        }
+    };
 
     private View.OnClickListener myClickListener = new View.OnClickListener() {
         @Override
@@ -182,6 +185,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         unregisterReceiver(myBroadCastReceiver);
         super.onPause();
     }
+
     public void finish() {
         super.finish();
 
@@ -241,7 +245,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             public void onSuccess() {
                 Log.v(TAG, "Disconnect Success");
                 showToast("Disconnect Success");
-                if (nowTask != null  && !nowTask.isCancelled()) {
+                if (nowTask != null && !nowTask.isCancelled()) {
                     callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
                     Log.v(TAG, "Disconnect call nowTask Cancel");
                     nowTask.cancel(true);
@@ -284,41 +288,40 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
      */
 
 
-        @Override
-        public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) { //Wifi P2P 연결(그룹 생성) 시 호출됨
+    @Override
+    public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) { //Wifi P2P 연결(그룹 생성) 시 호출됨
 
-            myWifiP2pDeviceList.clear();
-            myClientAdapter.notifyDataSetChanged();
-            Log.e(TAG, "onConnectionInfoAvailable");
-            Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
-            Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
-            Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
-            myWifiP2pInfo = wifiP2pInfo;
-            if (wifiP2pInfo.groupFormed) {
-                host_Address = wifiP2pInfo.groupOwnerAddress;
-                String temp_Addr = String.valueOf(host_Address).replace("/", "");
-                txt_Host_Ip_Address.setText(temp_Addr);
-            }
-
-            if (myDeviceInfo == null) { // p1
-                setMyDeviceInfo(wifiP2pInfo);
-            }
-
-            if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
-                Log.e(TAG, "Client Can't be GroupOwner");
-            } else if (wifiP2pInfo.groupFormed) { // p2
-                callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
-                if (nowTask != null && !nowTask.isCancelled()) {
-                    nowTask.cancel(true);
-                    nowTask = null;
-                }
-                if (handshaked == false) {
-                    Log.v(TAG, "Call HANDSHAKE TASK");
-                    nowTask = callClientTask(MyClientTask.CLIENT_HANDSHAKE_SERVICE);
-                }
-            }
+        myWifiP2pDeviceList.clear();
+        myClientAdapter.notifyDataSetChanged();
+        Log.e(TAG, "onConnectionInfoAvailable");
+        Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
+        Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
+        Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+        myWifiP2pInfo = wifiP2pInfo;
+        if (wifiP2pInfo.groupFormed) {
+            host_Address = wifiP2pInfo.groupOwnerAddress;
+            String temp_Addr = String.valueOf(host_Address).replace("/", "");
+            txt_Host_Ip_Address.setText(temp_Addr);
         }
 
+        if (myDeviceInfo == null) { // p1
+            setMyDeviceInfo(wifiP2pInfo);
+        }
+
+        if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
+            Log.e(TAG, "Client Can't be GroupOwner");
+        } else if (wifiP2pInfo.groupFormed) { // p2
+            callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
+            if (nowTask != null && !nowTask.isCancelled()) {
+                nowTask.cancel(true);
+                nowTask = null;
+            }
+            if (handshaked == false) {
+                Log.v(TAG, "Call HANDSHAKE TASK");
+                nowTask = callClientTask(MyClientTask.CLIENT_HANDSHAKE_SERVICE);
+            }
+        }
+    }
 
 
     /*
@@ -333,7 +336,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myClientAdapter.notifyDataSetChanged();
         host_Address = null;
         txt_Host_Ip_Address.setText("-");
-        if (nowTask != null  && !nowTask.isCancelled()) {
+        if (nowTask != null && !nowTask.isCancelled()) {
             callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
         }
 
