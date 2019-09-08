@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.n3v.junwidi.Adapter.MyServerAdapter;
 import com.n3v.junwidi.BroadcastReceiver.MyBroadCastReceiver;
 import com.n3v.junwidi.Datas.DeviceInfo;
+import com.n3v.junwidi.Dialogs.LoadingSpinnerDialog;
 import com.n3v.junwidi.Dialogs.SendDialog;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
@@ -79,6 +80,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private static final int PICK_VIDEO_RESULT_CODE = 1;
 
     SendDialog sendDialog = null;
+    LoadingSpinnerDialog spinningDialog = null;
 
     AsyncTask nowTask = null;
 
@@ -86,13 +88,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_server);
-        initView();
 
         myManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         myChannel = myManager.initialize(this, getMainLooper(), null);
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         sendDialog = new SendDialog(this, "", this);
+        spinningDialog = new LoadingSpinnerDialog(this);
 
+        initView();
 
         permissionCheck(0);
 
@@ -118,7 +121,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             }
         });
         listView_Client_List.setAdapter(myServerAdapter);
-
         layout_Server_Pull_To_Refresh = findViewById(R.id.server_layout_pull_to_refresh);
         layout_Server_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -245,9 +247,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         // activity가 사라질 때 transition 효과 지정
         overridePendingTransition(android.R.anim.slide_in_left, R.anim.anim_slide_out_right);
     }
+
     @Override
     public void onDestroy() {
-        super.onDestroy();
         removeGroup();
         myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
             @Override
@@ -256,6 +258,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                 Log.v(TAG, "onGroupInfoAvailable()");
             }
         });
+
+        super.onDestroy();
+    }
+
+    public void destroyManual(){
+        super.onDestroy();
     }
 
     @Override
@@ -274,7 +282,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         onPostExecute() 를 통해 adapter 에 직접 notifyDataSetChanged()를 보내 ListView 를 최신화함.
     p4 : 그룹이 생성된 경우와 그렇지 않은 경우 btn 정보 변경.
      */
-
 
 
     @Override
@@ -434,6 +441,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0; // permission 3 : 외부 저장소 읽기 권한
         int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0; // permission 4 : 외부 저장소 쓰기 권한
         int permissionChecker;
+        spinningDialog.cancel();
         if (permission == 0 || permission == 1) {
             permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
             if (permissionChecker == PackageManager.PERMISSION_DENIED) {
