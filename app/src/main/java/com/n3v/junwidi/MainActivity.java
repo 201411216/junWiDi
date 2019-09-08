@@ -8,6 +8,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import static java.lang.Thread.sleep;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "";
@@ -28,7 +30,17 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public void onResume(){
 
+        try {
+            sleep(500);
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+
+        super.onResume();
+    }
 
 
     public void enterServer(View view) {
