@@ -59,7 +59,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private MyBroadCastReceiver myBroadCastReceiver;
 
     private TextView txt_myDevice_Name;
-    //private TextView txt_myDevice_Address;
+    private TextView txt_myDevice_Address;
     //private TextView txt_myDevice_State;
     private TextView txt_Video_Path;
     private Button btn_File_Select;
@@ -105,7 +105,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private void initView() {
         txt_myDevice_Name = findViewById(R.id.server_txt_my_device_name);
         txt_Video_Path = findViewById(R.id.server_txt_video_path);
-        //txt_myDevice_Address = findViewById(R.id.server_txt_my_device_address);
+        txt_myDevice_Address = findViewById(R.id.server_txt_my_device_address);
         //txt_myDevice_State = findViewById(R.id.server_txt_my_device_state);
         //txt_Video_Path = findViewById(R.id.server_txt_video_path);
         btn_File_Select = findViewById(R.id.server_btn_file_select);
@@ -360,7 +360,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
         Log.e(TAG, "Status: " + wifiP2pDevice.status);
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
-        //txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
+        txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
         //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
         myWifiP2pDevice = wifiP2pDevice;
         if (!isGroupExist) {
