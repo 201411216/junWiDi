@@ -24,7 +24,7 @@
             <Button
                 android:id="@+id/server_btn_file_select"
                 android:layout_width="0dp"
-                android:layout_height="65dp"
+                android:layout_height="50dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="20dp"
@@ -39,22 +39,22 @@
                 android:fontFamily="@font/notoblack"
                 android:paddingLeft="10dp"
                 android:text="-"
-                android:textSize="20sp" />
+                android:textSize="18dp" />
 
             <Button
                 android:id="@+id/exo_button"
-                android:onClick="enterExoplay"
                 android:layout_width="0dp"
-                android:layout_height="30dp"
+                android:layout_height="25dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_weight="0.1"
-                android:background="@drawable/playbutton" />
+                android:background="@drawable/playbutton"
+                android:onClick="enterExoplay" />
 
             <Button
                 android:id="@+id/server_btn_file_transfer"
                 android:layout_width="7dp"
-                android:layout_height="30dp"
+                android:layout_height="25dp"
                 android:layout_marginRight="10dp"
                 android:layout_weight="0.1"
                 android:background="@drawable/send" />
@@ -79,28 +79,6 @@
                 android:text="-"
                 android:textSize="15dp"
                 />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:fontFamily="@font/notoblack"
-                android:text="Device State : "
-                android:textSize="15dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:fontFamily="@font/notoregular"
-                android:id="@+id/server_txt_my_device_state"
-                android:text="-"
-                android:textSize="15dp"
-                />
-
         </LinearLayout>
 
         <LinearLayout
@@ -134,10 +112,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/notoblack"
-            android:paddingLeft="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
+            android:fontFamily="@font/notoblack"
+            android:paddingLeft="10dp"
             android:text="Client"
             android:textColor="#ffffff"
             android:textSize="14dp" />

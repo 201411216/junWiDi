@@ -50,10 +50,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     private MyBroadCastReceiver myBroadCastReceiver;
 
-    private TextView txt_myDevice_Name;
-    private TextView txt_myDevice_Address;
-    private TextView txt_myDevice_State;
-    private TextView txt_Host_Ip_Address;
+    //private TextView txt_myDevice_Name;
+    //private TextView txt_myDevice_Address;
+    //private TextView txt_myDevice_State;
+    //private TextView txt_Host_Ip_Address;
 
     private SwipeRefreshLayout layout_Client_Pull_To_Refresh;
     private ListView listView_Server_List;
@@ -117,10 +117,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     }
 
     private void initView() { //Activity의 view item들 초기화
-        txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
-        txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
-        txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
-        txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
+        //txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
+        //txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
+        //txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
+        //txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
         layout_Client_Pull_To_Refresh = findViewById(R.id.client_layout_pull_to_refresh);
         layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -301,7 +301,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         if (wifiP2pInfo.groupFormed) {
             host_Address = wifiP2pInfo.groupOwnerAddress;
             String temp_Addr = String.valueOf(host_Address).replace("/", "");
-            txt_Host_Ip_Address.setText(temp_Addr);
+            //
+            // txt_Host_Ip_Address.setText(temp_Addr);
         }
 
         if (myDeviceInfo == null) { // p1
@@ -335,7 +336,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myWifiP2pDeviceList.clear();
         myClientAdapter.notifyDataSetChanged();
         host_Address = null;
-        txt_Host_Ip_Address.setText("-");
+        //txt_Host_Ip_Address.setText("-");
         if (nowTask != null && !nowTask.isCancelled()) {
             callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
         }
@@ -352,9 +353,9 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "DeviceName: " + wifiP2pDevice.deviceName);
         Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
         Log.e(TAG, "Status: " + wifiP2pDevice.status);
-        txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
-        txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
-        txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
+        //txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
+        //txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
+        //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
 
         myWifiP2pDevice = wifiP2pDevice;
     }
