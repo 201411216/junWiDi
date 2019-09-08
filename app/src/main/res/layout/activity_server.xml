@@ -42,6 +42,7 @@
                 android:textSize="18dp" />
 
             <Button
+                android:id="@+id/exo_button"
                 android:layout_width="0dp"
                 android:layout_height="25dp"
                 android:layout_marginLeft="10dp"
@@ -58,24 +59,21 @@
                 android:layout_weight="0.1"
                 android:background="@drawable/send" />
         </LinearLayout>
-
         <View
             android:layout_width="fill_parent"
             android:layout_marginTop="10dp"
             android:layout_height="2dp"
             android:background="#E8DBDB" />
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/notoblack"
             android:paddingLeft="10dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
             android:text="Client"
             android:textColor="#ffffff"
             android:textSize="14dp" />
-
     </LinearLayout>
 
 
