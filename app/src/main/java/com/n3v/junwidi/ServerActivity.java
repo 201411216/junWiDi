@@ -59,11 +59,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private MyBroadCastReceiver myBroadCastReceiver;
 
     private TextView txt_myDevice_Name;
-    private TextView txt_myDevice_Address;
-    private TextView txt_myDevice_State;
+    //private TextView txt_myDevice_Address;
+    //private TextView txt_myDevice_State;
     private TextView txt_Video_Path;
     private Button btn_File_Select;
     private Button btn_File_Transfer;
+    private Button btn_Exo;
     private SwipeRefreshLayout layout_Server_Pull_To_Refresh;
     private ListView listView_Client_List;
 
@@ -104,9 +105,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private void initView() {
         txt_myDevice_Name = findViewById(R.id.server_txt_my_device_name);
         txt_Video_Path = findViewById(R.id.server_txt_video_path);
+        //txt_myDevice_Address = findViewById(R.id.server_txt_my_device_address);
+        //txt_myDevice_State = findViewById(R.id.server_txt_my_device_state);
+        //txt_Video_Path = findViewById(R.id.server_txt_video_path);
         btn_File_Select = findViewById(R.id.server_btn_file_select);
         btn_File_Transfer = findViewById(R.id.server_btn_file_transfer);
-
+        btn_Exo = findViewById(R.id.exo_button);
 
         btn_File_Select.setOnClickListener(myClickListener);
         btn_File_Transfer.setOnClickListener(myClickListener);
@@ -181,14 +185,19 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     sendDialog.initDialog();
                     sendDialog.setFileName(videoName);
                     sendDialog.setReceivers(myDeviceInfoList.size());
+                    btn_Exo.setEnabled(true);
                 }
             }
         }
     };
 
     public void enterExoplay(View view) {
-        startActivity(new Intent(this, Exoplay.class));
-        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
+        if (isFileSelected) {
+            Intent intent = new Intent(this, Exoplay.class);
+            intent.putExtra("videoPath", videoPath);
+            startActivity(intent);
+            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
+        }
     } //xml 파일을 통해 onClick으로 호출됨
 
 
