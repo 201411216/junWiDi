@@ -63,6 +63,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private TextView txt_Video_Path;
     private Button btn_File_Select;
     private Button btn_File_Transfer;
+    private Button btn_Exo;
     private SwipeRefreshLayout layout_Server_Pull_To_Refresh;
     private ListView listView_Client_List;
 
@@ -105,7 +106,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         txt_Video_Path = findViewById(R.id.server_txt_video_path);
         btn_File_Select = findViewById(R.id.server_btn_file_select);
         btn_File_Transfer = findViewById(R.id.server_btn_file_transfer);
-
+        btn_Exo = findViewById(R.id.exo_button);
 
         btn_File_Select.setOnClickListener(myClickListener);
         btn_File_Transfer.setOnClickListener(myClickListener);
@@ -178,14 +179,19 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     sendDialog.initDialog();
                     sendDialog.setFileName(videoName);
                     sendDialog.setReceivers(myDeviceInfoList.size());
+                    btn_Exo.setEnabled(true);
                 }
             }
         }
     };
 
     public void enterExoplay(View view) {
-        startActivity(new Intent(this, Exoplay.class));
-        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
+        if (isFileSelected) {
+            Intent intent = new Intent(this, Exoplay.class);
+            intent.putExtra("videoPath", videoPath);
+            startActivity(intent);
+            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
+        }
     } //xml 파일을 통해 onClick으로 호출됨
 
 
@@ -245,6 +251,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         // activity가 사라질 때 transition 효과 지정
         overridePendingTransition(android.R.anim.slide_in_left, R.anim.anim_slide_out_right);
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -274,7 +281,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         onPostExecute() 를 통해 adapter 에 직접 notifyDataSetChanged()를 보내 ListView 를 최신화함.
     p4 : 그룹이 생성된 경우와 그렇지 않은 경우 btn 정보 변경.
      */
-
 
 
     @Override

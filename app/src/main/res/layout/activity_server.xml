@@ -42,6 +42,7 @@
                 android:textSize="20sp" />
 
             <Button
+                android:id="@+id/exo_button"
                 android:onClick="enterExoplay"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
