@@ -33,7 +33,9 @@ import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
 import com.n3v.junwidi.Services.MyClientTask;
 
+import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -225,7 +227,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onSuccess() {
                 Log.v(TAG, "Connect Success");
-                showToast("Connect Success");
+                showToast("Connect Success!");
             }
 
             @Override
@@ -450,16 +452,25 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
                         if (inetAddress instanceof Inet4Address) { // fix for Galaxy Nexus. IPv4 is easy to use :-)
+                            showToast("ipv4Address");
                             return inetAddress.getAddress();
+
+
                         }
-                        //return inetAddress.getHostAddress().toString(); // Galaxy Nexus returns IPv6
+                        if(inetAddress instanceof Inet6Address) {
+                            showToast("ipv6Address");
+                            inetAddress.getAddress();
+                            // Galaxy Nexus returns IPv6
+                        }
                     }
                 }
             }
         } catch (SocketException ex) {
             //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
         } catch (NullPointerException ex) {
-            //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
+            showToast("getLocalIPAddress() error: NullPointerException"); //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
+        } catch(IOException ex){
+            showToast("getLocalIPAddress() error: IOException");
         }
         return null;
     }

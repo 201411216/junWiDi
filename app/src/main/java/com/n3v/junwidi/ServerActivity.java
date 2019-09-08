@@ -128,7 +128,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onRefresh() {
                 if (isWifiP2pEnabled) {
-                    Log.v(TAG, "ListView onRefresh");
                     myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() {
                         @Override
                         public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
@@ -240,7 +239,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
                 deviceListUpdate(wifiP2pGroup);
-                Log.v(TAG, "onGroupInfoAvailable()");
             }
         });
     }
@@ -265,7 +263,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
                 deviceListUpdate(wifiP2pGroup);
-                Log.v(TAG, "onGroupInfoAvailable()");
             }
         });
 
@@ -298,9 +295,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
         //btn_Server_Control.setEnabled(true);
         btn_File_Select.setEnabled(true);
-        Log.e(TAG, "onConnectionInfoAvailable");
-        Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
-        Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
         Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
         myWifiP2pInfo = wifiP2pInfo;
 
@@ -310,29 +304,15 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
         int tmpListSize = myDeviceInfoList.size();
 
-        Log.v(TAG, "testest0 : " + tmpListSize);
 
         myManager.requestGroupInfo(myChannel, new WifiP2pManager.GroupInfoListener() { // p2
             @Override
             public void onGroupInfoAvailable(WifiP2pGroup wifiP2pGroup) {
                 deviceListUpdate(wifiP2pGroup);
-                Log.v(TAG, "onGroupInfoAvailable()");
             }
         });
 
-        Log.v(TAG, "testest1 : " + myDeviceInfoList.size());
-/*
-        if (myDeviceInfoList.size() > tmpListSize) {
 
-            Log.v(TAG, "testest2");
-
-            if (wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) { // p3
-                Log.v(TAG, "testest3");
-                callServerTask(MyServerTask.SERVER_HANDSHAKE_SERVICE);
-            }
-
-        }
-*/
     }
 
     /*
@@ -355,10 +335,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
      */
     @Override
     public void onSelfDeviceAvailable(WifiP2pDevice wifiP2pDevice) {
-        Log.e(TAG, "onSelfDeviceAvailable");
-        Log.e(TAG, "DeviceName: " + wifiP2pDevice.deviceName);
-        Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
-        Log.e(TAG, "Status: " + wifiP2pDevice.status);
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
         txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
         //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
@@ -487,7 +463,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         config.groupOwnerIntent = 15;
         config.wps.setup = WpsInfo.PBC;
         if (d.status == WifiP2pDevice.CONNECTED) {
-            Log.v(TAG, "The Device is already connected");
             return;
         }
         myManager.connect(myChannel, config, new WifiP2pManager.ActionListener() {
@@ -520,9 +495,16 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void deviceListUpdate(WifiP2pGroup group) {
         if (group == null) { // nullPointException 방지
             myDeviceInfoList.clear();
+
             return;
         }
-        if (myDeviceInfoList.size() < group.getClientList().size()) { //Case 1
+        if( myDeviceInfoList.size() == 0)
+        {
+            btn_File_Transfer.setEnabled(false);
+            showToast("연결 가능한 기기가 없습니다.");
+            return;
+        }
+        else if (myDeviceInfoList.size() < group.getClientList().size()) { //Case 1
             Log.v(TAG, "deviceListUpdate : Case 1");
             ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
             boolean exist = false;
