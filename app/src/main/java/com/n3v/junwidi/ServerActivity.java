@@ -103,8 +103,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     private void initView() {
         txt_myDevice_Name = findViewById(R.id.server_txt_my_device_name);
-        txt_myDevice_Address = findViewById(R.id.server_txt_my_device_address);
-        txt_myDevice_State = findViewById(R.id.server_txt_my_device_state);
         txt_Video_Path = findViewById(R.id.server_txt_video_path);
         btn_File_Select = findViewById(R.id.server_btn_file_select);
         btn_File_Transfer = findViewById(R.id.server_btn_file_transfer);
@@ -162,8 +160,11 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     videoPath = "";
                     txt_Video_Path.setText("비디오를 선택해 주세요");
                     isFileSelected = false;
-
                     btn_File_Transfer.setEnabled(false);
+                    for (DeviceInfo di : myDeviceInfoList) {
+                        di.setHasVideo(false);
+                        di.setVideoName("");
+                    }
                 }
                 //callServerTask(MyServerTask.SERVER_MESSAGE_SERVICE);
             } else if (v.equals(btn_File_Transfer)) {
@@ -350,8 +351,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
         Log.e(TAG, "Status: " + wifiP2pDevice.status);
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
-        txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
-        txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
+        //txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
+        //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
         myWifiP2pDevice = wifiP2pDevice;
         if (!isGroupExist) {
             createGroup();

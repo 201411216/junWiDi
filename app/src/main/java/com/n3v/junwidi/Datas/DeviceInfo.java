@@ -32,7 +32,11 @@ public class DeviceInfo implements Parcelable {
     private int setXValue = -1;
     private int setYValue = -1;
 
+    private String videoName = "";
+
     private boolean hasVideo = false;
+
+
 
     public DeviceInfo(WifiP2pDevice device) {
         wifiP2pDevice = device;
@@ -60,7 +64,12 @@ public class DeviceInfo implements Parcelable {
         this.isGroupOwner = Boolean.valueOf(in.readString());
         this.mm_width = in.readInt();
         this.mm_height = in.readInt();
-
+        this.position = in.readInt();
+        this.mm_videoview_width = in.readInt();
+        this.mm_videoview_height = in.readInt();
+        this.setXValue = in.readInt();
+        this.setYValue = in.readInt();
+        this.videoName = in.readString();
         this.hasVideo = Boolean.valueOf(in.readString());
     }
 
@@ -209,6 +218,14 @@ public class DeviceInfo implements Parcelable {
         this.hasVideo = hasVideo;
     }
 
+    public String getVideoName() {
+        return videoName;
+    }
+
+    public void setVideoName(String videoName) {
+        this.videoName = videoName;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -231,7 +248,7 @@ public class DeviceInfo implements Parcelable {
         parcel.writeInt(mm_videoview_height);
         parcel.writeInt(setXValue);
         parcel.writeInt(setYValue);
-
+        parcel.writeString(videoName);
         parcel.writeString(Boolean.toString(hasVideo));
     }
 

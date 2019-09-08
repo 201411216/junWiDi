@@ -59,6 +59,14 @@
                 android:background="@drawable/send" />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/server_txt_video_path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:text="-"
+            android:textSize="18dp" />/>
+
         <View
             android:layout_width="fill_parent"
             android:layout_marginTop="10dp"

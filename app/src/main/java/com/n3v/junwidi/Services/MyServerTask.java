@@ -328,6 +328,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         if (!socket.isClosed()) {
                             socket.close();
                         }
+                        di.setVideoName(videoName);
                         publishProgress();
                         continue;
                     }
@@ -372,8 +373,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_SHORT);
 
                         di.setHasVideo(true);
+                        di.setVideoName(videoName);
 
                         deviceCount++;
+
                     } else {
                         break;
                     }
