@@ -15,12 +15,7 @@
             android:label="Together Theater"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".MainActivity"></activity>
         <activity
@@ -34,13 +29,22 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".PlayerHost"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait">
+
+        </activity>
         <activity
             android:name=".GuideLineClient"
             android:screenOrientation="portrait"></activity>
         <activity
             android:name=".GuideLineHost"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
     </application>
 
     <uses-feature
