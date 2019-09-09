@@ -121,6 +121,7 @@ public class ReceiveDialog extends Dialog {
         question.setText(RCV_DLG_VIDEO_ALREADY_EXISTS_STR);
         question.setVisibility(View.VISIBLE);
         videoTitle.setVisibility(View.VISIBLE);
+
     }
 
     private View.OnClickListener dialogClickListner = new View.OnClickListener() {
