@@ -43,7 +43,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_FILE_RECEIVE_SERVICE = "tt.client.FILE_RECEIVE_SERVICE";
     public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "tt.client.TCP_FILE_RECEIVE_SERVICE";
     public static final String CLIENT_CONTROL_SERVICE = "tt.client.CONTROL_SERVICE";
-    public static final String CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE = "tt.client.TCP_FILE_RECEIVE_WAITING_SERVICE";
+    public static final String CLIENT_TCP_WAITING_SERVICE = "tt.client.TCP_FILE_RECEIVE_WAITING_SERVICE";
     public static final String CLIENT_TCP_CANCEL_WAITING_SERVICE = "tt.client.TCP_CANCEL_WAITING_SERVICE";
     public static final String CLIENT_TCP_GO_SIGNAL_SERVICE = "tt.client.TCP_GO_SIGNAL_SERVICE";
 
@@ -73,6 +73,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private boolean receiveComplete = false;
     private boolean receiveFailed = false;
     private boolean videoAlreadyExists = false;
+    private boolean receiveShowGuideline = false;
 
     private Socket socket = null;
     private DatagramSocket datagramSocket = null;
@@ -238,7 +239,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     multicastLock.release();
                 }
             }
-        } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE)) {
+        } else if (ACT_MODE.equals(CLIENT_TCP_WAITING_SERVICE)) {
             Log.v(TAG, "CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE act");
             serverSocket = null;
             socket = null;
@@ -247,7 +248,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
             try {
                 try {
-                    serverSocket = new ServerSocket(Constants.FILE_TRANSFER_PORT);
+                    serverSocket = new ServerSocket(Constants.WAITING_PORT);
                     socket = serverSocket.accept();
                     socket.setSoTimeout(1000);
                     Log.v(TAG, Boolean.toString(socket.isConnected()));
@@ -259,37 +260,68 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                         Log.v(TAG, "Waiting loop is cancelled");
                         waitingCancelled = true;
                     } else {
-                        StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
-                        if (st.hasMoreTokens()) {
-                            if (st.nextToken().equals(Constants.TRANSFER_START)) {
-                                if (st.hasMoreTokens()) {
-                                    fileName = st.nextToken();
+                        if (receiveMessage.startsWith(Constants.TRANSFER_START)) {
+                            StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
+                            if (st.hasMoreTokens()) {
+                                if (st.nextToken().equals(Constants.TRANSFER_START)) {
                                     if (st.hasMoreTokens()) {
-                                        fileSize = Long.valueOf(st.nextToken());
-                                        File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
-                                        if (!newDir.exists()) {
-                                            newDir.mkdir();
+                                        fileName = st.nextToken();
+                                        if (st.hasMoreTokens()) {
+                                            fileSize = Long.valueOf(st.nextToken());
+                                            File newDir = new File(myContext.getExternalFilesDir(null), "TogetherTheater");
+                                            if (!newDir.exists()) {
+                                                newDir.mkdir();
+                                            }
+                                            Log.v(TAG, fileName + "!");
+                                            File newVideo = new File(newDir, fileName);
+                                            Log.v(TAG, newVideo.getAbsolutePath());
+                                            if (!newVideo.createNewFile() && newVideo.length() == fileSize) {
+                                                Log.v(TAG, "file already exists");
+                                                videoAlreadyExists = true;
+                                            }
+                                            if (videoAlreadyExists) {
+                                                socket.close();
+                                                socket = new Socket(host_addr, Constants.FILE_TRANSFER_PORT);
+                                                Log.v(TAG, "send ExistMessage");
+                                                String existMessage = Constants.VIDEO_ALREADY_EXIST;
+                                                dos = new DataOutputStream(socket.getOutputStream());
+                                                dos.writeUTF(existMessage);
+                                                end_wait = true;
+                                            }
+                                            end_wait = true;
+                                            publishProgress();
                                         }
-                                        Log.v(TAG, fileName + "!");
-                                        File newVideo = new File(newDir, fileName);
-                                        Log.v(TAG, newVideo.getAbsolutePath());
-                                        if (!newVideo.createNewFile() && newVideo.length() == fileSize) {
-                                            Log.v(TAG, "file already exists");
-                                            videoAlreadyExists = true;
-                                        }
-                                        if (videoAlreadyExists) {
-                                            socket.close();
-                                            socket = new Socket(host_addr, Constants.FILE_TRANSFER_PORT);
-                                            Log.v(TAG, "send ExistMessage");
-                                            String existMessage = Constants.VIDEO_ALREADY_EXIST;
-                                            dos = new DataOutputStream(socket.getOutputStream());
-                                            dos.writeUTF(existMessage);
-                                        }
-                                        end_wait = true;
+                                    }
+                                }
+                            }
+                        } else if (receiveMessage.startsWith(Constants.SHOW_GUIDELINE)) {
+                            StringTokenizer st = new StringTokenizer(receiveMessage, Constants.DELIMITER);
+                            if (st.hasMoreTokens()) {
+                                if (st.nextToken().equals(Constants.SHOW_GUIDELINE)) {
+                                    if (st.nextToken().equals(myDeviceInfo.getWifiP2pDevice().deviceAddress)) {
+                                        myDeviceInfo.setBrand_Name(st.nextToken());
+                                        myDeviceInfo.setModel_Name(st.nextToken());
+                                        myDeviceInfo.setStr_address(st.nextToken());
+                                        myDeviceInfo.setPx_width(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setPx_height(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setDensityDpi(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setGroupOwner(Boolean.valueOf(st.nextToken()));
+                                        myDeviceInfo.setMm_width(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setMm_height(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setPosition(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setMm_videoview_width(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setMm_videoview_height(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setSetXValue(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setSetYValue(Integer.valueOf(st.nextToken()));
+                                        myDeviceInfo.setVideoName(st.nextToken());
+                                        myDeviceInfo.setHasVideo(Boolean.valueOf(st.nextToken()));
+                                        receiveShowGuideline = true;
                                         publishProgress();
                                     }
                                 }
                             }
+
+
                         }
                     }
                 } catch (IOException e) {
@@ -313,8 +345,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
         } else if (ACT_MODE.equals(CLIENT_TCP_CANCEL_WAITING_SERVICE)) {
             Log.v(TAG, "ACT : CLIENT_TCP_CANCEL_WAITING_SERVICE");
             try {
-                socket = new Socket(myDeviceInfo.getStr_address(), Constants.FILE_TRANSFER_PORT);
-
+                socket = new Socket(myDeviceInfo.getStr_address(), Constants.WAITING_PORT);
+                Log.v(TAG, "send cancel message");
                 dos = new DataOutputStream(socket.getOutputStream());
                 dos.writeUTF(Constants.CANCEL_WAITING);
 
@@ -565,8 +597,10 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             }
         } else if (ACT_MODE.equals(CLIENT_HANDSHAKE_SERVICE)) {
             clientTaskListener.onHandshaked();
-        } else if (ACT_MODE.equals(CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE)) {
-            if (!videoAlreadyExists && end_wait) {
+        } else if (ACT_MODE.equals(CLIENT_TCP_WAITING_SERVICE)) {
+            if (receiveShowGuideline) {
+                clientTaskListener.onReceiveShowGuideline();
+            } else if (!videoAlreadyExists && end_wait) {
                 clientTaskListener.setFile(fileName, fileSize);
                 clientTaskListener.onEndWait();
             } else {

@@ -7,8 +7,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
         <TextView
+            android:id="@+id/text_server_activity_able_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/notoblack"
@@ -16,14 +16,14 @@
             android:text="접속 가능한 그룹 리스트"
             android:textColor="#ffffff"
             android:textSize="14dp" />
-
         <View
+            android:id="@+id/text_server_activity_bar"
             android:layout_width="fill_parent"
             android:layout_marginTop="5dp"
             android:layout_height="2dp"
             android:background="#E8DBDB" />
-
         <TextView
+            android:id="@+id/text_server_activity_group1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/notoblack"
@@ -31,96 +31,37 @@
             android:text="Group1"
             android:textColor="#ffffff"
             android:textSize="14dp" />
+        <TextView
+            android:id="@+id/text_server_activity_owner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notoblack"
+            android:paddingLeft="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="Owner"
+            android:textColor="#ffffff"
+            android:textSize="14dp" />
 
+        <TextView
+            android:id="@+id/text_server_activity_client"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/notoblack"
+            android:paddingLeft="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="Client"
+            android:textColor="#ffffff"
+            android:textSize="14dp" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
-            android:text="Run as client"
-            android:textSize="25dp"
-            android:textColor="@color/client_orange"
-            />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
-                android:text="Device Name : "
-                android:textSize="20dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/client_txt_my_device_name"
-                android:text="-"
-                android:textSize="20dp"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:text="Device Address : "
-                android:textSize="15dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/client_txt_my_device_address"
-                android:text="-"
-                android:textSize="15dp"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:text="Device State : "
-                android:textSize="15dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/client_txt_my_device_state"
-                android:text="-"
-                android:textSize="15dp"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:text="Host IP : "
-                android:textSize="15dp"
-                />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/client_txt_host_ip_address"
-                android:text="-"
-                android:textSize="15dp"
-                />
-        </LinearLayout>
+            android:orientation="horizontal"/>
     </LinearLayout>
 
 

@@ -38,6 +38,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     public static final String SERVER_MESSAGE_SERVICE = "action.SERVER_MESSAGE_SERVICE";
     public static final String SERVER_FILE_TRANSFER_SERVICE = "action.SERVER_FILE_TRANSFER_SERVICE";
     public static final String SERVER_TCP_FILE_TRANSFER_SERVICE = "action.SERVER_TCP_FILE_TRANSFER_SERVICE";
+    public static final String SERVER_TCP_SHOW_GUIDELINE_SERVICE = "action.SERVER_TCP_SHOW_GUIDELINE_SERVICE";
 
     private static final String TAG = "MyServerTask";
 
@@ -63,6 +64,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     private boolean send_finished = false;
     private boolean sending = false;
     private boolean already_exists = false;
+    private boolean guideline_sended = false;
 
     long sumReadByte = 0;
     long lastPublishedReadByte = 0;
@@ -259,10 +261,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         continue;
                     }
                     Log.v(TAG, di.getStr_address());
-                    socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
+                    socket = new Socket(di.getStr_address(), Constants.WAITING_PORT);
                     while (!socket.isConnected()) {
                         socket.close();
-                        socket = new Socket(di.getStr_address(), Constants.FILE_TRANSFER_PORT);
+                        socket = new Socket(di.getStr_address(), Constants.WAITING_PORT);
                         Log.v(TAG, "connecting loop");
                     }
 
@@ -374,6 +376,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
                         di.setHasVideo(true);
                         di.setVideoName(videoName);
+                        Log.v(TAG, "di.setVideoName() = " + videoName);
 
                         deviceCount++;
 
@@ -430,6 +433,46 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
 
+        } else if (ACT_MODE.equals(SERVER_TCP_SHOW_GUIDELINE_SERVICE)) {
+            try {
+
+                for (DeviceInfo di : myDeviceInfoList) {
+                    if (!di.getWifiP2pDevice().deviceAddress.equals(myDeviceInfo.getWifiP2pDevice().deviceAddress)) {
+                        socket = new Socket(di.getStr_address(), Constants.WAITING_PORT);
+                        while (!socket.isConnected()) {
+                            socket.close();
+                            socket = new Socket(di.getStr_address(), Constants.WAITING_PORT);
+                            Log.v(TAG, "connecting loop");
+                        }
+
+                        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                        dos.writeUTF(Constants.SHOW_GUIDELINE + Constants.DELIMITER + di.getLongString());
+
+                        dos.close();
+                        socket.close();
+                    }
+
+                    guideline_sended = true;
+                    publishProgress();
+
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                        Log.v(TAG, "HANDSHAKE : socket closed");
+                    }
+                    if (serverSocket != null && !serverSocket.isClosed()) {
+                        serverSocket.close();
+                        Log.v(TAG, "HANDSHAKE : serverSocket closed");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return "";
     }
@@ -461,6 +504,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             if (send_finished) {
                 serverTaskListener.onAllSendFinished();
                 send_finished = false;
+            }
+        } else if (ACT_MODE.equals(SERVER_TCP_SHOW_GUIDELINE_SERVICE)) {
+            if (guideline_sended) {
+
             }
         }
     }

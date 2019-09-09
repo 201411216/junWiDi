@@ -4,8 +4,11 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
 import com.n3v.junwidi.Utils.Constants;
+
+import java.util.StringTokenizer;
 
 /*
 통신 및 영상 재생에 필요한 기기 정보를 저장할 객체
@@ -51,6 +54,8 @@ public class DeviceInfo implements Parcelable {
         this.px_height = height;
         this.densityDpi = densityDpi;
         this.isGroupOwner = isGroupOwner;
+        this.mm_width = pxToMm(width);
+        this.mm_height = pxToMm(height);
     }
 
     public DeviceInfo(Parcel in) {
@@ -131,10 +136,12 @@ public class DeviceInfo implements Parcelable {
 
     public void setPx_width(int px_width) {
         this.px_width = px_width;
+        this.mm_width = pxToMm(px_width);
     }
 
     public void setPx_height(int px_height) {
         this.px_height = px_height;
+        this.mm_height = pxToMm(px_height);
     }
 
     public void setDensityDpi(int densityDpi) {
@@ -210,6 +217,13 @@ public class DeviceInfo implements Parcelable {
                 + isGroupOwner + Constants.DELIMITER + mm_width + Constants.DELIMITER + mm_height;
     }
 
+    public String getLongString() {
+        return wifiP2pDevice.deviceAddress + Constants.DELIMITER + brand_Name + Constants.DELIMITER + model_Name + Constants.DELIMITER + str_address + Constants.DELIMITER + px_width + Constants.DELIMITER
+                + px_height + Constants.DELIMITER + densityDpi + Constants.DELIMITER + isGroupOwner + Constants.DELIMITER + mm_width + Constants.DELIMITER + mm_height + Constants.DELIMITER + position
+                + Constants.DELIMITER + mm_videoview_width + Constants.DELIMITER + mm_videoview_height + Constants.DELIMITER + setXValue + Constants.DELIMITER + setYValue + Constants.DELIMITER + videoName
+                + Constants.DELIMITER + hasVideo;
+    }
+
     public boolean isHasVideo() {
         return hasVideo;
     }
@@ -258,11 +272,12 @@ public class DeviceInfo implements Parcelable {
     }
 
     public int pxToMm(int value) {
-        return value * this.densityDpi;
+        return (int) (value * 25.4 / this.densityDpi);
+        //return (int)(value / TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1, dm));
     }
 
     public int mmToPx(int value) {
-        return value / this.densityDpi;
+        return (int) (value * this.densityDpi / 25.4);
     }
 
 }
