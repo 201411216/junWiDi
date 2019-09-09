@@ -87,6 +87,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     LoadingSpinnerDialog spinningDialog = null;
     GuideLineDialog guideLineDialog = null;
 
+    private boolean log_on = true;
+
     AsyncTask nowTask = null;
 
     @Override
@@ -286,7 +288,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         super.onDestroy();
     }
 
-    public void destroyManual(){
+    public void destroyManual() {
         super.onDestroy();
     }
 
@@ -312,7 +314,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
         //btn_Server_Control.setEnabled(true);
         btn_File_Select.setEnabled(true);
-        Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+        if (log_on) {
+            Log.e(TAG, "onConnectionInfoAvailable");
+            Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
+            Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
+            Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+        }
         myWifiP2pInfo = wifiP2pInfo;
 
         if (myDeviceInfo == null) { // p1
@@ -352,6 +359,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
      */
     @Override
     public void onSelfDeviceAvailable(WifiP2pDevice wifiP2pDevice) {
+        if (log_on) {
+            Log.e(TAG, "onSelfDeviceAvailable");
+            Log.e(TAG, "DeviceName: " + wifiP2pDevice.deviceName);
+            Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
+            Log.e(TAG, "Status: " + wifiP2pDevice.status);
+        }
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
         txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
         //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
@@ -515,13 +528,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
             return;
         }
-        if( myDeviceInfoList.size() == 0)
-        {
-            btn_File_Transfer.setEnabled(false);
-            showToast("연결 가능한 기기가 없습니다.");
-            return;
-        }
-        else if (myDeviceInfoList.size() < group.getClientList().size()) { //Case 1
+//        if (group.getClientList().size() == 0) {
+//            btn_File_Transfer.setEnabled(false);
+//            showToast("연결 가능한 기기가 없습니다.");
+//            return;
+//        } else
+        if (myDeviceInfoList.size() < group.getClientList().size()) { //Case 1
             Log.v(TAG, "deviceListUpdate : Case 1");
             ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
             boolean exist = false;

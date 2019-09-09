@@ -1,7 +1,10 @@
 package com.n3v.junwidi;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -11,6 +14,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -35,13 +39,18 @@ import com.n3v.junwidi.Listener.MyDirectActionListener;
 import com.n3v.junwidi.Services.MyClientTask;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 public class ClientActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyClientTaskListener {
 
@@ -448,32 +457,57 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     /*
     Client 의 IP Address 를 얻어오는 기능.
      */
-    private byte[] getLocalIPAddress() {
+    private String getLocalIPAddress() {
         try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
-                NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress()) {
-                        if (inetAddress instanceof Inet4Address) { // fix for Galaxy Nexus. IPv4 is easy to use :-)
-                            showToast("ipv4Address");
-                            return inetAddress.getAddress();
+            if (!Build.BRAND.equals("samsung")) {
+                for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+                    NetworkInterface intf = en.nextElement();
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress()) {
+                            if (inetAddress instanceof Inet4Address) { // fix for Galaxy Nexus. IPv4 is easy to use :-)
+                                showToast("ipv4Address");
 
-
-                        }
-                        if(inetAddress instanceof Inet6Address) {
-                            showToast("ipv6Address");
-                            inetAddress.getAddress();
-                            // Galaxy Nexus returns IPv6
+                                return getDottedDecimalIP(inetAddress.getAddress());
+                            }
+//                        if(inetAddress instanceof Inet6Address) {
+//                            showToast("ipv6Address");
+//                            inetAddress.getAddress();
+//                            // Galaxy Nexus returns IPv6
+//                        }
                         }
                     }
                 }
+            } else {
+                try {
+                    WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+                    int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+
+                    // Convert little-endian to big-endianif needed
+                    if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
+                        ipAddress = Integer.reverseBytes(ipAddress);
+                    }
+
+                    byte[] ipByteArray = BigInteger.valueOf(ipAddress).toByteArray();
+
+                    String ipAddressString;
+                    try {
+                        ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
+                    } catch (UnknownHostException ex) {
+                        Log.e("WIFIIP", "Unable to get host address.");
+                        ipAddressString = null;
+                    }
+
+                    return ipAddressString;
+                } catch (Exception ex) {
+                } // for now eat exceptions
             }
         } catch (SocketException ex) {
             //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
         } catch (NullPointerException ex) {
             showToast("getLocalIPAddress() error: NullPointerException"); //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
-        } catch(IOException ex){
+            ex.printStackTrace();
+        } catch (IOException ex) {
             showToast("getLocalIPAddress() error: IOException");
         }
         return null;
@@ -503,9 +537,9 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         int densityDpi = dm.densityDpi;
         boolean isGroupOwner = false;
 
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, getDottedDecimalIP(getLocalIPAddress()), width, height, densityDpi, isGroupOwner);
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, getLocalIPAddress(), width, height, densityDpi, isGroupOwner);
         myDeviceInfo.convertPx();
-        Log.v(TAG, "Local IP : " + getDottedDecimalIP(getLocalIPAddress()));
+        Log.v(TAG, "Local IP : " + getLocalIPAddress());
     }
 
     @Override
