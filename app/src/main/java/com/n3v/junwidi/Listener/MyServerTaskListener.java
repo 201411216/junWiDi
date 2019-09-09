@@ -9,4 +9,5 @@ public interface MyServerTaskListener {
     void onWaiting();
     void onCancelTransfer();
     void onNotify();
+    void onShowGuidelineSended();
 }

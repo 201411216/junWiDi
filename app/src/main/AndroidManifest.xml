@@ -35,12 +35,6 @@
         <activity
             android:name=".PlayerHost"
             android:screenOrientation="portrait"></activity>
-        <activity
-            android:name=".GuideLineClient"
-            android:screenOrientation="portrait"></activity>
-        <activity
-            android:name=".GuideLineHost"
-            android:screenOrientation="portrait"></activity>
     </application>
 
     <uses-feature

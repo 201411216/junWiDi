@@ -34,12 +34,14 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.n3v.junwidi.Adapter.MyServerAdapter;
 import com.n3v.junwidi.BroadcastReceiver.MyBroadCastReceiver;
 import com.n3v.junwidi.Datas.DeviceInfo;
+import com.n3v.junwidi.Dialogs.GuideLineDialog;
 import com.n3v.junwidi.Dialogs.LoadingSpinnerDialog;
 import com.n3v.junwidi.Dialogs.SendDialog;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
 import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
+import com.n3v.junwidi.Utils.DeviceInfoListUtil;
 import com.n3v.junwidi.Utils.RealPathUtil;
 
 import java.util.ArrayList;
@@ -75,6 +77,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     private WifiP2pDevice myWifiP2pDevice = null;
     private DeviceInfo myDeviceInfo = null;
     private ArrayList<DeviceInfo> myDeviceInfoList = new ArrayList<>();
+    private ArrayList<DeviceInfo> processedDIL = new ArrayList<>();
 
     private String videoPath = "";
     private boolean isFileSelected = false;
@@ -82,6 +85,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     SendDialog sendDialog = null;
     LoadingSpinnerDialog spinningDialog = null;
+    GuideLineDialog guideLineDialog = null;
+
+    private boolean log_on = true;
 
     AsyncTask nowTask = null;
 
@@ -95,6 +101,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         sendDialog = new SendDialog(this, "", this);
         spinningDialog = new LoadingSpinnerDialog(this);
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        guideLineDialog = new GuideLineDialog(this, dm, GuideLineDialog.GLD_HOST);
 
         initView();
 
@@ -104,10 +112,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     private void initView() {
         txt_myDevice_Name = findViewById(R.id.server_txt_my_device_name);
+        //txt_Video_Path = findViewById(R.id.server_txt_video_path);
+        //txt_myDevice_Address = findViewById(R.id.server_txt_my_device_address);
         txt_Video_Path = findViewById(R.id.server_txt_video_path);
         txt_myDevice_Address = findViewById(R.id.server_txt_my_device_address);
         //txt_myDevice_State = findViewById(R.id.server_txt_my_device_state);
-        //txt_Video_Path = findViewById(R.id.server_txt_video_path);
+        txt_Video_Path = findViewById(R.id.server_txt_video_path);
         btn_File_Select = findViewById(R.id.server_btn_file_select);
         btn_File_Transfer = findViewById(R.id.server_btn_file_transfer);
         btn_Exo = findViewById(R.id.exo_button);
@@ -192,10 +202,17 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     public void enterExoplay(View view) {
         if (isFileSelected) {
-            Intent intent = new Intent(this, Exoplay.class);
-            intent.putExtra("videoPath", videoPath);
-            startActivity(intent);
-            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
+            Log.v(TAG, "processedDIL.size = " + processedDIL.size());
+            if (processedDIL.size() == 1) {
+//                Intent intent = new Intent(this, Exoplay.class);
+//                intent.putExtra("videoPath", videoPath);
+//                startActivity(intent);
+//                overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
+            } else {
+                guideLineDialog.show();
+                guideLineDialog.setProcessedMyDeviceInfo(myDeviceInfo);
+                callServerTask(MyServerTask.SERVER_TCP_SHOW_GUIDELINE_SERVICE);
+            }
         }
     } //xml 파일을 통해 onClick으로 호출됨
 
@@ -222,10 +239,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         if (myWifiP2pInfo != null && (mode.equals(MyServerTask.SERVER_TCP_FILE_TRANSFER_SERVICE) || mode.equals(MyServerTask.SERVER_FILE_TRANSFER_SERVICE))) {
             Log.v(TAG, "callServerTask : mode.FILE_TRANSFER");
             if (!this.videoPath.equals("")) {
-                return new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this.videoPath, this).execute();
+                return new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this.videoPath, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
+        } else if (myWifiP2pInfo != null && mode.equals(MyServerTask.SERVER_TCP_SHOW_GUIDELINE_SERVICE)) {
+            return new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, processedDIL, myServerAdapter, this.videoPath, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else if (myWifiP2pInfo != null) {
-            return new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this).execute();
+            return new MyServerTask(this, mode, myWifiP2pInfo.groupOwnerAddress.getHostAddress(), myDeviceInfo, myDeviceInfoList, myServerAdapter, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         return null;
     }
@@ -269,7 +288,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         super.onDestroy();
     }
 
-    public void destroyManual(){
+    public void destroyManual() {
         super.onDestroy();
     }
 
@@ -295,7 +314,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
         //btn_Server_Control.setEnabled(true);
         btn_File_Select.setEnabled(true);
-        Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+        if (log_on) {
+            Log.e(TAG, "onConnectionInfoAvailable");
+            Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
+            Log.e(TAG, "onConnectionInfoAvailable isGroupOwner: " + wifiP2pInfo.isGroupOwner);
+            Log.e(TAG, "onConnectionInfoAvailable getHostAddress: " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+        }
         myWifiP2pInfo = wifiP2pInfo;
 
         if (myDeviceInfo == null) { // p1
@@ -335,6 +359,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
      */
     @Override
     public void onSelfDeviceAvailable(WifiP2pDevice wifiP2pDevice) {
+        if (log_on) {
+            Log.e(TAG, "onSelfDeviceAvailable");
+            Log.e(TAG, "DeviceName: " + wifiP2pDevice.deviceName);
+            Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
+            Log.e(TAG, "Status: " + wifiP2pDevice.status);
+        }
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
         txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
         //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
@@ -498,13 +528,12 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
             return;
         }
-        if( myDeviceInfoList.size() == 0)
-        {
-            btn_File_Transfer.setEnabled(false);
-            showToast("연결 가능한 기기가 없습니다.");
-            return;
-        }
-        else if (myDeviceInfoList.size() < group.getClientList().size()) { //Case 1
+//        if (group.getClientList().size() == 0) {
+//            btn_File_Transfer.setEnabled(false);
+//            showToast("연결 가능한 기기가 없습니다.");
+//            return;
+//        } else
+        if (myDeviceInfoList.size() < group.getClientList().size()) { //Case 1
             Log.v(TAG, "deviceListUpdate : Case 1");
             ArrayList<WifiP2pDevice> tempWifiP2pDeviceList = new ArrayList<>(group.getClientList());
             boolean exist = false;
@@ -634,7 +663,24 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     public void onAllSendFinished() {
+        Log.v(TAG, "onAllSendFinished()");
         sendDialog.cancel();
+        boolean allHasVideo = true;
+        for (DeviceInfo di : myDeviceInfoList) {
+            if (!di.isHasVideo()) {
+                allHasVideo = false;
+            }
+        }
+        if (allHasVideo) {
+            DeviceInfoListUtil dilu = new DeviceInfoListUtil(myDeviceInfoList, myDeviceInfo, videoPath);
+            dilu.processList();
+            processedDIL = dilu.getResultList();
+            for (DeviceInfo di : processedDIL) {
+                if (di.getWifiP2pDevice().deviceAddress.equals(myDeviceInfo.getWifiP2pDevice().deviceAddress)) {
+                    myDeviceInfo = di;
+                }
+            }
+        }
     }
 
     @Override
@@ -651,6 +697,11 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onNotify() {
         myServerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onShowGuidelineSended() {
+
     }
 
 

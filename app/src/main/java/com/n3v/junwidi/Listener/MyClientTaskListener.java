@@ -9,5 +9,5 @@ public interface MyClientTaskListener {
     void onReceiveFinished();
     void onReceiveCancelled();
     void onVideoAlreadyExist();
-
+    void onReceiveShowGuideline();
 }
