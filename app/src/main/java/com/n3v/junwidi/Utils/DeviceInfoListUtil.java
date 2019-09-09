@@ -105,14 +105,17 @@ public class DeviceInfoListUtil {
         List<Integer> positionArray = new ArrayList<>();
         int arrIndex = 0;
         for (DeviceInfo di : newDIAL) {
-            if (mm_min_height == -1) {
+            if (mm_min_height == 0) {
                 mm_min_height = di.getMm_height();
+                Log.v(TAG, "-1 : di.getMm_height() = " + di.getMm_height());
             } else {
                 if (di.getMm_height() < mm_min_height) {
                     mm_min_height = di.getMm_height();
+                    Log.v(TAG, "< mmmh : di.getMm_height() = " + di.getMm_height());
                 }
             }
-            mm_sum_width += di.getMm_videoview_width();
+            mm_sum_width += di.getMm_width();
+            Log.v(TAG, "< mmmh : di.getMm_width() = " + di.getMm_width());
             if (!di.isGroupOwner()) {
                 wPlusH.add(di.getMm_height());
             } else {
@@ -165,13 +168,21 @@ public class DeviceInfoListUtil {
         videoHeight = Integer.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
         retriever.release();
 
+        Log.v(TAG, "videoWidth = " + videoWidth + " / videoHeight = " + videoHeight);
+
         this.px_video_width = videoWidth;
         this.px_video_height = videoHeight;
 
         gcd = getGcd(videoWidth, videoHeight);
 
+        Log.v(TAG, "gcd = " + gcd);
+
         this.video_width_rate = this.px_video_width / gcd;
         this.video_height_rate = this.px_video_height / gcd;
+
+        Log.v(TAG, "vwrate = " + video_width_rate + " / vhrate = " + video_height_rate);
+
+        Log.v(TAG, "mm_sum_width = " + mm_sum_width + " / mm_min_height = " + mm_min_height);
 
         if ((mm_sum_width / video_width_rate) * video_height_rate > mm_min_height) {
             mm_videoview_height = mm_min_height;
@@ -180,6 +191,8 @@ public class DeviceInfoListUtil {
             mm_videoview_width = mm_sum_width;
             mm_videoview_height = (mm_sum_width / video_width_rate) * video_height_rate;
         }
+
+        Log.v(TAG, "mmvw = " + mm_videoview_width + " / mmvh = " +mm_videoview_height);
 
         for (DeviceInfo di : newDIAL) {
             di.setMm_videoview_width(this.mm_videoview_width);

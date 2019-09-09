@@ -8,6 +8,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -39,7 +40,7 @@ public class GuideLineDialog extends Dialog {
     private Button button = null;
 
     public GuideLineDialog(Context context, DisplayMetrics dm, int mode) {
-        super(context);
+        super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         mContext = context;
         displayMetrics = dm;
         GLD_ACT_MODE = mode;
