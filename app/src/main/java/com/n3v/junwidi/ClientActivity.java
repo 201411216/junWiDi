@@ -679,6 +679,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 receiveDialog.initDialog();
                 receiveDialog.setFileName(fileName);
                 receiveDialog.setAlreadyExists();
+                nowTask = callClientTask(MyClientTask.CLIENT_TCP_WAITING_SERVICE);
             }
         });
     }
