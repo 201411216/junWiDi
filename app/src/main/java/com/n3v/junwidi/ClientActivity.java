@@ -27,6 +27,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.n3v.junwidi.Adapter.MyClientAdapter;
 import com.n3v.junwidi.BroadcastReceiver.MyBroadCastReceiver;
 import com.n3v.junwidi.Datas.DeviceInfo;
+import com.n3v.junwidi.Dialogs.GuideLineDialog;
 import com.n3v.junwidi.Dialogs.ReceiveDialog;
 import com.n3v.junwidi.Listener.MyClientTaskListener;
 import com.n3v.junwidi.Listener.MyDialogListener;
@@ -66,6 +67,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     private DeviceInfo myDeviceInfo = null;
 
     private ReceiveDialog receiveDialog = null;
+    private GuideLineDialog guideLineDialog = null;
 
     InetAddress host_Address = null;
 
@@ -88,6 +90,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myBroadCastReceiver = new MyBroadCastReceiver(myManager, myChannel, this);
         //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         receiveDialog = new ReceiveDialog(this, fileName, this);
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        guideLineDialog = new GuideLineDialog(this, dm, GuideLineDialog.GLD_CLIENT);
         initView();
         permissionCheck(0);
 
@@ -569,7 +573,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             //nowTask.cancel(true);
             //nowTask = null;
         }
-        nowTask = callClientTask(MyClientTask.CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE);
+        nowTask = callClientTask(MyClientTask.CLIENT_TCP_WAITING_SERVICE);
         Log.v(TAG, "now Task : WAITING SERVICE");
     }
 
@@ -601,6 +605,12 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 receiveDialog.setAlreadyExists();
             }
         });
+    }
+
+    @Override
+    public void onReceiveShowGuideline() {
+        guideLineDialog.show();
+        guideLineDialog.setProcessedMyDeviceInfo(myDeviceInfo);
     }
 
 }
