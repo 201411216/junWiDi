@@ -57,6 +57,12 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     //private TextView txt_myDevice_State;
     //private TextView txt_Host_Ip_Address;
 
+    private TextView text_server_activity_able_list;
+    private View text_server_activity_bar;
+    private TextView text_server_activity_group1;
+    private TextView text_server_activity_owner;
+    private TextView text_server_activity_client;
+
     private SwipeRefreshLayout layout_Client_Pull_To_Refresh;
     private ListView listView_Server_List;
 
@@ -123,8 +129,15 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         //txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
         //txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
         //txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
+        text_server_activity_able_list = findViewById(R.id.text_server_activity_able_list);
+        text_server_activity_bar = findViewById(R.id.text_server_activity_bar);
+        text_server_activity_group1 = findViewById(R.id.text_server_activity_group1);
+        text_server_activity_owner = findViewById(R.id.text_server_activity_owner);
+        text_server_activity_client = findViewById(R.id.text_server_activity_client);
         layout_Client_Pull_To_Refresh = findViewById(R.id.client_layout_pull_to_refresh);
-        layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        text_server_activity_owner.setVisibility(View.GONE);
+        text_server_activity_client.setVisibility(View.GONE);
+        layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh() {
                 permissionCheck(1);
@@ -228,12 +241,18 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             public void onSuccess() {
                 Log.v(TAG, "Connect Success");
                 showToast("Connect Success!");
+                text_server_activity_able_list.setVisibility(View.GONE);
+                text_server_activity_bar.setVisibility(View.GONE);
+                text_server_activity_group1.setVisibility(View.GONE);
+                text_server_activity_owner.setVisibility(View.VISIBLE);
+                text_server_activity_client.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onFailure(int i) {
                 Log.e(TAG, "Connect Failed");
                 showToast("Connect Failed");
+
             }
         });
     }
