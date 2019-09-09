@@ -34,7 +34,9 @@ import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
 import com.n3v.junwidi.Services.MyClientTask;
 
+import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -51,10 +53,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     private MyBroadCastReceiver myBroadCastReceiver;
 
-    private TextView txt_myDevice_Name;
-    private TextView txt_myDevice_Address;
-    private TextView txt_myDevice_State;
-    private TextView txt_Host_Ip_Address;
+    //private TextView txt_myDevice_Name;
+    //private TextView txt_myDevice_Address;
+    //private TextView txt_myDevice_State;
+    //private TextView txt_Host_Ip_Address;
 
     private SwipeRefreshLayout layout_Client_Pull_To_Refresh;
     private ListView listView_Server_List;
@@ -121,10 +123,10 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     }
 
     private void initView() { //Activity의 view item들 초기화
-        txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
-        txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
-        txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
-        txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
+        //txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
+        //txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
+        //txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
+        //txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
         layout_Client_Pull_To_Refresh = findViewById(R.id.client_layout_pull_to_refresh);
         layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -229,7 +231,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onSuccess() {
                 Log.v(TAG, "Connect Success");
-                showToast("Connect Success");
+                showToast("Connect Success!");
             }
 
             @Override
@@ -305,7 +307,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         if (wifiP2pInfo.groupFormed) {
             host_Address = wifiP2pInfo.groupOwnerAddress;
             String temp_Addr = String.valueOf(host_Address).replace("/", "");
-            txt_Host_Ip_Address.setText(temp_Addr);
+            //
+            // txt_Host_Ip_Address.setText(temp_Addr);
         }
 
         if (myDeviceInfo == null) { // p1
@@ -339,7 +342,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         myWifiP2pDeviceList.clear();
         myClientAdapter.notifyDataSetChanged();
         host_Address = null;
-        txt_Host_Ip_Address.setText("-");
+        //txt_Host_Ip_Address.setText("-");
         if (nowTask != null && !nowTask.isCancelled()) {
             callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
         }
@@ -356,9 +359,9 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "DeviceName: " + wifiP2pDevice.deviceName);
         Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
         Log.e(TAG, "Status: " + wifiP2pDevice.status);
-        txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
-        txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
-        txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
+        //txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
+        //txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
+        //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
 
         myWifiP2pDevice = wifiP2pDevice;
     }
@@ -453,16 +456,25 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                     InetAddress inetAddress = enumIpAddr.nextElement();
                     if (!inetAddress.isLoopbackAddress()) {
                         if (inetAddress instanceof Inet4Address) { // fix for Galaxy Nexus. IPv4 is easy to use :-)
+                            showToast("ipv4Address");
                             return inetAddress.getAddress();
+
+
                         }
-                        //return inetAddress.getHostAddress().toString(); // Galaxy Nexus returns IPv6
+                        if(inetAddress instanceof Inet6Address) {
+                            showToast("ipv6Address");
+                            inetAddress.getAddress();
+                            // Galaxy Nexus returns IPv6
+                        }
                     }
                 }
             }
         } catch (SocketException ex) {
             //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
         } catch (NullPointerException ex) {
-            //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
+            showToast("getLocalIPAddress() error: NullPointerException"); //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
+        } catch(IOException ex){
+            showToast("getLocalIPAddress() error: IOException");
         }
         return null;
     }
