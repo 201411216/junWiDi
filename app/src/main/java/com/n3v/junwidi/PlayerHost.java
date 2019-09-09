@@ -1,20 +1,14 @@
 package com.n3v.junwidi;
 
-import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.MediaController;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,8 +18,7 @@ import static android.view.View.VISIBLE;
 
 
 public class PlayerHost extends AppCompatActivity {
-    //받아오는 데이터 목록
-    public boolean isGroupOwner;
+
     //모든 변수는 밀리미터 단위를 사용하도록 함
     DisplayMetrics metrics = new DisplayMetrics();
     int aW, bW, cW, aH, bH, cH = 0;//화면 분할을 위한 각 디바이스 가로세로 길이
@@ -184,7 +177,7 @@ public class PlayerHost extends AppCompatActivity {
         super.onPause();
         isPlaying=false;
         btnStart.setVisibility(VISIBLE);
-        btnPause.setVisibility(INVISIBLE);
+        btnPause.setVisibility(VISIBLE);
     }
 
     @Override
