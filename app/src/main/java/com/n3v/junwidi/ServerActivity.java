@@ -600,12 +600,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void setMyDeviceInfo(WifiP2pInfo wifiP2pInfo) {
         String brandName = Build.BRAND;
         String modelName = Build.MODEL;
-        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        DisplayMetrics dm = this.getResources().getDisplayMetrics();
         int width = dm.widthPixels;
         int height = dm.heightPixels;
         int densityDpi = dm.densityDpi;
         boolean isGroupOwner = true;
         myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, densityDpi, isGroupOwner);
+        myDeviceInfo.convertPx();
+        Log.v(TAG, "serverDeviceInfo : " + myDeviceInfo.getString());
     }
 
     @Override
@@ -680,6 +682,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     myDeviceInfo = di;
                 }
             }
+            Log.v(TAG, "prcessed serverDeviceInfo : " + myDeviceInfo.getLongString());
         }
     }
 

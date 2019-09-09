@@ -4,18 +4,21 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.MediaController;
+import android.widget.SeekBar;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
 
 public class PlayerHost extends AppCompatActivity {
-    //받아오는 데이터 목록
-    public boolean isGroupOwner;
+
     //모든 변수는 밀리미터 단위를 사용하도록 함
     DisplayMetrics metrics = new DisplayMetrics();
     int aW, bW, cW, aH, bH, cH = 0;//화면 분할을 위한 각 디바이스 가로세로 길이
@@ -28,8 +31,18 @@ public class PlayerHost extends AppCompatActivity {
     public int back = 0;
     VideoView vv;
     Button btnStart, btnPause;
+    SeekBar seekBar;
+    boolean isPlaying =false;
 
 
+    class MyThread extends Thread{
+        @Override
+        public void run(){
+            while(isPlaying){
+                seekBar.setProgress(vv.getCurrentPosition());
+            }
+        }
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +63,6 @@ public class PlayerHost extends AppCompatActivity {
         vv = findViewById(R.id.videoView1);
         Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
         vv.setVideoURI(video);
-        mediaController();
         vv.seekTo(1);
 
         //비디오뷰 사이즈 조절
@@ -60,24 +72,67 @@ public class PlayerHost extends AppCompatActivity {
         vv.setLayoutParams(params);
         vv.setX(aX);
 
+        //시크 바 생성
+        seekBar=(SeekBar)findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar){
+                isPlaying=true;
+                int moveTime=seekBar.getProgress();
+                vv.seekTo(moveTime);
+                vv.start();
+                new MyThread().start();
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar){
+                isPlaying=false;
+                vv.pause();
+            }
+            @Override
+            public void onProgressChanged(SeekBar seekBar,int progress, boolean fromUser){
+                if(seekBar.getMax()==progress){
+                    //btnStart.setVisibility(VISIBLE);
+                    //btnPause.setVisibility(VISIBLE);
+                    isPlaying=false;
+                    vv.stopPlayback();
+                }
+            }
+        });
+        btnStart.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                vv.start();
+                int a =vv.getDuration();
+                seekBar.setMax(a);
+                new MyThread().start();
+                isPlaying=true;
+            }
+        });
+        btnPause.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                stopTime=vv.getCurrentPosition();
+                vv.pause();
+                isPlaying=false;
+            }
+        });
+        vv.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View v,MotionEvent motionEvent){
+                if(seekBar.getVisibility()==VISIBLE){
+                    btnStart.setVisibility(INVISIBLE);
+                    btnPause.setVisibility(INVISIBLE);
+                    seekBar.setVisibility(INVISIBLE);
+                }
+                else{
+                    btnStart.setVisibility(VISIBLE);
+                    btnPause.setVisibility(VISIBLE);
+                    seekBar.setVisibility(VISIBLE);
+                }
+             return false;
+            }
+        });
     }
-
-
-    //user 변수의 값이 1일 경우(=호스트 기기일 경우) 미디어 컨트롤러 생성
-    public void mediaController() {
-        if (isGroupOwner = true) {
-            MediaController mediaController = new MediaController(this);
-            mediaController.setAnchorView(vv);
-            mediaController.setPadding(0, 0, 0, 0);
-            vv.setMediaController(mediaController);
-
-        }
-    }
-
-    public int PxToMm(int value, DisplayMetrics metrics) {
-        return value * metrics.densityDpi;
-    }
-
     public void StartButton(View v) {
         playVideo();
     }
@@ -120,6 +175,9 @@ public class PlayerHost extends AppCompatActivity {
             pauseVideo();
         }
         super.onPause();
+        isPlaying=false;
+        btnStart.setVisibility(VISIBLE);
+        btnPause.setVisibility(VISIBLE);
     }
 
     @Override

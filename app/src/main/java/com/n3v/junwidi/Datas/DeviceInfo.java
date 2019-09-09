@@ -4,6 +4,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
 import com.n3v.junwidi.Utils.Constants;
 
@@ -271,11 +272,12 @@ public class DeviceInfo implements Parcelable {
     }
 
     public int pxToMm(int value) {
-        return value * this.densityDpi;
+        return (int) (value * 25.4 / this.densityDpi);
+        //return (int)(value / TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1, dm));
     }
 
     public int mmToPx(int value) {
-        return value / this.densityDpi;
+        return (int) (value * this.densityDpi / 25.4);
     }
 
 }

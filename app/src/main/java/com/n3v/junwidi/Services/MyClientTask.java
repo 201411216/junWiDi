@@ -286,6 +286,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                                                 String existMessage = Constants.VIDEO_ALREADY_EXIST;
                                                 dos = new DataOutputStream(socket.getOutputStream());
                                                 dos.writeUTF(existMessage);
+                                                end_wait = true;
                                             }
                                             end_wait = true;
                                             publishProgress();
@@ -344,8 +345,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
         } else if (ACT_MODE.equals(CLIENT_TCP_CANCEL_WAITING_SERVICE)) {
             Log.v(TAG, "ACT : CLIENT_TCP_CANCEL_WAITING_SERVICE");
             try {
-                socket = new Socket(myDeviceInfo.getStr_address(), Constants.FILE_TRANSFER_PORT);
-
+                socket = new Socket(myDeviceInfo.getStr_address(), Constants.WAITING_PORT);
+                Log.v(TAG, "send cancel message");
                 dos = new DataOutputStream(socket.getOutputStream());
                 dos.writeUTF(Constants.CANCEL_WAITING);
 
