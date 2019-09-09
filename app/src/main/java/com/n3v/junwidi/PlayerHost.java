@@ -40,7 +40,7 @@ public class PlayerHost extends AppCompatActivity {
     Button btnStart, btnPause;
     SeekBar seekBar;
     boolean isPlaying =false;
-    boolean touched =false;
+
 
     class MyThread extends Thread{
         @Override
@@ -140,22 +140,6 @@ public class PlayerHost extends AppCompatActivity {
             }
         });
     }
-
-    //user 변수의 값이 1일 경우(=호스트 기기일 경우) 미디어 컨트롤러 생성
-    public void mediaController() {
-        if (isGroupOwner = true) {
-            MediaController mediaController = new MediaController(this,false);
-            mediaController.setAnchorView(vv);
-            mediaController.setPadding(0, 0, 0, 0);
-            vv.setMediaController(mediaController);
-        }
-    }
-
-
-    public int PxToMm(int value, DisplayMetrics metrics) {
-        return value * metrics.densityDpi;
-    }
-
     public void StartButton(View v) {
         playVideo();
     }
@@ -220,7 +204,6 @@ public class PlayerHost extends AppCompatActivity {
     public void quitByClient() {
         finish();
     }
-
 }
 //pause가 걸리는 경우 - 전화, 다른 앱의 메세지, 팝업 등의 불가피한 pause ----나머지 기기들은 영상 일시정지
 //                   - 뒤로가기 버튼으로 임의로 액티비티 종료 --------------나머지 기기들은 액티비티 종료
