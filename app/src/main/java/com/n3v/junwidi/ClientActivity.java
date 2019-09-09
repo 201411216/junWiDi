@@ -3,7 +3,6 @@ package com.n3v.junwidi;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -14,7 +13,6 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -41,16 +39,13 @@ import com.n3v.junwidi.Services.MyClientTask;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
 
 public class ClientActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyClientTaskListener {
 
@@ -62,16 +57,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     private MyBroadCastReceiver myBroadCastReceiver;
 
-    //private TextView txt_myDevice_Name;
-    //private TextView txt_myDevice_Address;
+    TextView txt_myDevice_Name;
+    private TextView txt_myDevice_Address;
     //private TextView txt_myDevice_State;
     //private TextView txt_Host_Ip_Address;
 
+    private TextView text_server_activity_Connected_Server;
     private TextView text_server_activity_able_list;
-    private View text_server_activity_bar;
-    private TextView text_server_activity_group1;
-    private TextView text_server_activity_owner;
-    private TextView text_server_activity_client;
 
     private SwipeRefreshLayout layout_Client_Pull_To_Refresh;
     private ListView listView_Server_List;
@@ -138,18 +130,14 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     }
 
     private void initView() { //Activity의 view item들 초기화
-        //txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
-        //txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
+        txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
+        txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
         //txt_myDevice_State = findViewById(R.id.client_txt_my_device_state);
         //txt_Host_Ip_Address = findViewById(R.id.client_txt_host_ip_address);
         text_server_activity_able_list = findViewById(R.id.text_server_activity_able_list);
-        text_server_activity_bar = findViewById(R.id.text_server_activity_bar);
-        text_server_activity_group1 = findViewById(R.id.text_server_activity_group1);
-        text_server_activity_owner = findViewById(R.id.text_server_activity_owner);
-        text_server_activity_client = findViewById(R.id.text_server_activity_client);
+        text_server_activity_Connected_Server = findViewById(R.id.text_server_activity_Connected_Server);
         layout_Client_Pull_To_Refresh = findViewById(R.id.client_layout_pull_to_refresh);
-        text_server_activity_owner.setVisibility(View.GONE);
-        text_server_activity_client.setVisibility(View.GONE);
+        text_server_activity_Connected_Server.setVisibility(View.GONE);
         layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh() {
@@ -172,16 +160,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
                 if(myWifiP2pDevice.status==0){ // Connect 상태일 때
                     text_server_activity_able_list.setVisibility(View.GONE);
-                    text_server_activity_bar.setVisibility(View.GONE);
-                    text_server_activity_group1.setVisibility(View.GONE);
-                    text_server_activity_owner.setVisibility(View.VISIBLE);
-                    text_server_activity_client.setVisibility(View.VISIBLE);
+                    text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
                 }
-                else{
-                    text_server_activity_owner.setVisibility(View.GONE);
-                    text_server_activity_client.setVisibility(View.GONE);
-                }
-
                 layout_Client_Pull_To_Refresh.setRefreshing(false);
             }
         });
@@ -262,6 +242,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         config.wps.setup = WpsInfo.PBC;
         if (d.status == WifiP2pDevice.CONNECTED) {
             Log.v(TAG, "The Device is already connected");
+            text_server_activity_able_list.setVisibility(View.VISIBLE);
             return;
         }
         myManager.connect(myChannel, config, new WifiP2pManager.ActionListener() {
@@ -398,8 +379,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "DeviceName: " + wifiP2pDevice.deviceName);
         Log.e(TAG, "DeviceAddress: " + wifiP2pDevice.deviceAddress);
         Log.e(TAG, "Status: " + wifiP2pDevice.status);
-        //txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
-        //txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
+        txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
+        txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
         //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
 
         myWifiP2pDevice = wifiP2pDevice;
