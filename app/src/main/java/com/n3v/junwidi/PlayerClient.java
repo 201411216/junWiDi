@@ -50,7 +50,7 @@ public class PlayerClient extends AppCompatActivity {
         aX = myDeviceInfo.getSetXValue();
         aY = myDeviceInfo.getSetYValue();
 
-        vv = findViewById(R.id.videoView1);
+        vv = findViewById(R.id.videoViewClient);
         //filename = this.getExternalFilesDir(null) + "/TogetherTheater";
         String fileName = myDeviceInfo.getVideoName();
         String filePath = this.getExternalFilesDir(null) + "/TogetherTheater/" + myDeviceInfo.getVideoName();

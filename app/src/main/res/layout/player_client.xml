@@ -10,7 +10,7 @@
     <VideoView
             android:layout_width="1000dp"
             android:layout_height="300dp"
-            android:id="@+id/videoView1"
+            android:id="@+id/videoViewClient"
             android:clipChildren="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

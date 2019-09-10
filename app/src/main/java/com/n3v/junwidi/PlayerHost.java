@@ -9,22 +9,23 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.MediaController;
+import android.widget.SeekBar;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.n3v.junwidi.Datas.DeviceInfo;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
 
 public class PlayerHost extends AppCompatActivity {
-    //받아오는 데이터 목록
-    public boolean isGroupOwner;
+
     //모든 변수는 밀리미터 단위를 사용하도록 함
     DisplayMetrics metrics = new DisplayMetrics();
     int aW, bW, cW, aH, bH, cH = 0;//화면 분할을 위한 각 디바이스 가로세로 길이
@@ -37,10 +38,20 @@ public class PlayerHost extends AppCompatActivity {
     public int back = 0;
     VideoView vv;
     Button btnStart, btnPause;
+    SeekBar seekBar;
+    boolean isPlaying =false;
 
     DeviceInfo myDeviceInfo = null;
 
 
+    class MyThread extends Thread{
+        @Override
+        public void run(){
+            while(isPlaying){
+                seekBar.setProgress(vv.getCurrentPosition());
+            }
+        }
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +86,7 @@ public class PlayerHost extends AppCompatActivity {
         btnPause = findViewById(R.id.btnPause);
 
         //비디오뷰 생성
-        vv = findViewById(R.id.videoView1);
+        vv = findViewById(R.id.videoViewHost);
         String filePath = myDeviceInfo.getVideoName();
         //filePath = this.getExternalFilesDir(null) + "/TogetherTheater/" + filePath;
         Log.v("PlayerHost", "path : " + filePath);
@@ -90,7 +101,9 @@ public class PlayerHost extends AppCompatActivity {
 
         vv.setVideoPath(filePath);
         //vv.setVideoURI(uri);
-        mediaController();
+
+        Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
+        vv.setVideoURI(video);
         vv.seekTo(1);
 
         //비디오뷰 사이즈 조절
@@ -101,17 +114,64 @@ public class PlayerHost extends AppCompatActivity {
         vv.setX(aX);
         vv.requestLayout();
 
-    }
-
-    //user 변수의 값이 1일 경우(=호스트 기기일 경우) 미디어 컨트롤러 생성
-    public void mediaController() {
-        if (isGroupOwner = true) {
-            MediaController mediaController = new MediaController(this);
-            mediaController.setAnchorView(vv);
-            mediaController.setPadding(0, 0, 0, 0);
-            vv.setMediaController(mediaController);
-
-        }
+        //시크 바 생성
+        seekBar=(SeekBar)findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar){
+                isPlaying=true;
+                int moveTime=seekBar.getProgress();
+                vv.seekTo(moveTime);
+                vv.start();
+                new MyThread().start();
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar){
+                isPlaying=false;
+                vv.pause();
+            }
+            @Override
+            public void onProgressChanged(SeekBar seekBar,int progress, boolean fromUser){
+                if(seekBar.getMax()==progress){
+                    isPlaying=false;
+                    vv.stopPlayback();
+                }
+            }
+        });
+        btnStart.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                vv.start();
+                int a =vv.getDuration();
+                seekBar.setMax(a);
+                new MyThread().start();
+                isPlaying=true;
+            }
+        });
+        btnPause.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                stopTime=vv.getCurrentPosition();
+                vv.pause();
+                isPlaying=false;
+            }
+        });
+        vv.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View v,MotionEvent motionEvent){
+                if(seekBar.getVisibility()==View.VISIBLE){
+                    btnStart.setVisibility(View.GONE);
+                    btnPause.setVisibility(View.GONE);
+                    seekBar.setVisibility(View.GONE);
+                }
+                else{
+                    btnStart.setVisibility(View.VISIBLE);
+                    btnPause.setVisibility(View.VISIBLE);
+                    seekBar.setVisibility(View.VISIBLE);
+                }
+             return false;
+            }
+        });
     }
 
     public int PxToMm(int value, DisplayMetrics metrics) {
@@ -160,6 +220,9 @@ public class PlayerHost extends AppCompatActivity {
             pauseVideo();
         }
         super.onPause();
+        isPlaying=false;
+        btnStart.setVisibility(View.VISIBLE);
+        btnPause.setVisibility(View.VISIBLE);
     }
 
     @Override
