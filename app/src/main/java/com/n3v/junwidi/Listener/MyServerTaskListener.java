@@ -10,4 +10,6 @@ public interface MyServerTaskListener {
     void onCancelTransfer();
     void onNotify();
     void onShowGuidelineSended();
+    void onPreparePlay();
+    void onStartPlayer();
 }

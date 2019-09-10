@@ -108,7 +108,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         //registerReceiver(myBroadCastReceiver, MyBroadCastReceiver.getIntentFilter());
         receiveDialog = new ReceiveDialog(this, fileName, this);
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
-        guideLineDialog = new GuideLineDialog(this, dm, GuideLineDialog.GLD_CLIENT);
+        guideLineDialog = new GuideLineDialog(this, dm, GuideLineDialog.GLD_CLIENT, null);
         initView();
         permissionCheck(0);
 
@@ -532,8 +532,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 } catch (Exception ex) {
                 } // for now eat exceptions
             }
-        } catch (SocketException ex) {
-            //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
         } catch (NullPointerException ex) {
             showToast("getLocalIPAddress() error: NullPointerException"); //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
             ex.printStackTrace();
@@ -662,6 +660,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     @Override
     public void onReceiveFinished() {
         receiveDialog.cancel();
+        nowTask = callClientTask(MyClientTask.CLIENT_TCP_WAITING_SERVICE);
     }
 
     @Override
@@ -688,6 +687,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     public void onReceiveShowGuideline() {
         guideLineDialog.show();
         guideLineDialog.setProcessedMyDeviceInfo(myDeviceInfo);
+        nowTask = callClientTask(MyClientTask.CLIENT_TCP_WAITING_SERVICE);
     }
-
 }

@@ -39,6 +39,7 @@ import com.n3v.junwidi.Dialogs.LoadingSpinnerDialog;
 import com.n3v.junwidi.Dialogs.SendDialog;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
+import com.n3v.junwidi.Listener.MyGuidelineDialogListener;
 import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 import com.n3v.junwidi.Utils.DeviceInfoListUtil;
@@ -49,7 +50,7 @@ import java.util.StringTokenizer;
 
 import static java.lang.Thread.sleep;
 
-public class ServerActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyServerTaskListener {
+public class ServerActivity extends BaseActivity implements MyDirectActionListener, MyDialogListener, MyServerTaskListener, MyGuidelineDialogListener {
 
     private static final String TAG = "ServerActivity";
 
@@ -102,7 +103,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         sendDialog = new SendDialog(this, "", this);
         spinningDialog = new LoadingSpinnerDialog(this);
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
-        guideLineDialog = new GuideLineDialog(this, dm, GuideLineDialog.GLD_HOST);
+        guideLineDialog = new GuideLineDialog(this, dm, GuideLineDialog.GLD_HOST, this);
 
         initView();
 
@@ -597,6 +598,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
+
     public void setMyDeviceInfo(WifiP2pInfo wifiP2pInfo) {
         String brandName = Build.BRAND;
         String modelName = Build.MODEL;
@@ -704,8 +706,34 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     public void onShowGuidelineSended() {
-
+        guideLineDialog.onClientsReady();
     }
 
+    @Override
+    public void onPreparePlay() {
+        guideLineDialog.cancel();
+        nowTask = null;
 
+        DeviceInfo tmp_mdi = null;
+
+        Intent intent = new Intent(this, PlayerHost.class);
+        for (DeviceInfo di : processedDIL) {
+            if (di.getWifiP2pDevice().deviceAddress.equals(myDeviceInfo.getWifiP2pDevice().deviceAddress)){
+                tmp_mdi = new DeviceInfo(di);
+            }
+        }
+        Log.v(TAG, "Before parcel : " + myDeviceInfo.getLongString());
+        intent.putExtra("myDeviceInfo", myDeviceInfo);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onClickOkButton() {
+        nowTask = callServerTask(MyServerTask.SERVER_TCP_PREPARE_PLAY_SERVICE);
+    }
+
+    @Override
+    public void onStartPlayer() {
+        nowTask = null;
+    }
 }

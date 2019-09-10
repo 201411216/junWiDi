@@ -39,7 +39,7 @@ public class DeviceInfo implements Parcelable {
 
     private boolean hasVideo = false;
 
-
+    private boolean guidelineReady = false;
 
     public DeviceInfo(WifiP2pDevice device) {
         wifiP2pDevice = device;
@@ -58,37 +58,26 @@ public class DeviceInfo implements Parcelable {
         this.mm_height = pxToMm(height);
     }
 
-    public DeviceInfo(Parcel in) {
-        this.wifiP2pDevice = WifiP2pDevice.CREATOR.createFromParcel(in);
-        this.brand_Name = in.readString();
-        this.model_Name = in.readString();
-        this.str_address = in.readString();
-        this.px_width = in.readInt();
-        this.px_height = in.readInt();
-        this.densityDpi = in.readInt();
-        this.isGroupOwner = Boolean.valueOf(in.readString());
-        this.mm_width = in.readInt();
-        this.mm_height = in.readInt();
-        this.position = in.readInt();
-        this.mm_videoview_width = in.readInt();
-        this.mm_videoview_height = in.readInt();
-        this.setXValue = in.readInt();
-        this.setYValue = in.readInt();
-        this.videoName = in.readString();
-        this.hasVideo = Boolean.valueOf(in.readString());
+    public DeviceInfo(DeviceInfo di) {
+        this.wifiP2pDevice = di.getWifiP2pDevice();
+        this.brand_Name = di.getBrand_Name();
+        this.model_Name = di.getModel_Name();
+        this.str_address = di.getStr_address();
+        this.px_width = di.getPx_width();
+        this.px_height = di.getPx_height();
+        this.densityDpi = di.getDensityDpi();
+        this.isGroupOwner = di.isGroupOwner();
+        this.mm_width = di.getMm_width();
+        this.mm_height = di.getMm_height();
+        this.position = di.getPosition();
+        this.mm_videoview_width = di.getMm_videoview_width();
+        this.mm_videoview_height = di.getMm_videoview_height();
+        this.setXValue = di.getSetXValue();
+        this.setYValue = di.getSetYValue();
+        this.videoName = getVideoName();
+        this.hasVideo = di.isHasVideo();
+        this.guidelineReady = di.isGuidelineReady();
     }
-
-    public static final Creator<DeviceInfo> CREATOR = new Creator<DeviceInfo>() {
-        @Override
-        public DeviceInfo createFromParcel(Parcel in) {
-            return new DeviceInfo(in);
-        }
-
-        @Override
-        public DeviceInfo[] newArray(int size) {
-            return new DeviceInfo[size];
-        }
-    };
 
     public int getPx_width() {
         return px_width;
@@ -221,7 +210,7 @@ public class DeviceInfo implements Parcelable {
         return wifiP2pDevice.deviceAddress + Constants.DELIMITER + brand_Name + Constants.DELIMITER + model_Name + Constants.DELIMITER + str_address + Constants.DELIMITER + px_width + Constants.DELIMITER
                 + px_height + Constants.DELIMITER + densityDpi + Constants.DELIMITER + isGroupOwner + Constants.DELIMITER + mm_width + Constants.DELIMITER + mm_height + Constants.DELIMITER + position
                 + Constants.DELIMITER + mm_videoview_width + Constants.DELIMITER + mm_videoview_height + Constants.DELIMITER + setXValue + Constants.DELIMITER + setYValue + Constants.DELIMITER + videoName
-                + Constants.DELIMITER + hasVideo;
+                + Constants.DELIMITER + hasVideo + Constants.DELIMITER + guidelineReady;
     }
 
     public boolean isHasVideo() {
@@ -240,30 +229,12 @@ public class DeviceInfo implements Parcelable {
         this.videoName = videoName;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public boolean isGuidelineReady() {
+        return guidelineReady;
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeParcelable(wifiP2pDevice, 0);
-        parcel.writeString(brand_Name);
-        parcel.writeString(model_Name);
-        parcel.writeString(str_address);
-        parcel.writeInt(px_width);
-        parcel.writeInt(px_height);
-        parcel.writeInt(densityDpi);
-        parcel.writeString(Boolean.toString(isGroupOwner));
-        parcel.writeInt(mm_width);
-        parcel.writeInt(mm_height);
-        parcel.writeInt(position);
-        parcel.writeInt(mm_videoview_width);
-        parcel.writeInt(mm_videoview_height);
-        parcel.writeInt(setXValue);
-        parcel.writeInt(setYValue);
-        parcel.writeString(videoName);
-        parcel.writeString(Boolean.toString(hasVideo));
+    public void setGuidelineReady(boolean guidelineReady) {
+        this.guidelineReady = guidelineReady;
     }
 
     public void convertPx() {
@@ -280,4 +251,63 @@ public class DeviceInfo implements Parcelable {
         return (int) (value * this.densityDpi / 25.4);
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.wifiP2pDevice, flags);
+        dest.writeString(this.brand_Name);
+        dest.writeString(this.model_Name);
+        dest.writeString(this.str_address);
+        dest.writeInt(this.px_width);
+        dest.writeInt(this.px_height);
+        dest.writeInt(this.densityDpi);
+        dest.writeByte(this.isGroupOwner ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.mm_width);
+        dest.writeInt(this.mm_height);
+        dest.writeInt(this.position);
+        dest.writeInt(this.mm_videoview_width);
+        dest.writeInt(this.mm_videoview_height);
+        dest.writeInt(this.setXValue);
+        dest.writeInt(this.setYValue);
+        dest.writeString(this.videoName);
+        dest.writeByte(this.hasVideo ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.guidelineReady ? (byte) 1 : (byte) 0);
+    }
+
+    protected DeviceInfo(Parcel in) {
+        this.wifiP2pDevice = in.readParcelable(WifiP2pDevice.class.getClassLoader());
+        this.brand_Name = in.readString();
+        this.model_Name = in.readString();
+        this.str_address = in.readString();
+        this.px_width = in.readInt();
+        this.px_height = in.readInt();
+        this.densityDpi = in.readInt();
+        this.isGroupOwner = in.readByte() != 0;
+        this.mm_width = in.readInt();
+        this.mm_height = in.readInt();
+        this.position = in.readInt();
+        this.mm_videoview_width = in.readInt();
+        this.mm_videoview_height = in.readInt();
+        this.setXValue = in.readInt();
+        this.setYValue = in.readInt();
+        this.videoName = in.readString();
+        this.hasVideo = in.readByte() != 0;
+        this.guidelineReady = in.readByte() != 0;
+    }
+
+    public static final Creator<DeviceInfo> CREATOR = new Creator<DeviceInfo>() {
+        @Override
+        public DeviceInfo createFromParcel(Parcel source) {
+            return new DeviceInfo(source);
+        }
+
+        @Override
+        public DeviceInfo[] newArray(int size) {
+            return new DeviceInfo[size];
+        }
+    };
 }

@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -39,6 +40,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     public static final String SERVER_FILE_TRANSFER_SERVICE = "action.SERVER_FILE_TRANSFER_SERVICE";
     public static final String SERVER_TCP_FILE_TRANSFER_SERVICE = "action.SERVER_TCP_FILE_TRANSFER_SERVICE";
     public static final String SERVER_TCP_SHOW_GUIDELINE_SERVICE = "action.SERVER_TCP_SHOW_GUIDELINE_SERVICE";
+    public static final String SERVER_TCP_PREPARE_PLAY_SERVICE = "action.SERVER_TCP_PREPARE_PLAY_SERVICE";
 
     private static final String TAG = "MyServerTask";
 
@@ -56,7 +58,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
     private MyServerTaskListener serverTaskListener = null;
 
-    String videoPath = "";
+    private String videoPath = "";
 
     private boolean waiting = false;
     private boolean handshaked = false;
@@ -65,10 +67,12 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     private boolean sending = false;
     private boolean already_exists = false;
     private boolean guideline_sended = false;
+    private boolean isAllDeviceGuideLineReady = false;
+    private boolean isAllDevicePreparePlay = false;
 
-    long sumReadByte = 0;
-    long lastPublishedReadByte = 0;
-    int progress = 0;
+    private long sumReadByte = 0;
+    private long lastPublishedReadByte = 0;
+    private int progress = 0;
 
     public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, MyServerTaskListener serverTaskListener) {
         this.myContext = context;
@@ -260,6 +264,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         Toaster.get().showToast(this.myContext, di.getWifiP2pDevice().deviceName + " 영상을 이미 가지고 있습니다.", Toast.LENGTH_LONG);
                         continue;
                     }
+                    if (di.isGroupOwner()) {
+                        di.setVideoName(videoPath);
+                        di.setHasVideo(true);
+                    }
                     Log.v(TAG, di.getStr_address());
                     socket = new Socket(di.getStr_address(), Constants.WAITING_PORT);
                     while (!socket.isConnected()) {
@@ -435,7 +443,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
         } else if (ACT_MODE.equals(SERVER_TCP_SHOW_GUIDELINE_SERVICE)) {
             try {
-
+                int ready_device = 0;
                 for (DeviceInfo di : myDeviceInfoList) {
                     if (!di.getWifiP2pDevice().deviceAddress.equals(myDeviceInfo.getWifiP2pDevice().deviceAddress)) {
                         socket = new Socket(di.getStr_address(), Constants.WAITING_PORT);
@@ -448,15 +456,83 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                         dos.writeUTF(Constants.SHOW_GUIDELINE + Constants.DELIMITER + di.getLongString());
 
+                        DataInputStream dis = new DataInputStream(socket.getInputStream());
+                        String receiveMessage = dis.readUTF();
+
+                        if (receiveMessage.startsWith(Constants.READY_GUIDELINE)) {
+                            di.setGuidelineReady(true);
+                            ready_device++;
+                        }
+
                         dos.close();
                         socket.close();
+                    } else {
+                        di.setGuidelineReady(true);
+                        ready_device++;
                     }
-
                     guideline_sended = true;
                     publishProgress();
+                }
+                if (ready_device == myDeviceInfoList.size()) {
+                    isAllDeviceGuideLineReady = true;
+                }
+                publishProgress();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
+                        Log.v(TAG, "HANDSHAKE : socket closed");
+                    }
+                    if (serverSocket != null && !serverSocket.isClosed()) {
+                        serverSocket.close();
+                        Log.v(TAG, "HANDSHAKE : serverSocket closed");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else if (ACT_MODE.equals(SERVER_TCP_PREPARE_PLAY_SERVICE)) {
+            Log.v(TAG, "SERVER_TCP_PREPARE_PLAY_SERVICE acts");
+            try {
+                int prepare_device = 0;
+                for (DeviceInfo di : myDeviceInfoList) {
+                    if (!di.getWifiP2pDevice().deviceAddress.equals(myDeviceInfo.getWifiP2pDevice().deviceAddress)) {
+                        socket = new Socket(di.getStr_address(), Constants.WAITING_PORT);
+                        while (!socket.isConnected()) {
+                            socket.close();
+                            socket = new Socket(di.getStr_address(), Constants.WAITING_PORT);
+                            Log.v(TAG, "connecting loop");
+                        }
 
+                        StringTokenizer st = new StringTokenizer(videoPath, "/");
+                        String videoName = "";
+                        while (st.hasMoreTokens()) {
+                            videoName = st.nextToken();
+                        }
+
+                        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                        dos.writeUTF(Constants.PREPARE_PLAY + Constants.DELIMITER + videoName);
+
+                        DataInputStream dis = new DataInputStream(socket.getInputStream());
+                        String receiveMessage = dis.readUTF();
+
+                        if (receiveMessage.startsWith(Constants.PREPARE_RECEIVE)) {
+                            prepare_device++;
+                        }
+
+                        dos.close();
+                        socket.close();
+                    } else {
+                        prepare_device++;
+                    }
                 }
 
+                if (prepare_device == myDeviceInfoList.size()) {
+                    isAllDevicePreparePlay = true;
+                }
+                publishProgress();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -506,8 +582,13 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 send_finished = false;
             }
         } else if (ACT_MODE.equals(SERVER_TCP_SHOW_GUIDELINE_SERVICE)) {
-            if (guideline_sended) {
-
+            if (guideline_sended && isAllDeviceGuideLineReady) {
+                Log.v(TAG, "invoke onShowGuidelinSended()");
+                serverTaskListener.onShowGuidelineSended();
+            }
+        } else if (ACT_MODE.equals(SERVER_TCP_PREPARE_PLAY_SERVICE)) {
+            if (isAllDevicePreparePlay) {
+                serverTaskListener.onPreparePlay();
             }
         }
     }

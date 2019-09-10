@@ -69,18 +69,21 @@ public class DeviceInfoListUtil {
             boolean videoCorrect = true;
             for (DeviceInfo di : newDIAL) {
                 if (di.isGroupOwner()) {
+                    Log.v(TAG, "GroupOwner setPath() : " + videoPath);
                     di.setVideoName(videoPath);
                 }
                 if (!di.getVideoName().equals(videoName)) {
                     if (di.getVideoName() == "") {
                         di.setVideoName(videoName);
                     } else {
-                        videoCorrect = false;
-                        Log.v(TAG, "videoName != videoPath");
-                        Log.v(TAG, "videoName = " + videoName);
-                        Log.v(TAG, "di.getDeviceName = " + di.getWifiP2pDevice().deviceName);
-                        Log.v(TAG, "di.getVideoName() = " + di.getVideoName());
-                        break;
+                        if (!di.isGroupOwner()) {
+                            videoCorrect = false;
+                            Log.v(TAG, "videoName != videoPath");
+                            Log.v(TAG, "videoName = " + videoName);
+                            Log.v(TAG, "di.getDeviceName = " + di.getWifiP2pDevice().deviceName);
+                            Log.v(TAG, "di.getVideoName() = " + di.getVideoName());
+                            break;
+                        }
                     }
                 }
             }

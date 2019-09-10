@@ -1,9 +1,14 @@
 package com.n3v.junwidi;
 
+import android.content.ContentUris;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -11,6 +16,8 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.n3v.junwidi.Datas.DeviceInfo;
 
 
 public class PlayerHost extends AppCompatActivity {
@@ -29,6 +36,8 @@ public class PlayerHost extends AppCompatActivity {
     VideoView vv;
     Button btnStart, btnPause;
 
+    DeviceInfo myDeviceInfo = null;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,11 +45,27 @@ public class PlayerHost extends AppCompatActivity {
         setContentView(R.layout.player_host);
         //가이드라인 액티비티에서 비디오뷰 가로세로값,XY 좌표값 받아옴
         Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        W = bundle.getInt("videoWidth",0);
-        H = bundle.getInt("videoHeight",0);
-        aX = bundle.getInt("videoX",0);
-        aY = bundle.getInt("videoY",0);
+        myDeviceInfo = intent.getParcelableExtra("myDeviceInfo");
+//        Bundle bundle = intent.getExtras();
+//        W = bundle.getInt("videoWidth",0);
+//        H = bundle.getInt("videoHeight",0);
+//        aX = bundle.getInt("videoX",0);
+//        aY = bundle.getInt("videoY",0);
+
+        Log.v("PlayerHost", "longStr : " + myDeviceInfo.getLongString());
+
+        Log.v("PlayerHost", "before WH");
+
+        W = myDeviceInfo.getMm_videoview_width();
+        H = myDeviceInfo.getMm_videoview_height();
+
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+
+        W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
+        H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, dm);
+
+        aX = myDeviceInfo.getSetXValue();
+        aY = myDeviceInfo.getSetYValue();
 
         //시작,일시정지 버튼
         btnStart = findViewById(R.id.btnStart);
@@ -48,8 +73,20 @@ public class PlayerHost extends AppCompatActivity {
 
         //비디오뷰 생성
         vv = findViewById(R.id.videoView1);
-        Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
-        vv.setVideoURI(video);
+        String filePath = myDeviceInfo.getVideoName();
+        //filePath = this.getExternalFilesDir(null) + "/TogetherTheater/" + filePath;
+        Log.v("PlayerHost", "path : " + filePath);
+//        Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
+//
+//        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//                null, "_data = '" + filePath + "'", null, null);
+//
+//        cursor.moveToNext();
+//        int id = cursor.getInt(cursor.getColumnIndex("_id"));
+//        Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+
+        vv.setVideoPath(filePath);
+        //vv.setVideoURI(uri);
         mediaController();
         vv.seekTo(1);
 

@@ -29,7 +29,11 @@ public class Constants {
     public static final String RECEIVE_WAIT = "RCV_WAIT";
     public static final String RECEIVE_DENY = "RCV_DENY";
     public static final String SHOW_GUIDELINE = "SHOW_GUIDELINE";
+    public static final String CHECK_GUIDELINE = "CHECK_GUIDELINE";
+    public static final String READY_GUIDELINE = "READY_GUIDELINE";
     public static final String DELIMITER = "+=+";
+    public static final String PREPARE_PLAY = "PREPARE_PLAY";
+    public static final String PREPARE_RECEIVE = "PREPARE_RECEIVE";
 
     public static final String COLOR_BLOCKED_GRAY = "#AAAAAA";
     public static final String COLOR_OK_SKYBLUE = "#4095FB";

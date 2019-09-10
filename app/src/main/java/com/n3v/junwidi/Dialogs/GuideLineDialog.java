@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.n3v.junwidi.Datas.DeviceInfo;
+import com.n3v.junwidi.Listener.MyGuidelineDialogListener;
 import com.n3v.junwidi.R;
 
 public class GuideLineDialog extends Dialog {
@@ -30,6 +31,8 @@ public class GuideLineDialog extends Dialog {
     public DisplayMetrics displayMetrics = null;
     public DeviceInfo processedMyDeviceInfo = null;
 
+    public MyGuidelineDialogListener mgdl = null;
+
     private int GLD_ACT_MODE = GLD_CLIENT;
 
     private ImageView ivID1 = null;
@@ -39,11 +42,12 @@ public class GuideLineDialog extends Dialog {
     private FrameLayout fL = null;
     private Button button = null;
 
-    public GuideLineDialog(Context context, DisplayMetrics dm, int mode) {
+    public GuideLineDialog(Context context, DisplayMetrics dm, int mode, MyGuidelineDialogListener mgdl) {
         super(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         mContext = context;
         displayMetrics = dm;
         GLD_ACT_MODE = mode;
+        this.mgdl = mgdl;
     }
 
     @Override
@@ -57,9 +61,11 @@ public class GuideLineDialog extends Dialog {
         fL = findViewById(R.id.fL);
         button = findViewById(R.id.button);
         if (GLD_ACT_MODE == GLD_HOST) {
-            button.setVisibility(View.VISIBLE);
+            button.setVisibility(View.GONE);
+            button.setEnabled(false);
         } else {
             button.setVisibility(View.GONE);
+            button.setEnabled(false);
         }
         button.setEnabled(false);
         button.setOnClickListener(new View.OnClickListener(){
@@ -68,6 +74,14 @@ public class GuideLineDialog extends Dialog {
 
             }
         });
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mgdl.onClickOkButton();
+            }
+        });
+
         initDialog();
     }
 
@@ -102,6 +116,7 @@ public class GuideLineDialog extends Dialog {
 
         ivGL.getLayoutParams().width = W;
         ivGL.getLayoutParams().height = H;
+        ivGL.setX(this.processedMyDeviceInfo.getSetXValue());
         ((FrameLayout.LayoutParams) fL.getLayoutParams()).gravity = Gravity.BOTTOM;
         ivGL.requestLayout();
         fL.requestLayout();
@@ -110,12 +125,15 @@ public class GuideLineDialog extends Dialog {
         //params.height = H;
         //params2.gravity= Gravity.BOTTOM;
 
-        ivGL.setLayoutParams(params);
-        fL.setLayoutParams(params2);
+        //ivGL.setLayoutParams(params);
+        //fL.setLayoutParams(params2);
     }
+
+
 
     public void onClientsReady() {
         button.setEnabled(true);
+        button.setVisibility(View.VISIBLE);
     }
 
 }

@@ -74,6 +74,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private boolean receiveFailed = false;
     private boolean videoAlreadyExists = false;
     private boolean receiveShowGuideline = false;
+    private boolean guidelineChecked = false;
 
     private Socket socket = null;
     private DatagramSocket datagramSocket = null;
@@ -316,12 +317,19 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                                         myDeviceInfo.setVideoName(st.nextToken());
                                         myDeviceInfo.setHasVideo(Boolean.valueOf(st.nextToken()));
                                         receiveShowGuideline = true;
-                                        publishProgress();
                                     }
                                 }
                             }
-
-
+                            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                            dos.writeUTF(Constants.READY_GUIDELINE);
+                            myDeviceInfo.setGuidelineReady(true);
+                            guidelineChecked = true;
+                            publishProgress();
+                            dos.close();
+                        } else if (receiveMessage.startsWith(Constants.PREPARE_PLAY)) {
+                            Log.v(TAG, "getMessage : PREPARE_PLAY");
+                            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                            dos.writeUTF(Constants.PREPARE_RECEIVE + Constants.DELIMITER + myDeviceInfo.getWifiP2pDevice().deviceAddress);
                         }
                     }
                 } catch (IOException e) {
@@ -598,8 +606,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
         } else if (ACT_MODE.equals(CLIENT_HANDSHAKE_SERVICE)) {
             clientTaskListener.onHandshaked();
         } else if (ACT_MODE.equals(CLIENT_TCP_WAITING_SERVICE)) {
-            if (receiveShowGuideline) {
+            if (receiveShowGuideline && guidelineChecked) {
                 clientTaskListener.onReceiveShowGuideline();
+                receiveShowGuideline = false;
             } else if (!videoAlreadyExists && end_wait) {
                 clientTaskListener.setFile(fileName, fileSize);
                 clientTaskListener.onEndWait();
