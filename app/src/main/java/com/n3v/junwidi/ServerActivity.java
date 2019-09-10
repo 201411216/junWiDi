@@ -730,4 +730,9 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onStartPlayer() {
         nowTask = null;
     }
+
+    @Override
+    public void onReceiveConPause() {
+
+    }
 }

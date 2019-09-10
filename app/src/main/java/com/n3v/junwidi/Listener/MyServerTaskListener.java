@@ -12,4 +12,5 @@ public interface MyServerTaskListener {
     void onShowGuidelineSended();
     void onPreparePlay();
     void onStartPlayer();
+    void onReceiveConPause();
 }

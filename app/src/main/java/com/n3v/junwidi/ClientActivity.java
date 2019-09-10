@@ -712,6 +712,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Intent intent = new Intent(this, PlayerClient.class);
         Log.v(TAG, "Before parcel : " + myDeviceInfo.getLongString());
         intent.putExtra("myDeviceInfo", myDeviceInfo);
+        intent.putExtra("host_addr", myWifiP2pInfo.groupOwnerAddress.getHostAddress());
         startActivity(intent);
     }
 

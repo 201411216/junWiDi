@@ -4,6 +4,7 @@ import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
@@ -19,12 +20,14 @@ import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.n3v.junwidi.Datas.DeviceInfo;
+import com.n3v.junwidi.Listener.MyServerTaskListener;
+import com.n3v.junwidi.Services.MyServerTask;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 
-public class PlayerHost extends AppCompatActivity {
+public class PlayerHost extends AppCompatActivity implements MyServerTaskListener {
 
     //모든 변수는 밀리미터 단위를 사용하도록 함
     DisplayMetrics metrics = new DisplayMetrics();
@@ -39,19 +42,20 @@ public class PlayerHost extends AppCompatActivity {
     VideoView vv;
     Button btnStart, btnPause;
     SeekBar seekBar;
-    boolean isPlaying =false;
+    boolean isPlaying = false;
 
     DeviceInfo myDeviceInfo = null;
 
 
-    class MyThread extends Thread{
+    class MyThread extends Thread {
         @Override
-        public void run(){
-            while(isPlaying){
+        public void run() {
+            while (isPlaying) {
                 seekBar.setProgress(vv.getCurrentPosition());
             }
         }
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,63 +116,68 @@ public class PlayerHost extends AppCompatActivity {
         vv.requestLayout();
 
         //시크 바 생성
-        seekBar=(SeekBar)findViewById(R.id.seekBar);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar){
-                isPlaying=true;
-                int moveTime=seekBar.getProgress();
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                isPlaying = true;
+                int moveTime = seekBar.getProgress();
                 vv.seekTo(moveTime);
                 vv.start();
                 new MyThread().start();
             }
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar){
-                isPlaying=false;
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                isPlaying = false;
                 vv.pause();
             }
+
             @Override
-            public void onProgressChanged(SeekBar seekBar,int progress, boolean fromUser){
-                if(seekBar.getMax()==progress){
-                    isPlaying=false;
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (seekBar.getMax() == progress) {
+                    isPlaying = false;
                     vv.stopPlayback();
                 }
             }
         });
-        btnStart.setOnClickListener(new View.OnClickListener(){
+        btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 vv.start();
-                int a =vv.getDuration();
+                int a = vv.getDuration();
                 seekBar.setMax(a);
                 new MyThread().start();
-                isPlaying=true;
+                isPlaying = true;
             }
         });
-        btnPause.setOnClickListener(new View.OnClickListener(){
+        btnPause.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
-                stopTime=vv.getCurrentPosition();
+            public void onClick(View v) {
+                stopTime = vv.getCurrentPosition();
                 vv.pause();
-                isPlaying=false;
+                isPlaying = false;
             }
         });
-        vv.setOnTouchListener(new View.OnTouchListener(){
+        vv.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v,MotionEvent motionEvent){
-                if(seekBar.getVisibility()==View.VISIBLE){
+            public boolean onTouch(View v, MotionEvent motionEvent) {
+                if (seekBar.getVisibility() == View.VISIBLE) {
                     btnStart.setVisibility(View.GONE);
                     btnPause.setVisibility(View.GONE);
                     seekBar.setVisibility(View.GONE);
-                }
-                else{
+                } else {
                     btnStart.setVisibility(View.VISIBLE);
                     btnPause.setVisibility(View.VISIBLE);
                     seekBar.setVisibility(View.VISIBLE);
                 }
-             return false;
+                return false;
             }
         });
+    }
+
+    public AsyncTask callServerTask(String mode) {
+        return new MyServerTask(this, mode, myDeviceInfo.getStr_address(), myDeviceInfo, null, null, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public int PxToMm(int value, DisplayMetrics metrics) {
@@ -199,6 +208,10 @@ public class PlayerHost extends AppCompatActivity {
         vv.start();
     }
 
+    public void seekTimeVideo(int time) {
+        vv.seekTo(time);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -217,7 +230,7 @@ public class PlayerHost extends AppCompatActivity {
             pauseVideo();
         }
         super.onPause();
-        isPlaying=false;
+        isPlaying = false;
         btnStart.setVisibility(View.VISIBLE);
         btnPause.setVisibility(View.VISIBLE);
     }
@@ -240,10 +253,55 @@ public class PlayerHost extends AppCompatActivity {
         finish();
     }
 
-    public void finishWithResult(){
+    public void finishWithResult() {
         Intent data = new Intent();
         setResult(RESULT_OK, data);
         finish();
+    }
+
+    @Override
+    public void progressUpdate(int progress) {
+    }
+
+    @Override
+    public void onSendFinished() {
+    }
+
+    @Override
+    public void onHandshaked() {
+    }
+
+    @Override
+    public void onAllSendFinished() {
+    }
+
+    @Override
+    public void onWaiting() {
+    }
+
+    @Override
+    public void onCancelTransfer() {
+    }
+
+    @Override
+    public void onNotify() {
+    }
+
+    @Override
+    public void onShowGuidelineSended() {
+    }
+
+    @Override
+    public void onPreparePlay() {
+    }
+
+    @Override
+    public void onStartPlayer() {
+    }
+
+    @Override
+    public void onReceiveConPause() {
+        pauseVideo();
     }
 }
 //pause가 걸리는 경우 - 전화, 다른 앱의 메세지, 팝업 등의 불가피한 pause ----나머지 기기들은 영상 일시정지

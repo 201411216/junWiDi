@@ -1,6 +1,7 @@
 package com.n3v.junwidi.Services;
 
 import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -41,6 +42,11 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     public static final String SERVER_TCP_FILE_TRANSFER_SERVICE = "action.SERVER_TCP_FILE_TRANSFER_SERVICE";
     public static final String SERVER_TCP_SHOW_GUIDELINE_SERVICE = "action.SERVER_TCP_SHOW_GUIDELINE_SERVICE";
     public static final String SERVER_TCP_PREPARE_PLAY_SERVICE = "action.SERVER_TCP_PREPARE_PLAY_SERVICE";
+    public static final String SERVER_CONTROL_WAITING_SERVICE = "action.server.CONTROL_WAITING_SERVICE";
+    public static final String SERVER_CONTROL_SEND_PLAY_SERVICE = "action.server.CONTROL_SEND_PLAY_SERVICE";
+    public static final String SERVER_CONTROL_SEND_PAUSE_SERVICE = "action.server.CONTROL_SEND_PAUSE_SERVICE";
+    public static final String SERVER_CONTROL_SEND_SEEKTIME_SERVICE = "action.server.CONTROL_SEND_SEEKTIME_SERVICE";
+    public static final String SERVER_CONTROL_SEND_STOP_SERVICE = "action.server.CONTROL_SEND_STOP_SERVICE";
 
     private static final String TAG = "MyServerTask";
 
@@ -547,6 +553,106 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+            }
+        } else if (ACT_MODE.equals(SERVER_CONTROL_WAITING_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            datagramSocket = null;
+            WifiManager.MulticastLock multicastLock = null;
+
+            String file_name = "";
+
+            try {
+                WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
+                multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
+                multicastLock.acquire();
+                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                datagramSocket.setReuseAddress(true);
+                //datagramSocket.setSoTimeout(Constants.LONG_TIMEOUT);
+                datagramSocket.setBroadcast(true);
+
+                byte[] receivebuf;
+                receivebuf = new byte[Constants.CONTROL_BUFFER_SIZE];
+                DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
+                datagramSocket.receive(packet);
+
+                String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
+                if (msg.startsWith(Constants.CONTROL_PAUSE)) {
+                    serverTaskListener.onReceiveConPause();
+                }
+                multicastLock.release();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (!datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
+            }
+        } else if (ACT_MODE.equals(SERVER_CONTROL_SEND_PLAY_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            datagramSocket = null;
+            try {
+                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
+                String time_msg = Constants.CONTROL_PLAY;
+                byte[] buf = time_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + time_msg);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
+                Log.v(TAG, "Send message complete");
+                datagramSocket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (!datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
+            }
+        } else if (ACT_MODE.equals(SERVER_CONTROL_SEND_PAUSE_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            datagramSocket = null;
+            try {
+                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
+                String time_msg = Constants.CONTROL_PAUSE;
+                byte[] buf = time_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + time_msg);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
+                Log.v(TAG, "Send message complete");
+                datagramSocket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (!datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
+            }
+        }else if (ACT_MODE.equals(SERVER_CONTROL_SEND_STOP_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            datagramSocket = null;
+            try {
+                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
+                String time_msg = Constants.CONTROL_PAUSE;
+                byte[] buf = time_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + time_msg);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
+                Log.v(TAG, "Send message complete");
+                datagramSocket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (!datagramSocket.isClosed()) {
+                    datagramSocket.close();
                 }
             }
         }

@@ -42,7 +42,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_MESSAGE_SERVICE = "tt.client.MESSAGE_SERVICE";
     public static final String CLIENT_FILE_RECEIVE_SERVICE = "tt.client.FILE_RECEIVE_SERVICE";
     public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "tt.client.TCP_FILE_RECEIVE_SERVICE";
-    public static final String CLIENT_CONTROL_SERVICE = "tt.client.CONTROL_SERVICE";
+    public static final String CLIENT_CONTROL_WAITING_SERVICE = "tt.client.CONTROL_WAITING_SERVICE";
     public static final String CLIENT_TCP_WAITING_SERVICE = "tt.client.TCP_FILE_RECEIVE_WAITING_SERVICE";
     public static final String CLIENT_TCP_CANCEL_WAITING_SERVICE = "tt.client.TCP_CANCEL_WAITING_SERVICE";
     public static final String CLIENT_TCP_GO_SIGNAL_SERVICE = "tt.client.TCP_GO_SIGNAL_SERVICE";
@@ -494,7 +494,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     e.printStackTrace();
                 }
             }
-        } else if (ACT_MODE.equals(CLIENT_CONTROL_SERVICE)) {
+        } else if (ACT_MODE.equals(CLIENT_CONTROL_WAITING_SERVICE)) {
             Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
             datagramSocket = null;
             dos = null;
@@ -506,19 +506,17 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 WifiManager wifiManager = (WifiManager) myContext.getSystemService(Context.WIFI_SERVICE);
                 multicastLock = wifiManager.createMulticastLock("n3v.junwidi");
                 multicastLock.acquire();
-                datagramSocket = new DatagramSocket(Constants.CONTROL_SERVICE_PORT);
+                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
                 datagramSocket.setReuseAddress(true);
-                datagramSocket.setSoTimeout(Constants.LONG_TIMEOUT);
+                //datagramSocket.setSoTimeout(Constants.LONG_TIMEOUT);
                 datagramSocket.setBroadcast(true);
 
                 byte[] receivebuf;
-
-
                 receivebuf = new byte[Constants.CONTROL_BUFFER_SIZE];
                 DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
                 datagramSocket.receive(packet);
-                String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
 
+                String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
                 if (msg.startsWith(Constants.CONTROL_PLAY)) {
                     clientTaskListener.onReceiveConPlay();
                 } else if (msg.startsWith(Constants.CONTROL_PAUSE)) {
@@ -531,18 +529,15 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                     StringTokenizer st = new StringTokenizer(msg, Constants.DELIMITER);
                     st.nextToken();
                     int seekingTime = Integer.valueOf(st.nextToken());
-                    clientTaskListener.onReceiveConSeek(0);
+                    clientTaskListener.onReceiveConSeek(seekingTime);
                 }
+                multicastLock.release();
 
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                try {
-                    if (!socket.isClosed()) {
-                        socket.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (!datagramSocket.isClosed()) {
+                    datagramSocket.close();
                 }
             }
         }
