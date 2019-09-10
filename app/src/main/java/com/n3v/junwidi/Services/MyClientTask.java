@@ -75,6 +75,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private boolean videoAlreadyExists = false;
     private boolean receiveShowGuideline = false;
     private boolean guidelineChecked = false;
+    private boolean preparePlayReceived = false;
 
     private Socket socket = null;
     private DatagramSocket datagramSocket = null;
@@ -99,6 +100,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     @Override
     protected void onPostExecute(String result) {
         //Log.v(TAG, "onPostExecute");
+
     }
 
     @Override
@@ -330,6 +332,9 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                             Log.v(TAG, "getMessage : PREPARE_PLAY");
                             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                             dos.writeUTF(Constants.PREPARE_RECEIVE + Constants.DELIMITER + myDeviceInfo.getWifiP2pDevice().deviceAddress);
+                            preparePlayReceived = true;
+                            dos.close();
+                            publishProgress();
                         }
                     }
                 } catch (IOException e) {
@@ -525,7 +530,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                     } else if (msg.startsWith(Constants.CONTROL_STOP)) {
                         break;
-                    } else if (msg.startsWith(Constants.CONTROL_MOVE)) {
+                    } else if (msg.startsWith(Constants.CONTROL_SEEK)) {
 
                     }
                 }
@@ -612,6 +617,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } else if (!videoAlreadyExists && end_wait) {
                 clientTaskListener.setFile(fileName, fileSize);
                 clientTaskListener.onEndWait();
+            } else if (preparePlayReceived) {
+                clientTaskListener.onPreparePlayReceived();
             } else {
                 clientTaskListener.setFile(fileName, fileSize);
                 clientTaskListener.onVideoAlreadyExist();

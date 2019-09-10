@@ -82,7 +82,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
     private String videoPath = "";
     private boolean isFileSelected = false;
-    private static final int PICK_VIDEO_RESULT_CODE = 1;
+    private static final int PICK_VIDEO_RESULT_CODE = 1111;
 
     SendDialog sendDialog = null;
     LoadingSpinnerDialog spinningDialog = null;
@@ -607,7 +607,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         int height = dm.heightPixels;
         int densityDpi = dm.densityDpi;
         boolean isGroupOwner = true;
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, densityDpi, isGroupOwner);
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, wifiP2pInfo.groupOwnerAddress.getHostAddress(), width, height, densityDpi, isGroupOwner, dm);
         myDeviceInfo.convertPx();
         Log.v(TAG, "serverDeviceInfo : " + myDeviceInfo.getString());
     }
@@ -680,6 +680,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             dilu.processList();
             processedDIL = dilu.getResultList();
             for (DeviceInfo di : processedDIL) {
+                Log.v(TAG, di.getWifiP2pDevice().deviceName + " : " + di.getLongString());
                 if (di.getWifiP2pDevice().deviceAddress.equals(myDeviceInfo.getWifiP2pDevice().deviceAddress)) {
                     myDeviceInfo = di;
                 }
@@ -714,14 +715,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         guideLineDialog.cancel();
         nowTask = null;
 
-        DeviceInfo tmp_mdi = null;
-
         Intent intent = new Intent(this, PlayerHost.class);
-        for (DeviceInfo di : processedDIL) {
-            if (di.getWifiP2pDevice().deviceAddress.equals(myDeviceInfo.getWifiP2pDevice().deviceAddress)){
-                tmp_mdi = new DeviceInfo(di);
-            }
-        }
         Log.v(TAG, "Before parcel : " + myDeviceInfo.getLongString());
         intent.putExtra("myDeviceInfo", myDeviceInfo);
         startActivity(intent);

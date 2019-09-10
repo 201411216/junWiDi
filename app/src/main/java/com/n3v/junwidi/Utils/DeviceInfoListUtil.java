@@ -211,9 +211,10 @@ public class DeviceInfoListUtil {
                 di.setSetXValue(di.mmToPx(sumMmWidth));
                 sumMmWidth -= di.getMm_width();
                 di.setSetYValue(di.mmToPx(di.getMm_height() - mm_videoview_height));
+                positionIndex++;
             }
-            positionIndex++;
         }
+        Log.v("DeviceInfoListUtil", "sumMmWidth : " + sumMmWidth + " / mm_vv_width : " + mm_videoview_width);
     }
 
     public int getGcd(final int _a, final int _b) {

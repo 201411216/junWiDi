@@ -2,7 +2,9 @@ package com.n3v.junwidi;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
@@ -37,6 +39,7 @@ import com.n3v.junwidi.Listener.MyClientTaskListener;
 import com.n3v.junwidi.Listener.MyDialogListener;
 import com.n3v.junwidi.Listener.MyDirectActionListener;
 import com.n3v.junwidi.Services.MyClientTask;
+import com.n3v.junwidi.Utils.RealPathUtil;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -96,6 +99,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     boolean handshaked = false;
     boolean downloading = false;
 
+    private static final int PLAYER_RESULT_CODE = 19283;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +142,24 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         return true;
     }
 
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        switch (requestCode) {
+//            case PLAYER_RESULT_CODE:
+//                if (resultCode == RESULT_OK) {
+//                    //videoPath = data.getData().getPath();
+//                    Uri videoURI = data.getData();
+//                    videoPath = RealPathUtil.getRealPath(this, videoURI);
+//                    Log.v(TAG, videoPath + " selected");
+//                    txt_Video_Path.setText(videoPath);
+//                    isFileSelected = true;
+//
+//                    btn_File_Transfer.setEnabled(true);
+//                    showToast(videoPath + " selected");
+//                }
+//        }
+//    }
+
     private void initView() { //Activity의 view item들 초기화
         //txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
         //txt_myDevice_Address = findViewById(R.id.client_txt_my_device_address);
@@ -150,11 +173,11 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         layout_Client_Pull_To_Refresh = findViewById(R.id.client_layout_pull_to_refresh);
         text_server_activity_owner.setVisibility(View.GONE);
         text_server_activity_client.setVisibility(View.GONE);
-        layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
+        layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 permissionCheck(1);
-                String deviceState="";
+                String deviceState = "";
 
                 myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
                     @Override
@@ -170,14 +193,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                     }
                 });
 
-                if(myWifiP2pDevice.status==0){ // Connect 상태일 때
+                if (myWifiP2pDevice.status == 0) { // Connect 상태일 때
                     text_server_activity_able_list.setVisibility(View.GONE);
                     text_server_activity_bar.setVisibility(View.GONE);
                     text_server_activity_group1.setVisibility(View.GONE);
                     text_server_activity_owner.setVisibility(View.VISIBLE);
                     text_server_activity_client.setVisibility(View.VISIBLE);
-                }
-                else{
+                } else {
                     text_server_activity_owner.setVisibility(View.GONE);
                     text_server_activity_client.setVisibility(View.GONE);
                 }
@@ -489,7 +511,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
      */
     private String getLocalIPAddress() {
         try {
-            if (!Build.BRAND.equals("samsung")) {
+            if (true) {
                 for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                     NetworkInterface intf = en.nextElement();
                     for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
@@ -497,8 +519,9 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                         if (!inetAddress.isLoopbackAddress()) {
                             if (inetAddress instanceof Inet4Address) { // fix for Galaxy Nexus. IPv4 is easy to use :-)
                                 showToast("ipv4Address");
-
-                                return getDottedDecimalIP(inetAddress.getAddress());
+                                if (getDottedDecimalIP(inetAddress.getAddress()).startsWith("192.168.49.")) {
+                                    return getDottedDecimalIP(inetAddress.getAddress());
+                                }
                             }
 //                        if(inetAddress instanceof Inet6Address) {
 //                            showToast("ipv6Address");
@@ -508,30 +531,30 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                         }
                     }
                 }
-            } else {
-                try {
-                    WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-                    int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-
-                    // Convert little-endian to big-endianif needed
-                    if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
-                        ipAddress = Integer.reverseBytes(ipAddress);
-                    }
-
-                    byte[] ipByteArray = BigInteger.valueOf(ipAddress).toByteArray();
-
-                    String ipAddressString;
-                    try {
-                        ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
-                    } catch (UnknownHostException ex) {
-                        Log.e("WIFIIP", "Unable to get host address.");
-                        ipAddressString = null;
-                    }
-
-                    return ipAddressString;
-                } catch (Exception ex) {
-                } // for now eat exceptions
             }
+            try {
+                WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+                int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+
+                // Convert little-endian to big-endianif needed
+                if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
+                    ipAddress = Integer.reverseBytes(ipAddress);
+                }
+
+                byte[] ipByteArray = BigInteger.valueOf(ipAddress).toByteArray();
+
+                String ipAddressString;
+                try {
+                    ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
+                } catch (UnknownHostException ex) {
+                    Log.e("WIFIIP", "Unable to get host address.");
+                    ipAddressString = null;
+                }
+
+                return ipAddressString;
+            } catch (Exception ex) {
+            } // for now eat exceptions
+
         } catch (NullPointerException ex) {
             showToast("getLocalIPAddress() error: NullPointerException"); //Log.e("AndroidNetworkAddressFactory", "getLocalIPAddress()", ex);
             ex.printStackTrace();
@@ -565,7 +588,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         int densityDpi = dm.densityDpi;
         boolean isGroupOwner = false;
 
-        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, getLocalIPAddress(), width, height, densityDpi, isGroupOwner);
+        myDeviceInfo = new DeviceInfo(myWifiP2pDevice, brandName, modelName, getLocalIPAddress(), width, height, densityDpi, isGroupOwner, dm);
         myDeviceInfo.convertPx();
         Log.v(TAG, "Local IP : " + getLocalIPAddress());
     }
@@ -688,5 +711,48 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         guideLineDialog.show();
         guideLineDialog.setProcessedMyDeviceInfo(myDeviceInfo);
         nowTask = callClientTask(MyClientTask.CLIENT_TCP_WAITING_SERVICE);
+    }
+
+    @Override
+    public void onEndExcute() {
+        if (nowTask != null && !nowTask.isCancelled()) {
+            //nowTask = null;
+        }
+    }
+
+    @Override
+    public void onPreparePlayReceived() {
+        guideLineDialog.cancel();
+        nowTask = null;
+
+        Intent intent = new Intent(this, PlayerClient.class);
+        Log.v(TAG, "Before parcel : " + myDeviceInfo.getLongString());
+        intent.putExtra("myDeviceInfo", myDeviceInfo);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onReceiveConStart() {
+
+    }
+
+    @Override
+    public void onReceiveConPause() {
+
+    }
+
+    @Override
+    public void onReceiveConResume() {
+
+    }
+
+    @Override
+    public void onReceiveConStop() {
+
+    }
+
+    @Override
+    public void onReceiveConSeek(int time) {
+
     }
 }

@@ -4,10 +4,15 @@ package com.n3v.junwidi;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+import android.view.Menu;
 import android.view.ViewGroup;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.n3v.junwidi.Datas.DeviceInfo;
 
 
 public class PlayerClient extends AppCompatActivity {
@@ -23,22 +28,34 @@ public class PlayerClient extends AppCompatActivity {
     String filename;
     VideoView vv;
 
+    DeviceInfo myDeviceInfo = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.player_client);
 
         Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        W = bundle.getInt("videoWidth",0);
-        H = bundle.getInt("videoHeight",0);
-        aX = bundle.getInt("videoX",0);
-        aY = bundle.getInt("videoY",0);
+        myDeviceInfo = intent.getParcelableExtra("myDeviceInfo");
+
+        getSupportActionBar().hide();
+
+
+        W = myDeviceInfo.getMm_videoview_width();
+        H = myDeviceInfo.getMm_videoview_height();
+        DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
+        H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, dm);
+
+        aX = myDeviceInfo.getSetXValue();
+        aY = myDeviceInfo.getSetYValue();
 
         vv = findViewById(R.id.videoView1);
         //filename = this.getExternalFilesDir(null) + "/TogetherTheater";
-        Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
-        vv.setVideoURI(video);
+        String fileName = myDeviceInfo.getVideoName();
+        String filePath = this.getExternalFilesDir(null) + "/TogetherTheater/" + myDeviceInfo.getVideoName();
+        vv.setVideoPath(filePath);
+        vv.seekTo(1);
 
         ViewGroup.LayoutParams params = vv.getLayoutParams();
         params.height = H;
@@ -46,7 +63,9 @@ public class PlayerClient extends AppCompatActivity {
         vv.setLayoutParams(params);
         //좌표는 픽셀단위임
         vv.setX(aX);
+        vv.requestLayout();
     }
+
     public void playVideo(){
         vv.seekTo(stopTime);
         vv.start();
@@ -86,16 +105,22 @@ public class PlayerClient extends AppCompatActivity {
     }
 
     //뒤로가기 버튼 눌러서 액티비티 종료한 경우(다른 기기로 종료 신호 인텐트 전달 기능 추가 필요)
-    @Override
-    public void onBackPressed() {
-        if (back == 1) {
-            super.onBackPressed();
-            back = 0;
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//        if (back == 1) {
+//            super.onBackPressed();
+//            back = 0;
+//        }
+//    }
 
     //Host 액티비티로부터 액티비티 종료 인텐트를 전달받을 경우에 실행되어야 함
     public void quitByHost() {
+        finishWithResult();
+    }
+
+    public void finishWithResult(){
+        Intent data = new Intent();
+        setResult(RESULT_OK, data);
         finish();
     }
 }

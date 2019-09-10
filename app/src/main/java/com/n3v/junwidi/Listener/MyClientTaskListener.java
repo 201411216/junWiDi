@@ -10,4 +10,12 @@ public interface MyClientTaskListener {
     void onReceiveCancelled();
     void onVideoAlreadyExist();
     void onReceiveShowGuideline();
+    void onPreparePlayReceived();
+    void onEndExcute();
+
+    void onReceiveConStart();
+    void onReceiveConPause();
+    void onReceiveConResume();
+    void onReceiveConStop();
+    void onReceiveConSeek(int time);
 }

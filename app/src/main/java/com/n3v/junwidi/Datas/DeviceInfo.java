@@ -36,16 +36,16 @@ public class DeviceInfo implements Parcelable {
     private int setYValue = -1;
 
     private String videoName = "";
-
     private boolean hasVideo = false;
-
     private boolean guidelineReady = false;
+
+    private DisplayMetrics displayMetrics = null;
 
     public DeviceInfo(WifiP2pDevice device) {
         wifiP2pDevice = device;
     }
 
-    public DeviceInfo(WifiP2pDevice device, String brand_Name, String model_Name, String addr, int width, int height, int densityDpi, boolean isGroupOwner) {
+    public DeviceInfo(WifiP2pDevice device, String brand_Name, String model_Name, String addr, int width, int height, int densityDpi, boolean isGroupOwner, DisplayMetrics dm) {
         this.wifiP2pDevice = device;
         this.brand_Name = brand_Name;
         this.model_Name = model_Name;
@@ -54,6 +54,7 @@ public class DeviceInfo implements Parcelable {
         this.px_height = height;
         this.densityDpi = densityDpi;
         this.isGroupOwner = isGroupOwner;
+        this.displayMetrics = dm;
         this.mm_width = pxToMm(width);
         this.mm_height = pxToMm(height);
     }
@@ -77,6 +78,7 @@ public class DeviceInfo implements Parcelable {
         this.videoName = getVideoName();
         this.hasVideo = di.isHasVideo();
         this.guidelineReady = di.isGuidelineReady();
+        this.displayMetrics = di.getDisplayMetrics();
     }
 
     public int getPx_width() {
@@ -125,12 +127,10 @@ public class DeviceInfo implements Parcelable {
 
     public void setPx_width(int px_width) {
         this.px_width = px_width;
-        this.mm_width = pxToMm(px_width);
     }
 
     public void setPx_height(int px_height) {
         this.px_height = px_height;
-        this.mm_height = pxToMm(px_height);
     }
 
     public void setDensityDpi(int densityDpi) {
@@ -237,14 +237,22 @@ public class DeviceInfo implements Parcelable {
         this.guidelineReady = guidelineReady;
     }
 
+    public DisplayMetrics getDisplayMetrics() {
+        return displayMetrics;
+    }
+
+    public void setDisplayMetrics(DisplayMetrics displayMetrics) {
+        this.displayMetrics = displayMetrics;
+    }
+
     public void convertPx() {
         mm_width = pxToMm(px_width);
         mm_height = pxToMm(px_height);
     }
 
     public int pxToMm(int value) {
-        return (int) (value * 25.4 / this.densityDpi);
-        //return (int)(value / TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1, dm));
+        //return (int) (value * 25.4 / this.densityDpi);
+        return (int)(value / TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1, displayMetrics));
     }
 
     public int mmToPx(int value) {

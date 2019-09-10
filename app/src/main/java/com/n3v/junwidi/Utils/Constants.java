@@ -20,7 +20,7 @@ public class Constants {
     public static final String CONTROL_PAUSE = "PAUSE";
     public static final String CONTROL_RESUME = "RESUME";
     public static final String CONTROL_STOP = "STOP";
-    public static final String CONTROL_MOVE = "MOVE";
+    public static final String CONTROL_SEEK = "SEEK";
 
     public static final String CANCEL_WAITING = "CANCEL_HANDSHAKE";
     public static final String HANDSHAKE_SERVER_RECEIVE = "HANDSHAKE_SERVER_RECEIVE";

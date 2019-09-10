@@ -9,6 +9,8 @@ import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -51,6 +53,7 @@ public class PlayerHost extends AppCompatActivity {
 //        H = bundle.getInt("videoHeight",0);
 //        aX = bundle.getInt("videoX",0);
 //        aY = bundle.getInt("videoY",0);
+        getSupportActionBar().hide();
 
         Log.v("PlayerHost", "longStr : " + myDeviceInfo.getLongString());
 
@@ -96,9 +99,9 @@ public class PlayerHost extends AppCompatActivity {
         params.height = H;
         vv.setLayoutParams(params);
         vv.setX(aX);
+        vv.requestLayout();
 
     }
-
 
     //user 변수의 값이 1일 경우(=호스트 기기일 경우) 미디어 컨트롤러 생성
     public void mediaController() {
@@ -174,6 +177,12 @@ public class PlayerHost extends AppCompatActivity {
 
     //Client 액티비티로부터 액티비티 종료 인텐트를 전달받았을 때 실행되어야 함
     public void quitByClient() {
+        finish();
+    }
+
+    public void finishWithResult(){
+        Intent data = new Intent();
+        setResult(RESULT_OK, data);
         finish();
     }
 }
