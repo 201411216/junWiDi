@@ -676,7 +676,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             }
         }
         if (allHasVideo) {
-            DeviceInfoListUtil dilu = new DeviceInfoListUtil(myDeviceInfoList, myDeviceInfo, videoPath);
+            DeviceInfoListUtil dilu = new DeviceInfoListUtil(myDeviceInfoList, myDeviceInfo, videoPath, getApplicationContext().getResources().getDisplayMetrics());
             dilu.processList();
             processedDIL = dilu.getResultList();
             for (DeviceInfo di : processedDIL) {

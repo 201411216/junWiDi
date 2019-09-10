@@ -62,10 +62,8 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     private MyBroadCastReceiver myBroadCastReceiver;
 
-    TextView txt_myDevice_Name;
+    private TextView txt_myDevice_Name;
     private TextView txt_myDevice_Address;
-    //private TextView txt_myDevice_State;
-    //private TextView txt_Host_Ip_Address;
 
     private TextView text_server_activity_Connected_Server;
     private TextView text_server_activity_able_list;
@@ -163,12 +161,9 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         text_server_activity_Connected_Server = findViewById(R.id.text_server_activity_Connected_Server);
         layout_Client_Pull_To_Refresh = findViewById(R.id.client_layout_pull_to_refresh);
 
-//        text_server_activity_owner.setVisibility(View.GONE);
-//        text_server_activity_client.setVisibility(View.GONE);
-
         text_server_activity_Connected_Server.setVisibility(View.GONE);
-        layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
 
+        layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 permissionCheck(1);
@@ -187,23 +182,15 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                         showToast("Discover Peer Failed");
                     }
                 });
-
-//                if (myWifiP2pDevice.status == 0) { // Connect 상태일 때
-//                    text_server_activity_able_list.setVisibility(View.GONE);
-//                    text_server_activity_bar.setVisibility(View.GONE);
-//                    text_server_activity_group1.setVisibility(View.GONE);
-//                    text_server_activity_owner.setVisibility(View.VISIBLE);
-//                    text_server_activity_client.setVisibility(View.VISIBLE);
-//                } else {
-//                    text_server_activity_owner.setVisibility(View.GONE);
-//                    text_server_activity_client.setVisibility(View.GONE);
-//                }
-
+                if (myWifiP2pDevice.status == 0) { // Connect 상태일 때
+                    text_server_activity_able_list.setVisibility(View.GONE);
                     text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
                 }
-//                layout_Client_Pull_To_Refresh.setRefreshing(false);
+                layout_Client_Pull_To_Refresh.setRefreshing(false);
             }
-        );
+        });
+
+        text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
         listView_Server_List = findViewById(R.id.client_list_server);
         myWifiP2pDeviceList = new ArrayList<>();
         myClientAdapter = new MyClientAdapter(this, R.layout.item_server, myWifiP2pDeviceList);
@@ -420,7 +407,6 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.e(TAG, "Status: " + wifiP2pDevice.status);
         txt_myDevice_Name.setText(wifiP2pDevice.deviceName);
         txt_myDevice_Address.setText(wifiP2pDevice.deviceAddress);
-        //txt_myDevice_State.setText(getDeviceState(wifiP2pDevice.status));
 
         myWifiP2pDevice = wifiP2pDevice;
     }
@@ -730,7 +716,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     }
 
     @Override
-    public void onReceiveConStart() {
+    public void onReceiveConPlay() {
 
     }
 

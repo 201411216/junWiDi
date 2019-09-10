@@ -13,7 +13,7 @@ public interface MyClientTaskListener {
     void onPreparePlayReceived();
     void onEndExcute();
 
-    void onReceiveConStart();
+    void onReceiveConPlay();
     void onReceiveConPause();
     void onReceiveConResume();
     void onReceiveConStop();

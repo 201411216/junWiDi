@@ -75,11 +75,19 @@ public class PlayerHost extends AppCompatActivity {
 
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
 
+        //W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
+        //H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, dm);
+
+//        W = (int) myDeviceInfo.mmToPx(myDeviceInfo.getMm_videoview_width());
+//        H = (int) myDeviceInfo.mmToPx(myDeviceInfo.getMm_videoview_height());
+
         W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
         H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, dm);
 
         aX = myDeviceInfo.getSetXValue();
         aY = myDeviceInfo.getSetYValue();
+
+        aX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, aX, dm);
 
         //시작,일시정지 버튼
         btnStart = findViewById(R.id.btnStart);
@@ -90,27 +98,16 @@ public class PlayerHost extends AppCompatActivity {
         String filePath = myDeviceInfo.getVideoName();
         //filePath = this.getExternalFilesDir(null) + "/TogetherTheater/" + filePath;
         Log.v("PlayerHost", "path : " + filePath);
-//        Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
-//
-//        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-//                null, "_data = '" + filePath + "'", null, null);
-//
-//        cursor.moveToNext();
-//        int id = cursor.getInt(cursor.getColumnIndex("_id"));
-//        Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
 
         vv.setVideoPath(filePath);
         //vv.setVideoURI(uri);
-
-        Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.test2);
-        vv.setVideoURI(video);
         vv.seekTo(1);
 
         //비디오뷰 사이즈 조절
-        ViewGroup.LayoutParams params = vv.getLayoutParams();
-        params.width = W;
-        params.height = H;
-        vv.setLayoutParams(params);
+
+        vv.getLayoutParams().width = W;
+        vv.getLayoutParams().height = H;
+
         vv.setX(aX);
         vv.requestLayout();
 
@@ -205,7 +202,7 @@ public class PlayerHost extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        VideoView vv = findViewById(R.id.videoView1);
+        VideoView vv = findViewById(R.id.videoViewHost);
         vv.resume();
         if (stopTime > 0) {
             vv.seekTo(stopTime);
@@ -214,7 +211,7 @@ public class PlayerHost extends AppCompatActivity {
 
     @Override
     public void onPause() {
-        VideoView vv = findViewById(R.id.videoView1);
+        VideoView vv = findViewById(R.id.videoViewHost);
         if (vv.canPause()) {
             stopTime = vv.getCurrentPosition();
             pauseVideo();
@@ -227,7 +224,7 @@ public class PlayerHost extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
-        VideoView vv = findViewById(R.id.videoView1);
+        VideoView vv = findViewById(R.id.videoViewHost);
         vv.stopPlayback();
         super.onDestroy();
     }

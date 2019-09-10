@@ -3,6 +3,7 @@ package com.n3v.junwidi.Utils;
 import android.media.MediaMetadataRetriever;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 
 import com.n3v.junwidi.Datas.DeviceInfo;
 import com.n3v.junwidi.R;
@@ -33,6 +34,8 @@ public class DeviceInfoListUtil {
     private int mm_min_height = 0;
     private int mm_sum_width = 0;
 
+    DisplayMetrics dm;
+
     //private boolean
 
     public DeviceInfoListUtil(final ArrayList<DeviceInfo> deviceInfoArrayList, String videoPath) {
@@ -48,11 +51,12 @@ public class DeviceInfoListUtil {
         }
     }
 
-    public DeviceInfoListUtil(final ArrayList<DeviceInfo> dial, final DeviceInfo myDeviceInfo, final String videoPath) {
+    public DeviceInfoListUtil(final ArrayList<DeviceInfo> dial, final DeviceInfo myDeviceInfo, final String videoPath, DisplayMetrics dm) {
         if (dial.size() > 0) {
             ArrayList<DeviceInfo> tmpDial = new ArrayList<>(dial);
             tmpDial.add(myDeviceInfo);
             newDIAL = tmpDial;
+            this.dm = dm;
             Log.v(TAG, "newDIAL.size = " + newDIAL.size());
         } else {
             Log.e(TAG, "deviceInfoArrayList is empty");
@@ -195,7 +199,11 @@ public class DeviceInfoListUtil {
             mm_videoview_height = (mm_sum_width / video_width_rate) * video_height_rate;
         }
 
-        Log.v(TAG, "mmvw = " + mm_videoview_width + " / mmvh = " +mm_videoview_height);
+        Log.v(TAG, "mmvw = " + mm_videoview_width + " / mmvh = " + mm_videoview_height);
+
+
+//        mm_videoview_width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mm_videoview_width, dm);
+//        mm_videoview_height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, mm_videoview_height, dm);
 
         for (DeviceInfo di : newDIAL) {
             di.setMm_videoview_width(this.mm_videoview_width);
@@ -208,9 +216,11 @@ public class DeviceInfoListUtil {
         int sumMmWidth = 0;
         for (DeviceInfo di : newDIAL) {
             if (di.getPosition() == positionIndex) {
-                di.setSetXValue(di.mmToPx(sumMmWidth));
+                di.setSetXValue(sumMmWidth);
+                //di.setSetXValue(di.mmToPx(sumMmWidth));
                 sumMmWidth -= di.getMm_width();
-                di.setSetYValue(di.mmToPx(di.getMm_height() - mm_videoview_height));
+                di.setSetYValue(mm_min_height);
+                //di.setSetYValue(di.mmToPx(di.getMm_height() - mm_videoview_height));
                 positionIndex++;
             }
         }

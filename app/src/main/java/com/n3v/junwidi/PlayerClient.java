@@ -44,11 +44,19 @@ public class PlayerClient extends AppCompatActivity {
         W = myDeviceInfo.getMm_videoview_width();
         H = myDeviceInfo.getMm_videoview_height();
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
+        //W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
+        //H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, dm);
+//        W = (int) myDeviceInfo.mmToPx(myDeviceInfo.getMm_videoview_width());
+//        H = (int) myDeviceInfo.mmToPx(myDeviceInfo.getMm_videoview_height());
+
+
         W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
         H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, dm);
 
         aX = myDeviceInfo.getSetXValue();
         aY = myDeviceInfo.getSetYValue();
+
+        aX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, aX, dm);
 
         vv = findViewById(R.id.videoViewClient);
         //filename = this.getExternalFilesDir(null) + "/TogetherTheater";
@@ -57,11 +65,12 @@ public class PlayerClient extends AppCompatActivity {
         vv.setVideoPath(filePath);
         vv.seekTo(1);
 
-        ViewGroup.LayoutParams params = vv.getLayoutParams();
-        params.height = H;
-        params.width = W;
-        vv.setLayoutParams(params);
-        //좌표는 픽셀단위임
+//        ViewGroup.LayoutParams params = vv.getLayoutParams();
+//        params.height = H;
+//        params.width = W;
+//        vv.setLayoutParams(params);
+        vv.getLayoutParams().width = W;
+        vv.getLayoutParams().height = H;
         vv.setX(aX);
         vv.requestLayout();
     }
@@ -80,7 +89,7 @@ public class PlayerClient extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        VideoView vv = findViewById(R.id.videoView1);
+        VideoView vv = findViewById(R.id.videoViewClient);
         vv.resume();
         if (stopTime > 0) {
             vv.seekTo(stopTime);
@@ -89,7 +98,7 @@ public class PlayerClient extends AppCompatActivity {
 
     @Override
     public void onPause() {
-        VideoView vv = findViewById(R.id.videoView1);
+        VideoView vv = findViewById(R.id.videoViewClient);
         if (vv.canPause()) {
             stopTime = vv.getCurrentPosition();
             pauseVideo();
@@ -99,7 +108,7 @@ public class PlayerClient extends AppCompatActivity {
 
     @Override
     public void onDestroy() {
-        VideoView vv = findViewById(R.id.videoView1);
+        VideoView vv = findViewById(R.id.videoViewClient);
         vv.stopPlayback();
         super.onDestroy();
     }

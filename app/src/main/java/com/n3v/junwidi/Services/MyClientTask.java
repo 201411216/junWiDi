@@ -513,27 +513,27 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 byte[] receivebuf;
 
-                while (!this.isCancelled()) {
 
-                    receivebuf = new byte[Constants.CONTROL_BUFFER_SIZE];
-                    DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
-                    datagramSocket.receive(packet);
-                    String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
+                receivebuf = new byte[Constants.CONTROL_BUFFER_SIZE];
+                DatagramPacket packet = new DatagramPacket(receivebuf, receivebuf.length);
+                datagramSocket.receive(packet);
+                String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
 
-                    if (msg.startsWith(Constants.CONTROL_PREPARE)) {
-
-                    } else if (msg.startsWith(Constants.CONTROL_PLAY)) {
-
-                    } else if (msg.startsWith(Constants.CONTROL_PAUSE)) {
-
-                    } else if (msg.startsWith(Constants.CONTROL_RESUME)) {
-
-                    } else if (msg.startsWith(Constants.CONTROL_STOP)) {
-                        break;
-                    } else if (msg.startsWith(Constants.CONTROL_SEEK)) {
-
-                    }
+                if (msg.startsWith(Constants.CONTROL_PLAY)) {
+                    clientTaskListener.onReceiveConPlay();
+                } else if (msg.startsWith(Constants.CONTROL_PAUSE)) {
+                    clientTaskListener.onReceiveConPause();
+                } else if (msg.startsWith(Constants.CONTROL_RESUME)) {
+                    clientTaskListener.onReceiveConResume();
+                } else if (msg.startsWith(Constants.CONTROL_STOP)) {
+                    clientTaskListener.onReceiveConStop();
+                } else if (msg.startsWith(Constants.CONTROL_SEEK)) {
+                    StringTokenizer st = new StringTokenizer(msg, Constants.DELIMITER);
+                    st.nextToken();
+                    int seekingTime = Integer.valueOf(st.nextToken());
+                    clientTaskListener.onReceiveConSeek(0);
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {

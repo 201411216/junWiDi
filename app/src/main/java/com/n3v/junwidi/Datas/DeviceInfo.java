@@ -251,8 +251,8 @@ public class DeviceInfo implements Parcelable {
     }
 
     public int pxToMm(int value) {
-        //return (int) (value * 25.4 / this.densityDpi);
-        return (int)(value / TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1, displayMetrics));
+        return (int) (value * 25.4 / this.densityDpi);
+        //return (int)(value / TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1, displayMetrics));
     }
 
     public int mmToPx(int value) {
