@@ -178,7 +178,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     startActivityForResult(fileChooseIntent, PICK_VIDEO_RESULT_CODE);
                 } else {
                     videoPath = "";
-                    txt_Video_Path.setText("비디오를 선택해 주세요");
+                    txt_Video_Path.setText("버튼을 눌러 비디오를 선택해 주세요");
                     isFileSelected = false;
                     btn_File_Transfer.setEnabled(false);
                     btn_File_Transfer.setAlpha(0.3f);
@@ -365,8 +365,6 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         isGroupExist = false;
         myDeviceInfoList.clear();
         myServerAdapter.notifyDataSetChanged();
-        btn_File_Select.setEnabled(false);
-        btn_File_Select.setAlpha(0.3f);
     }
 
     /*
