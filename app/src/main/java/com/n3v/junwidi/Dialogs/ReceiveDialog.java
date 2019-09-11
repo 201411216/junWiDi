@@ -77,8 +77,10 @@ public class ReceiveDialog extends Dialog {
         okButton.setTextColor(Color.parseColor(Constants.COLOR_OK_SKYBLUE));
         okButton.setText(RCV_DLG_DEFAULT_OK_BUTTON_STR);
         okButton.setEnabled(true);
+        okButton.setAlpha(1f);
         cancelButton.setTextColor(Color.parseColor(Constants.COLOR_CANCEL_RED));
         cancelButton.setEnabled(true);
+        cancelButton.setAlpha(1f);
     }
 
     public void setProgress(int progress) {
@@ -100,8 +102,10 @@ public class ReceiveDialog extends Dialog {
     public void setDownloading() {
         question.setVisibility(View.GONE);
         okButton.setEnabled(false);
+        okButton.setAlpha(0.3f);
         okButton.setTextColor(Color.parseColor(Constants.COLOR_BLOCKED_GRAY));
         cancelButton.setEnabled(true);
+        cancelButton.setAlpha(1f);
         cancelButton.setTextColor(Color.parseColor(Constants.COLOR_CANCEL_RED));
         percentage.setText("0 / 100");
         percentage.setVisibility(View.VISIBLE);
@@ -112,7 +116,9 @@ public class ReceiveDialog extends Dialog {
     public void setAlreadyExists() {
         state = RCV_DLG_VIDEO_ALREADY_EXISTS;
         cancelButton.setEnabled(false);
+        cancelButton.setAlpha(0.3f);
         okButton.setEnabled(true);
+        okButton.setAlpha(1f);
         cancelButton.setTextColor(Color.parseColor(Constants.COLOR_BLOCKED_GRAY));
         okButton.setText(RCV_DLG_CHECK_OK_BUTTON_STR);
         okButton.setTextColor(Color.parseColor(Constants.COLOR_OK_SKYBLUE));

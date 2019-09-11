@@ -7,7 +7,6 @@ import android.view.MenuInflater;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import static java.lang.Thread.sleep;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -63,9 +63,11 @@ public class GuideLineDialog extends Dialog {
         if (GLD_ACT_MODE == GLD_HOST) {
             button.setVisibility(View.GONE);
             button.setEnabled(false);
+            button.setAlpha(0.3f);
         } else {
             button.setVisibility(View.GONE);
             button.setEnabled(false);
+            button.setAlpha(0.3f);
         }
         button.setEnabled(false);
         button.setOnClickListener(new View.OnClickListener(){
@@ -135,6 +137,7 @@ public class GuideLineDialog extends Dialog {
 
     public void onClientsReady() {
         button.setEnabled(true);
+        button.setAlpha(1f);
         button.setVisibility(View.VISIBLE);
     }
 

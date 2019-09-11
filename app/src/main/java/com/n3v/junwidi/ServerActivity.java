@@ -120,8 +120,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         //txt_myDevice_State = findViewById(R.id.server_txt_my_device_state);
         txt_Video_Path = findViewById(R.id.server_txt_video_path);
         btn_File_Select = findViewById(R.id.server_btn_file_select);
+        btn_File_Select.setEnabled(true);
+        btn_File_Select.setAlpha(1f);
         btn_File_Transfer = findViewById(R.id.server_btn_file_transfer);
+        btn_File_Transfer.setEnabled(false);
+        btn_File_Transfer.setAlpha(0.3f);
         btn_Exo = findViewById(R.id.exo_button);
+        btn_Exo.setEnabled(false);
+        btn_Exo.setAlpha(0.3f);
 
         btn_File_Select.setOnClickListener(myClickListener);
         btn_File_Transfer.setOnClickListener(myClickListener);
@@ -175,6 +181,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     txt_Video_Path.setText("비디오를 선택해 주세요");
                     isFileSelected = false;
                     btn_File_Transfer.setEnabled(false);
+                    btn_File_Transfer.setAlpha(0.3f);
                     for (DeviceInfo di : myDeviceInfoList) {
                         di.setHasVideo(false);
                         di.setVideoName("");
@@ -196,6 +203,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     sendDialog.setFileName(videoName);
                     sendDialog.setReceivers(myDeviceInfoList.size());
                     btn_Exo.setEnabled(true);
+                    btn_Exo.setAlpha(1f);
                 }
             }
         }
@@ -231,6 +239,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
                     isFileSelected = true;
 
                     btn_File_Transfer.setEnabled(true);
+                    btn_File_Transfer.setAlpha(1f);
                     showToast(videoPath + " selected");
                 }
         }
@@ -315,6 +324,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onConnectionInfoAvailable(WifiP2pInfo wifiP2pInfo) {
         //btn_Server_Control.setEnabled(true);
         btn_File_Select.setEnabled(true);
+        btn_File_Select.setAlpha(1f);
         if (log_on) {
             Log.e(TAG, "onConnectionInfoAvailable");
             Log.e(TAG, "onConnectionInfoAvailable groupFormed: " + wifiP2pInfo.groupFormed);
@@ -352,6 +362,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
         myDeviceInfoList.clear();
         myServerAdapter.notifyDataSetChanged();
         btn_File_Select.setEnabled(false);
+        btn_File_Select.setAlpha(0.3f);
     }
 
     /*
