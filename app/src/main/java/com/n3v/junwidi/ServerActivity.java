@@ -212,11 +212,13 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void enterExoplay(View view) {
         if (isFileSelected) {
             Log.v(TAG, "processedDIL.size = " + processedDIL.size());
-            if (processedDIL.size() == 1) {
-//                Intent intent = new Intent(this, Exoplay.class);
-//                intent.putExtra("videoPath", videoPath);
-//                startActivity(intent);
-//                overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
+            btn_Exo.setEnabled(true);
+            btn_Exo.setAlpha(1f);
+            if (processedDIL.size() == 0) {
+                Intent intent = new Intent(this, Exoplay.class);
+                intent.putExtra("videoPath", videoPath);
+                 startActivity(intent);
+                overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_out_left);
             } else {
                 guideLineDialog.show();
                 guideLineDialog.setProcessedMyDeviceInfo(myDeviceInfo);
@@ -240,6 +242,8 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
 
                     btn_File_Transfer.setEnabled(true);
                     btn_File_Transfer.setAlpha(1f);
+                    btn_Exo.setEnabled(true);
+                    btn_Exo.setAlpha(1f);
                     showToast(videoPath + " selected");
                 }
         }
