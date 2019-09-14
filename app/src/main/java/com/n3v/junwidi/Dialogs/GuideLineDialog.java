@@ -59,6 +59,7 @@ public class GuideLineDialog extends Dialog {
         ivID3 = findViewById(R.id.order3);
         ivGL = findViewById(R.id.GL);
         fL = findViewById(R.id.fL);
+        button.setAlpha(1.0f);
         button = findViewById(R.id.button);
         if (GLD_ACT_MODE == GLD_HOST) {
             button.setVisibility(View.GONE);
@@ -70,6 +71,7 @@ public class GuideLineDialog extends Dialog {
             button.setAlpha(0.3f);
         }
         button.setEnabled(false);
+        button.setAlpha(0.3f);
         button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -86,6 +88,7 @@ public class GuideLineDialog extends Dialog {
 
         initDialog();
     }
+   
 
     public void initDialog(){
         ivID1.setVisibility(View.GONE);
