@@ -43,6 +43,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_FILE_RECEIVE_SERVICE = "tt.client.FILE_RECEIVE_SERVICE";
     public static final String CLIENT_TCP_FILE_RECEIVE_SERVICE = "tt.client.TCP_FILE_RECEIVE_SERVICE";
     public static final String CLIENT_CONTROL_WAITING_SERVICE = "tt.client.CONTROL_WAITING_SERVICE";
+    public static final String CLIENT_CONTROL_SEND_PAUSE_SERVICE = "tt.client.CONTROL_SEND_PAUSE_SERVICE";
+    public static final String CLIENT_CONTROL_SEND_STOP_SERVICE = "tt.client.CONTROL_SEND_STOP_SERVICE";
     public static final String CLIENT_TCP_WAITING_SERVICE = "tt.client.TCP_FILE_RECEIVE_WAITING_SERVICE";
     public static final String CLIENT_TCP_CANCEL_WAITING_SERVICE = "tt.client.TCP_CANCEL_WAITING_SERVICE";
     public static final String CLIENT_TCP_GO_SIGNAL_SERVICE = "tt.client.TCP_GO_SIGNAL_SERVICE";
@@ -76,6 +78,12 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     private boolean receiveShowGuideline = false;
     private boolean guidelineChecked = false;
     private boolean preparePlayReceived = false;
+
+    private boolean receivePlay = false;
+    private boolean receivePause = false;
+    private boolean receiveStop = false;
+    private boolean receiveSeektime = false;
+    private int seekingTime = 0;
 
     private Socket socket = null;
     private DatagramSocket datagramSocket = null;
@@ -518,21 +526,70 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
                 if (msg.startsWith(Constants.CONTROL_PLAY)) {
-                    clientTaskListener.onReceiveConPlay();
+                    receivePlay = true;
+                    publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_PAUSE)) {
-                    clientTaskListener.onReceiveConPause();
+                    receivePause = true;
+                    publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_RESUME)) {
-                    clientTaskListener.onReceiveConResume();
+                    receivePlay = true;
+                    publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_STOP)) {
-                    clientTaskListener.onReceiveConStop();
+                    receiveStop = true;
+                    publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_SEEK)) {
                     StringTokenizer st = new StringTokenizer(msg, Constants.DELIMITER);
                     st.nextToken();
-                    int seekingTime = Integer.valueOf(st.nextToken());
-                    clientTaskListener.onReceiveConSeek(seekingTime);
+                    this.seekingTime = Integer.valueOf(st.nextToken());
+                    receiveSeektime = true;
+                    publishProgress();
+                } else if (msg.startsWith(Constants.CONTROL_CANCEL)) {
                 }
                 multicastLock.release();
-
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (!datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
+            }
+        } else if (ACT_MODE.equals(CLIENT_CONTROL_SEND_PAUSE_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            datagramSocket = null;
+            try {
+                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
+                String control_msg = Constants.CONTROL_PAUSE;
+                byte[] buf = control_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + control_msg);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
+                Log.v(TAG, "Send message complete");
+                datagramSocket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (!datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
+            }
+        } else if (ACT_MODE.equals(CLIENT_CONTROL_SEND_STOP_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            datagramSocket = null;
+            try {
+                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
+                String control_msg = Constants.CONTROL_STOP;
+                byte[] buf = control_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + control_msg);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
+                Log.v(TAG, "Send message complete");
+                datagramSocket.send(packet);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -617,6 +674,20 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } else {
                 clientTaskListener.setFile(fileName, fileSize);
                 clientTaskListener.onVideoAlreadyExist();
+            }
+        } else if (ACT_MODE.equals(CLIENT_CONTROL_WAITING_SERVICE)) {
+            if (receivePlay) {
+                clientTaskListener.onReceiveConPlay();
+                receivePlay = false;
+            } else if (receivePause) {
+                clientTaskListener.onReceiveConPause();
+                receivePause = false;
+            } else if (receiveStop) {
+                clientTaskListener.onReceiveConStop();
+                receiveStop = false;
+            } else if (receiveSeektime) {
+                clientTaskListener.onReceiveConSeek(seekingTime);
+                receiveSeektime = false;
             }
         }
     }

@@ -76,6 +76,12 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     private boolean isAllDeviceGuideLineReady = false;
     private boolean isAllDevicePreparePlay = false;
 
+    private boolean receivePlay = false;
+    private boolean receivePause = false;
+    private boolean receiveStop = false;
+    private boolean receiveSeektime = false;
+    private int seekingTime = 0;
+
     private long sumReadByte = 0;
     private long lastPublishedReadByte = 0;
     private int progress = 0;
@@ -99,6 +105,18 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
         this.myServerAdapter = serverAdapter;
         this.videoPath = videoPath;
         this.serverTaskListener = serverTaskListener;
+    }
+
+    public MyServerTask(Context context, String mode, String host, DeviceInfo deviceInfo, ArrayList<DeviceInfo> deviceInfoList, ArrayAdapter serverAdapter, String videoPath, MyServerTaskListener serverTaskListener, int seekingTime) {
+        this.myContext = context;
+        this.ACT_MODE = mode;
+        this.host_addr = host;
+        this.myDeviceInfo = deviceInfo;
+        this.myDeviceInfoList = deviceInfoList;
+        this.myServerAdapter = serverAdapter;
+        this.videoPath = videoPath;
+        this.serverTaskListener = serverTaskListener;
+        this.seekingTime = seekingTime;
     }
 
     @Override
@@ -558,6 +576,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
         } else if (ACT_MODE.equals(SERVER_CONTROL_WAITING_SERVICE)) {
             Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
             datagramSocket = null;
+            DatagramSocket dos = null;
             WifiManager.MulticastLock multicastLock = null;
 
             String file_name = "";
@@ -577,11 +596,22 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 datagramSocket.receive(packet);
 
                 String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
-                if (msg.startsWith(Constants.CONTROL_PAUSE)) {
-                    serverTaskListener.onReceiveConPause();
+                if (msg.startsWith(Constants.CONTROL_PLAY)) {
+                } else if (msg.startsWith(Constants.CONTROL_PAUSE)) {
+                    receivePause = true;
+                    publishProgress();
+                } else if (msg.startsWith(Constants.CONTROL_RESUME)) {
+                    receivePlay = true;
+                    publishProgress();
+                } else if (msg.startsWith(Constants.CONTROL_STOP)) {
+                    receiveStop = true;
+                    publishProgress();
+                } else if (msg.startsWith(Constants.CONTROL_SEEK)) {
+                    receiveSeektime = true;
+                    publishProgress();
+                } else if (msg.startsWith(Constants.CONTROL_CANCEL)) {
                 }
                 multicastLock.release();
-
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -598,9 +628,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
-                String time_msg = Constants.CONTROL_PLAY;
-                byte[] buf = time_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + time_msg);
+                String control_msg = Constants.CONTROL_PLAY;
+                byte[] buf = control_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
@@ -620,9 +650,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
-                String time_msg = Constants.CONTROL_PAUSE;
-                byte[] buf = time_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + time_msg);
+                String control_msg = Constants.CONTROL_PAUSE;
+                byte[] buf = control_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
@@ -633,7 +663,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     datagramSocket.close();
                 }
             }
-        }else if (ACT_MODE.equals(SERVER_CONTROL_SEND_STOP_SERVICE)) {
+        } else if (ACT_MODE.equals(SERVER_CONTROL_SEND_STOP_SERVICE)) {
             Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
             datagramSocket = null;
             try {
@@ -642,9 +672,31 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
-                String time_msg = Constants.CONTROL_PAUSE;
-                byte[] buf = time_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + time_msg);
+                String control_msg = Constants.CONTROL_STOP;
+                byte[] buf = control_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + control_msg);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
+                Log.v(TAG, "Send message complete");
+                datagramSocket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (!datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
+            }
+        } else if (ACT_MODE.equals(SERVER_CONTROL_SEND_SEEKTIME_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            datagramSocket = null;
+            try {
+                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
+                String control_msg = Constants.CONTROL_SEEK + Constants.DELIMITER + seekingTime;
+                byte[] buf = control_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
@@ -695,6 +747,20 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
         } else if (ACT_MODE.equals(SERVER_TCP_PREPARE_PLAY_SERVICE)) {
             if (isAllDevicePreparePlay) {
                 serverTaskListener.onPreparePlay();
+            }
+        } else if (ACT_MODE.equals(SERVER_CONTROL_WAITING_SERVICE)) {
+            if (receivePlay) {
+                serverTaskListener.onReceiveConPlay();
+                receivePlay = false;
+            } else if (receivePause) {
+                serverTaskListener.onReceiveConPause();
+                receivePause = false;
+            } else if (receiveStop) {
+                serverTaskListener.onReceiveConStop();
+                receiveStop = false;
+            } else if (receiveSeektime) {
+                serverTaskListener.onReceiveConSeek();
+                receiveSeektime = false;
             }
         }
     }
