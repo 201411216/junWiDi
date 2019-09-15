@@ -695,7 +695,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
-                String control_msg = Constants.CONTROL_SEEK + Constants.DELIMITER + seekingTime;
+                String control_msg = Constants.CONTROL_SEEK + Constants.DELIMITER + seekingTime + Constants.DELIMITER;
                 byte[] buf = control_msg.getBytes();
                 Log.v(TAG, "Handshake Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);

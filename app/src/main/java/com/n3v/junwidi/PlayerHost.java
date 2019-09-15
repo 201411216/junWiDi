@@ -18,6 +18,8 @@ import com.n3v.junwidi.Datas.DeviceInfo;
 import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 
+import static java.lang.Thread.sleep;
+
 public class PlayerHost extends AppCompatActivity implements MyServerTaskListener {
 
     //모든 변수는 밀리미터 단위를 사용하도록 함
@@ -145,6 +147,11 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
                 new MyThread().start();
                 isPlaying = true;
                 nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_PLAY_SERVICE);
+                try{
+                    sleep(100);
+                } catch (InterruptedException ie) {
+
+                }
                 vv.start();
             }
         });
