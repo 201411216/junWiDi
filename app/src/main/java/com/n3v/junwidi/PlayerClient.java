@@ -92,7 +92,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         vv.setX(aX);
         vv.requestLayout();
 
-
+        waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
     }
 
     public void playVideo() {

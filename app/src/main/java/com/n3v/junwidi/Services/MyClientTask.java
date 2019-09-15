@@ -503,7 +503,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(CLIENT_CONTROL_WAITING_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : CLIENT_CONTROL_WAITING_SERVICE");
             datagramSocket = null;
             dos = null;
             WifiManager.MulticastLock multicastLock = null;
@@ -526,18 +526,23 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
 
                 String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
                 if (msg.startsWith(Constants.CONTROL_PLAY)) {
+                    Log.v(TAG, "CONTROL_PLAY received");
                     receivePlay = true;
                     publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_PAUSE)) {
+                    Log.v(TAG, "CONTROL_PAUSE received");
                     receivePause = true;
                     publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_RESUME)) {
+                    Log.v(TAG, "CONTROL_RESUME received");
                     receivePlay = true;
                     publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_STOP)) {
+                    Log.v(TAG, "CONTROL_STOP received");
                     receiveStop = true;
                     publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_SEEK)) {
+                    Log.v(TAG, "CONTROL_SEEK received");
                     StringTokenizer st = new StringTokenizer(msg, Constants.DELIMITER);
                     st.nextToken();
                     this.seekingTime = Integer.valueOf(st.nextToken());

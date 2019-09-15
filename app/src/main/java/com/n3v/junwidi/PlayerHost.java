@@ -118,6 +118,8 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         vv.setX(aX);
         vv.requestLayout();
 
+        waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
+
         //시크 바 생성
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -311,6 +313,22 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
     @Override
     public void onReceiveConPause() {
         pauseVideo();
+        waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
+    }
+
+    @Override
+    public void onReceiveConPlay() {
+        waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
+    }
+
+    @Override
+    public void onReceiveConStop() {
+        waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
+    }
+
+    @Override
+    public void onReceiveConSeek() {
+        waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
     }
 }
 //pause가 걸리는 경우 - 전화, 다른 앱의 메세지, 팝업 등의 불가피한 pause ----나머지 기기들은 영상 일시정지

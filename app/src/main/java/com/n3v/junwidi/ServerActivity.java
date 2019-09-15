@@ -748,4 +748,19 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
     public void onReceiveConPause() {
 
     }
+
+    @Override
+    public void onReceiveConPlay() {
+
+    }
+
+    @Override
+    public void onReceiveConStop() {
+
+    }
+
+    @Override
+    public void onReceiveConSeek() {
+
+    }
 }

@@ -624,7 +624,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
-                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
@@ -646,7 +646,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
-                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
@@ -659,7 +659,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (!datagramSocket.isClosed()) {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
                     datagramSocket.close();
                 }
             }
@@ -668,7 +668,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
-                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
@@ -690,7 +690,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
-                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
