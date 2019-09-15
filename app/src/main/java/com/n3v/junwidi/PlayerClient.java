@@ -38,6 +38,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     String hostAddress = "";
 
     AsyncTask nowTask = null;
+    AsyncTask waitTask = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +91,8 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         vv.getLayoutParams().height = H;
         vv.setX(aX);
         vv.requestLayout();
+
+
     }
 
     public void playVideo() {
@@ -125,6 +128,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
             stopTime = vv.getCurrentPosition();
             pauseVideo();
         }
+        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
         super.onPause();
     }
 
@@ -206,19 +210,19 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     public void onReceiveConPlay() {
         stopTime = 0;
         playVideo();
-        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
+        waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
     }
 
     @Override
     public void onReceiveConPause() {
         pauseVideo();
-        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
+        waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
     }
 
     @Override
     public void onReceiveConResume() {
         playVideo();
-        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
+        waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
     }
 
     @Override
@@ -230,7 +234,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     @Override
     public void onReceiveConSeek(int time) {
         seekTimeVideo(time);
-        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
+        waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
     }
 }
 //온터치 , 온트랙볼 이벤트 ( 재생,일시정지,영상위치이동 ) - 미디어컨트롤러로 대체

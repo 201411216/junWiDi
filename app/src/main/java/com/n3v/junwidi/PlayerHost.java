@@ -46,6 +46,9 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
 
     DeviceInfo myDeviceInfo = null;
 
+    AsyncTask nowTask = null;
+    AsyncTask waitTask = null;
+
 
     class MyThread extends Thread {
         @Override
@@ -122,9 +125,11 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
             public void onStopTrackingTouch(SeekBar seekBar) {
                 isPlaying = true;
                 int moveTime = seekBar.getProgress();
+                stopTime = moveTime;
                 vv.seekTo(moveTime);
                 vv.start();
                 new MyThread().start();
+                nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_SEEKTIME_SERVICE);
             }
 
             @Override
@@ -149,16 +154,20 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
                 seekBar.setMax(a);
                 new MyThread().start();
                 isPlaying = true;
+                nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_PLAY_SERVICE);
             }
         });
+
         btnPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopTime = vv.getCurrentPosition();
                 vv.pause();
                 isPlaying = false;
+                nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_PAUSE_SERVICE);
             }
         });
+
         vv.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent motionEvent) {
@@ -177,7 +186,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
     }
 
     public AsyncTask callServerTask(String mode) {
-        return new MyServerTask(this, mode, myDeviceInfo.getStr_address(), myDeviceInfo, null, null, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        return new MyServerTask(this, mode, myDeviceInfo.getStr_address(), myDeviceInfo, null, null, "", this, stopTime).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public int PxToMm(int value, DisplayMetrics metrics) {
