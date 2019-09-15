@@ -700,7 +700,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
     public void onPreparePlayReceived() {
         guideLineDialog.cancel();
         nowTask = null;
-
+        callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
         Intent intent = new Intent(this, PlayerClient.class);
         Log.v(TAG, "Before parcel : " + myDeviceInfo.getLongString());
         intent.putExtra("myDeviceInfo", myDeviceInfo);
