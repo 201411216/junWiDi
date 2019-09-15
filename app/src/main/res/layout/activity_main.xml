@@ -65,7 +65,6 @@
             android:textSize="25dp" />
 
         <Button
-
             android:id="@+id/btn_iam_server"
             android:layout_width="250dp"
             android:layout_height="57dp"
@@ -74,19 +73,12 @@
             android:layout_alignParentBottom="true"
             android:layout_gravity="center"
             android:background="@drawable/btn_rounded"
-
-
-
-
-
             android:layout_weight="1"
-
             android:fontFamily="@font/notoblack"
             android:onClick="enterServer"
+            android:textSize="18dp"
             android:text="Send Video"
-            android:textColor="#FFFFFF"
-            android:viewportWidth="250"
-            android:viewportHeight="57" />
+            android:textColor="#FFFFFF" />
 
         <Button
             android:id="@+id/btn_iam_client"
@@ -102,6 +94,7 @@
             android:background="@drawable/btn_rounded"
             android:fontFamily="@font/notoblack"
             android:onClick="enterClient"
+            android:textSize="18dp"
             android:text="Receive Video"
             android:textColor="#FFFFFF" />
 

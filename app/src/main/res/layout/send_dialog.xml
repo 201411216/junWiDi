@@ -19,6 +19,7 @@
             android:layout_marginTop="0dp"
             android:fontFamily="@font/notoblack"
             android:textColor="#4B4747"
+            android:textSize="15dp"
             android:text="파일 이름"/>
 
         <ProgressBar
@@ -46,16 +47,18 @@
             android:fontFamily="@font/notolight"
             android:textColor="#4B4747"
             android:text="0 / 100"/>
+
         <TextView
-            android:layout_gravity="bottom"
-            android:gravity="center"
-            android:layout_marginTop="10dp"
+            android:id="@+id/send_dialog_txt_question"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="10dp"
             android:fontFamily="@font/notoregular"
+            android:gravity="center"
+            android:text="파일을 전송하시겠습니까?"
             android:textColor="#4B4747"
-            android:id="@+id/send_dialog_txt_question"
-            android:text="파일을 전송하시겠습니까?"/>
+            android:textSize="18dp" />
 
     </LinearLayout>
     <LinearLayout
@@ -68,6 +71,7 @@
             android:fontFamily="@font/notoregular"
             android:background="@drawable/btn_dialog"
             android:textColor="#FF0303"
+            android:textSize="15dp"
             android:id="@+id/send_dialog_btn_cancel"
             />
 
@@ -78,7 +82,8 @@
             android:fontFamily="@font/notoregular"
             android:id="@+id/send_dialog_btn_ok"
             android:background="@drawable/btn_dialog"
-            android:textColor="#4095FB"/>
+            android:textColor="#4095FB"
+            android:textSize="15dp"/>
 
     </LinearLayout>
 
