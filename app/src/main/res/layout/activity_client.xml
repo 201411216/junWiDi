@@ -92,6 +92,13 @@
         android:textColor="#ffffff"
         android:textSize="14dp" />
 
+    <View
+        android:id="@+id/text_server_activity_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:background="#E8DBDB" />
+
     <TextView
         android:id="@+id/text_server_activity_Connected_Server"
         android:layout_width="match_parent"
@@ -102,14 +109,6 @@
         android:text="Connected Server"
         android:textColor="#ffffff"
         android:textSize="14dp" />
-
-    <View
-        android:id="@+id/text_server_activity_bar"
-        android:layout_width="fill_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="5dp"
-        android:background="#E8DBDB" />
-
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/client_layout_pull_to_refresh"
