@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/notoblack"
             android:paddingLeft="10dp"
-            android:text="My Device"
+            android:text="내 기기"
             android:textColor="#ffffff"
             android:textSize="14dp" />
 
@@ -106,7 +106,7 @@
         android:layout_marginTop="5dp"
         android:fontFamily="@font/notoblack"
         android:paddingLeft="10dp"
-        android:text="Connected Server"
+        android:text="연결된 기기"
         android:textColor="#ffffff"
         android:textSize="14dp" />
 

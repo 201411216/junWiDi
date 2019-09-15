@@ -125,7 +125,7 @@ public class SendDialog extends Dialog {
         state = SEND_DLG_SENDING;
         question.setVisibility(View.GONE);
         okButton.setEnabled(false);
-        okButton.setAlpha(0.3f);
+        //okButton.setAlpha(0.3f);
         progress = 0;
         progressBar.setProgress(progress);
         String str_Percent = this.progress + " / 100";
