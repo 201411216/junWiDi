@@ -59,7 +59,6 @@ public class GuideLineDialog extends Dialog {
         ivID3 = findViewById(R.id.order3);
         ivGL = findViewById(R.id.GL);
         fL = findViewById(R.id.fL);
-        button.setAlpha(1.0f);
         button = findViewById(R.id.button);
         if (GLD_ACT_MODE == GLD_HOST) {
             button.setVisibility(View.GONE);
