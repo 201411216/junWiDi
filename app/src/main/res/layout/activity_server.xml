@@ -14,7 +14,7 @@
             android:fontFamily="@font/notoblack"
             android:paddingLeft="10dp"
             android:layout_marginBottom="20dp"
-            android:text="Owner"
+            android:text="내 기기"
             android:textColor="#ffffff"
             android:textSize="14dp" />
         <LinearLayout
@@ -62,14 +62,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
                 android:fontFamily="@font/notoregular"
-                android:text="Device Address : "
-                android:textSize="15dp"
-                />
+                android:paddingLeft="10dp"
+                android:text="기기 식별자 : "
+                android:textSize="15dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -84,14 +84,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
                 android:fontFamily="@font/notoblack"
-                android:text="Video Path : "
-                android:textSize="15dp"
-                />
+                android:paddingLeft="10dp"
+                android:text="비디오 경로 : "
+                android:textSize="15dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
             android:layout_marginBottom="20dp"
             android:fontFamily="@font/notoblack"
             android:paddingLeft="10dp"
-            android:text="Client"
+            android:text="내 기기에 연결된 기기"
             android:textColor="#ffffff"
             android:textSize="14dp" />
     </LinearLayout>

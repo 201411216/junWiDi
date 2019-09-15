@@ -85,9 +85,9 @@ public class SendDialog extends Dialog {
         percentage.setVisibility(View.GONE);
         question.setVisibility(View.VISIBLE);
         okButton.setTextColor(Color.parseColor(Constants.COLOR_OK_SKYBLUE));
-        cancelButton.setTextColor(Color.parseColor(Constants.COLOR_CANCEL_RED));
+        //cancelButton.setTextColor(Color.parseColor(Constants.COLOR_CANCEL_RED));
         okButton.setEnabled(true);
-        okButton.setAlpha(1f);
+        //okButton.setAlpha(1f);
     }
 
     private View.OnClickListener dialogClickListener = new View.OnClickListener() {
@@ -125,7 +125,7 @@ public class SendDialog extends Dialog {
         state = SEND_DLG_SENDING;
         question.setVisibility(View.GONE);
         okButton.setEnabled(false);
-        okButton.setAlpha(0.3f);
+        //okButton.setAlpha(0.3f);
         progress = 0;
         progressBar.setProgress(progress);
         String str_Percent = this.progress + " / 100";
@@ -142,7 +142,7 @@ public class SendDialog extends Dialog {
         progressBar.setVisibility(View.VISIBLE);
         percentage.setText(receiver_Str);
         okButton.setEnabled(false);
-        okButton.setAlpha(0.3f);
+        //okButton.setAlpha(0.3f);
         okButton.setTextColor(Color.parseColor(Constants.COLOR_BLOCKED_GRAY));
     }
 

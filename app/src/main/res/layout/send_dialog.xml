@@ -58,32 +58,32 @@
             android:gravity="center"
             android:text="파일을 전송하시겠습니까?"
             android:textColor="#4B4747"
-            android:textSize="18dp" />
+            android:textSize="16dp" />
 
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="70dp">
-        <Button
-            android:layout_width="160dp"
-            android:layout_height="match_parent"
-            android:text="취소"
-            android:fontFamily="@font/notoregular"
-            android:background="@drawable/btn_dialog"
-            android:textColor="#FF0303"
-            android:textSize="15dp"
-            android:id="@+id/send_dialog_btn_cancel"
-            />
 
         <Button
+            android:id="@+id/send_dialog_btn_cancel"
             android:layout_width="160dp"
             android:layout_height="match_parent"
-            android:text="전송"
-            android:fontFamily="@font/notoregular"
-            android:id="@+id/send_dialog_btn_ok"
             android:background="@drawable/btn_dialog"
+            android:fontFamily="@font/notoregular"
+            android:text="취소"
             android:textColor="#4095FB"
-            android:textSize="15dp"/>
+            android:textSize="16dp" />
+
+        <Button
+            android:id="@+id/send_dialog_btn_ok"
+            android:layout_width="160dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/btn_dialog"
+            android:fontFamily="@font/notoblack"
+            android:text="전송"
+            android:textColor="#4095FB"
+            android:textSize="16dp" />
 
     </LinearLayout>
 

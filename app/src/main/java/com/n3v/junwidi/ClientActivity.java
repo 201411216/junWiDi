@@ -130,7 +130,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-        getSupportActionBar().setTitle("Receive");
+        getSupportActionBar().setTitle("파일 받기");
         return true;
     }
 
@@ -174,15 +174,15 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                         showToast("Discover Peer Failed");
                     }
                 });
-                if (myWifiP2pDevice.status == 0) { // Connect 상태일 때
-                    text_server_activity_able_list.setVisibility(View.GONE);
-                    text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
-                }
-                layout_Client_Pull_To_Refresh.setRefreshing(false);
-            }
-        });
+        if (myWifiP2pDevice.status == 0) { // Connect 상태일 때
+            text_server_activity_able_list.setVisibility(View.GONE);
+            text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
+        }
+        layout_Client_Pull_To_Refresh.setRefreshing(false);
+    }
+});
 
-        text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
+        //text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
         listView_Server_List = findViewById(R.id.client_list_server);
         myWifiP2pDeviceList = new ArrayList<>();
         myClientAdapter = new MyClientAdapter(this, R.layout.item_server, myWifiP2pDeviceList);
