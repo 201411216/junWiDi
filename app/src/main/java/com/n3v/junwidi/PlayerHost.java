@@ -109,8 +109,6 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         vv.setX(aX);
         vv.requestLayout();
 
-        vv.
-
         waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
 
         //시크 바 생성
