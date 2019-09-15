@@ -80,7 +80,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         }
 
         vv.setVideoPath(filePath);
-        vv.seekTo(1);
+        vv.seekTo(0);
 
 //        ViewGroup.LayoutParams params = vv.getLayoutParams();
 //        params.height = H;
@@ -135,6 +135,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     public void onDestroy() {
         VideoView vv = findViewById(R.id.videoViewClient);
         vv.stopPlayback();
+        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_SEND_STOP_SERVICE);
         super.onDestroy();
     }
 

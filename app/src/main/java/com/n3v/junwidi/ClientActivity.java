@@ -134,23 +134,15 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         return true;
     }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        switch (requestCode) {
-//            case PLAYER_RESULT_CODE:
-//                if (resultCode == RESULT_OK) {
-//                    //videoPath = data.getData().getPath();
-//                    Uri videoURI = data.getData();
-//                    videoPath = RealPathUtil.getRealPath(this, videoURI);
-//                    Log.v(TAG, videoPath + " selected");
-//                    txt_Video_Path.setText(videoPath);
-//                    isFileSelected = true;
-//
-//                    btn_File_Transfer.setEnabled(true);
-//                    showToast(videoPath + " selected");
-//                }
-//        }
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case PLAYER_RESULT_CODE:
+                if (resultCode == RESULT_OK) {
+                    nowTask = callClientTask(MyClientTask.CLIENT_TCP_WAITING_SERVICE);
+                }
+        }
+    }
 
     private void initView() { //Activity의 view item들 초기화
         txt_myDevice_Name = findViewById(R.id.client_txt_my_device_name);
@@ -713,7 +705,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         Log.v(TAG, "Before parcel : " + myDeviceInfo.getLongString());
         intent.putExtra("myDeviceInfo", myDeviceInfo);
         intent.putExtra("host_addr", myWifiP2pInfo.groupOwnerAddress.getHostAddress());
-        startActivity(intent);
+        startActivityForResult(intent, PLAYER_RESULT_CODE);
     }
 
     @Override

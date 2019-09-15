@@ -554,7 +554,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (!datagramSocket.isClosed()) {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
                     datagramSocket.close();
                 }
             }
@@ -576,7 +576,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (!datagramSocket.isClosed()) {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
                     datagramSocket.close();
                 }
             }
@@ -598,7 +598,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (!datagramSocket.isClosed()) {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
                     datagramSocket.close();
                 }
             }

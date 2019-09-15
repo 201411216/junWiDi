@@ -47,6 +47,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     public static final String SERVER_CONTROL_SEND_PAUSE_SERVICE = "action.server.CONTROL_SEND_PAUSE_SERVICE";
     public static final String SERVER_CONTROL_SEND_SEEKTIME_SERVICE = "action.server.CONTROL_SEND_SEEKTIME_SERVICE";
     public static final String SERVER_CONTROL_SEND_STOP_SERVICE = "action.server.CONTROL_SEND_STOP_SERVICE";
+    public static final String SERVER_CONTROL_CANCEL_SERVICE = "action.server.CONTROL_CANCEL_SERVICE";
 
     private static final String TAG = "MyServerTask";
 
@@ -615,7 +616,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (!datagramSocket.isClosed()) {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
                     datagramSocket.close();
                 }
             }
@@ -637,7 +638,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (!datagramSocket.isClosed()) {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
                     datagramSocket.close();
                 }
             }
@@ -681,7 +682,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (!datagramSocket.isClosed()) {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
                     datagramSocket.close();
                 }
             }
@@ -703,7 +704,29 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (!datagramSocket.isClosed()) {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
+            }
+        } else if (ACT_MODE.equals(SERVER_CONTROL_CANCEL_SERVICE)) {
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            datagramSocket = null;
+            try {
+                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
+                String control_msg = Constants.CONTROL_CANCEL;
+                byte[] buf = control_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + control_msg);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
+                Log.v(TAG, "Send message complete");
+                datagramSocket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
                     datagramSocket.close();
                 }
             }

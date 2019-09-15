@@ -97,7 +97,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
 
         vv.setVideoPath(filePath);
         //vv.setVideoURI(uri);
-        vv.seekTo(1);
+        vv.seekTo(0);
 
         //비디오뷰 사이즈 조절
 
@@ -140,12 +140,12 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                vv.start();
                 int a = vv.getDuration();
                 seekBar.setMax(a);
                 new MyThread().start();
                 isPlaying = true;
                 nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_PLAY_SERVICE);
+                vv.start();
             }
         });
 
@@ -239,6 +239,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
     public void onDestroy() {
         VideoView vv = findViewById(R.id.videoViewHost);
         vv.stopPlayback();
+        nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_STOP_SERVICE);
         super.onDestroy();
     }
 
@@ -312,7 +313,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
 
     @Override
     public void onReceiveConStop() {
-        waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
+        finishWithResult();
     }
 
     @Override
