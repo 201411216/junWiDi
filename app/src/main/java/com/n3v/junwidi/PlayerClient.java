@@ -25,8 +25,8 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     int user = 0;//사용자 식별번호, 호스트 기기에만 미디어컨트롤러가 나오도록 하기 위함(user 변수의 값이 1인 경우에만 나오게 함)
     int H = 0;//결정된 레이아웃의 길이
     int W = 0;
-    int aX, bX, cX = 0;//좌표 이동을 위한 각 기기의 X값
-    int aY, bY, cY = 0;//좌표 이동을 위한 각 기기의 Y값
+    int aX = 0;//좌표 이동을 위한 각 기기의 X값
+    int aY = 0;//좌표 이동을 위한 각 기기의 Y값
     boolean start = false;
     public int back = 0;
     public int stopTime = 0;
@@ -50,7 +50,6 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         hostAddress = intent.getStringExtra("host_addr");
 
         getSupportActionBar().hide();
-
 
         W = myDeviceInfo.getMm_videoview_width();
         H = myDeviceInfo.getMm_videoview_height();

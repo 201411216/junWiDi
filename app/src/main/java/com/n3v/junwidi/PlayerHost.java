@@ -1,18 +1,13 @@
 package com.n3v.junwidi;
 
-import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.VideoView;
@@ -23,20 +18,14 @@ import com.n3v.junwidi.Datas.DeviceInfo;
 import com.n3v.junwidi.Listener.MyServerTaskListener;
 import com.n3v.junwidi.Services.MyServerTask;
 
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-
-
 public class PlayerHost extends AppCompatActivity implements MyServerTaskListener {
 
     //모든 변수는 밀리미터 단위를 사용하도록 함
     DisplayMetrics metrics = new DisplayMetrics();
-    int aW, bW, cW, aH, bH, cH = 0;//화면 분할을 위한 각 디바이스 가로세로 길이
-    int sH = 0;//기기 a b c 중 가장 작은 높이값
     public int H;//결정된 레이아웃의 길이
     public int W;
-    int aX, bX, cX;//좌표 이동을 위한 각 기기의 X값
-    int aY, bY, cY;
+    int aX;//좌표 이동을 위한 각 기기의 X값
+    int aY;
     public int stopTime = 0;
     public int back = 0;
     VideoView vv;
