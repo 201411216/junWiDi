@@ -6,17 +6,24 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:context=".PlayerClient"
-    android:background="#000000"
+    android:background="@drawable/blackwallpaper"
     android:id="@+id/fL1"
     >
+
+    <ImageView
+        android:layout_width="126dp"
+        android:layout_height="98dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/tlogo"/>
 
     <VideoView
         android:id="@+id/videoViewClient"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clipChildren="true"
-        android:layout_gravity="bottom"
         android:layout_marginBottom="0dp"
-        />
+        android:clipChildren="true" />
+
+
 
 </FrameLayout>
