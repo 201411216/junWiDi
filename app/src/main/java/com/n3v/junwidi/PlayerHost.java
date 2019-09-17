@@ -231,17 +231,18 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
 
     @Override
     public void onResume() {
-        super.onResume();
-        VideoView vv = findViewById(R.id.videoViewHost);
         vv.resume();
-        if (stopTime > 0) {
+        if (stopTime > -1) {
             vv.seekTo(stopTime);
         }
+
+        //vv.resume();
+
+        super.onResume();
     }
 
     @Override
     public void onPause() {
-        VideoView vv = findViewById(R.id.videoViewHost);
         if (vv.canPause()) {
             stopTime = vv.getCurrentPosition();
             pauseVideo();
@@ -250,6 +251,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         isPlaying = false;
         btnStart.setVisibility(View.VISIBLE);
         btnPause.setVisibility(View.VISIBLE);
+        nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_PAUSE_SERVICE);
     }
 
     @Override
@@ -272,6 +274,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
     }
 
     public void finishWithResult() {
+        Log.v("playerHost", "FWR");
         Intent data = new Intent();
         setResult(RESULT_OK, data);
         finish();

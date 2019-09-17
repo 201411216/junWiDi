@@ -575,7 +575,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(SERVER_CONTROL_WAITING_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : SERVER_CONTROL_WAITING_SERVICE");
             datagramSocket = null;
             DatagramSocket dos = null;
             WifiManager.MulticastLock multicastLock = null;
@@ -598,6 +598,8 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
 
                 String msg = new String(packet.getData(), 0, Constants.CONTROL_BUFFER_SIZE);
                 if (msg.startsWith(Constants.CONTROL_PLAY)) {
+                    receivePlay = true;
+                    publishProgress();
                 } else if (msg.startsWith(Constants.CONTROL_PAUSE)) {
                     receivePause = true;
                     publishProgress();
@@ -621,7 +623,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(SERVER_CONTROL_SEND_PLAY_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : SERVER_CONTROL_SEND_PLAY_SERVICE");
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
@@ -631,7 +633,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 datagramSocket.setBroadcast(true);
                 String control_msg = Constants.CONTROL_PLAY;
                 byte[] buf = control_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + control_msg);
+                Log.v(TAG, "control msg Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
@@ -643,7 +645,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(SERVER_CONTROL_SEND_PAUSE_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : SERVER_CONTROL_SEND_PAUSE_SERVICE");
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
@@ -653,7 +655,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 datagramSocket.setBroadcast(true);
                 String control_msg = Constants.CONTROL_PAUSE;
                 byte[] buf = control_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + control_msg);
+                Log.v(TAG, "control msg Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
@@ -665,7 +667,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(SERVER_CONTROL_SEND_STOP_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : SERVER_CONTROL_SEND_STOP_SERVICE");
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
@@ -675,7 +677,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 datagramSocket.setBroadcast(true);
                 String control_msg = Constants.CONTROL_STOP;
                 byte[] buf = control_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + control_msg);
+                Log.v(TAG, "control msg Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
@@ -687,7 +689,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(SERVER_CONTROL_SEND_SEEKTIME_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : SERVER_CONTROL_SEND_SEEKTIME_SERVICE");
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
@@ -697,7 +699,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 datagramSocket.setBroadcast(true);
                 String control_msg = Constants.CONTROL_SEEK + Constants.DELIMITER + seekingTime + Constants.DELIMITER;
                 byte[] buf = control_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + control_msg);
+                Log.v(TAG, "control msg Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
@@ -709,7 +711,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(SERVER_CONTROL_CANCEL_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : SERVER_CONTROL_CANCEL_SERVICE");
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
@@ -791,6 +793,9 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
     @Override
     protected void onPostExecute(String result) {
         if (ACT_MODE.equals(SERVER_HANDSHAKE_SERVICE)) {
+        }
+        if (ACT_MODE.equals(SERVER_CONTROL_WAITING_SERVICE)) {
+            Log.v(TAG, "SERVER_CONTROL_WAITING_SERVICE END");
         }
         serverTaskListener.onNotify();
     }

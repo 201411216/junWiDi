@@ -136,6 +136,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v(TAG, "inActivityResult");
         switch (requestCode) {
             case PLAYER_RESULT_CODE:
                 if (resultCode == RESULT_OK) {
@@ -455,30 +456,33 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         int MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE = 0; // permission 2 : 멀티캐스트 상태 권한
         int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0; // permission 3 : 외부 저장소 읽기 권한
         int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 0; // permission 4 : 외부 저장소 쓰기 권한
-        int permissionChecker;
+        int MY_PERMISSIONS_REQUEST_MULTI = 0;
+
+        ArrayList<String> permissions = new ArrayList<String>();
         if (permission == 0 || permission == 1) {
-            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
             }
         }
         if (permission == 0 || permission == 2) {
-            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_MULTICAST_STATE);
-            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CHANGE_WIFI_MULTICAST_STATE}, MY_PERMISSIONS_REQUEST_CHANGE_WIFI_MULTICAST_STATE);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_MULTICAST_STATE) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.CHANGE_WIFI_STATE);
             }
         }
         if (permission == 0 || permission == 3) {
-            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         }
         if (permission == 0 || permission == 4) {
-            permissionChecker = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            if (permissionChecker == PackageManager.PERMISSION_DENIED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
+        }
+        if (!permissions.isEmpty()) {
+            String[] requestPermissionsArray = new String[permissions.size()];
+            requestPermissionsArray = permissions.toArray(requestPermissionsArray);
+            ActivityCompat.requestPermissions(this, requestPermissionsArray, MY_PERMISSIONS_REQUEST_MULTI);
         }
     }
 

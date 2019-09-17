@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
@@ -123,22 +124,22 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
 
     @Override
     public void onResume() {
-        super.onResume();
-        VideoView vv = findViewById(R.id.videoViewClient);
+        //VideoView vv = findViewById(R.id.videoViewClient);
         vv.resume();
-        if (stopTime > 0) {
+        if (stopTime > -1) {
             vv.seekTo(stopTime);
         }
+        super.onResume();
     }
 
     @Override
     public void onPause() {
-        VideoView vv = findViewById(R.id.videoViewClient);
+        //VideoView vv = findViewById(R.id.videoViewClient);
         if (vv.canPause()) {
             stopTime = vv.getCurrentPosition();
             pauseVideo();
         }
-        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
+        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_SEND_PAUSE_SERVICE);
         super.onPause();
     }
 
@@ -147,6 +148,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         VideoView vv = findViewById(R.id.videoViewClient);
         vv.stopPlayback();
         nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_SEND_STOP_SERVICE);
+        finishWithResult();
         super.onDestroy();
     }
 
@@ -165,6 +167,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     }
 
     public void finishWithResult() {
+        Log.v("playerClient", "FWR");
         Intent data = new Intent();
         setResult(RESULT_OK, data);
         finish();

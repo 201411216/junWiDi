@@ -116,6 +116,8 @@ public class GuideLineDialog extends Dialog {
 
         W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, displayMetrics);
         H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, displayMetrics);
+
+        Log.v("GuideLineDialog", "After ApplyDime : W = " + W + " / H = " + H);
         //비디오뷰 사이즈 결정
 
         int X = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, processedMyDeviceInfo.getSetXValue(), displayMetrics);
@@ -123,7 +125,7 @@ public class GuideLineDialog extends Dialog {
         ivGL.getLayoutParams().width = W;
         ivGL.getLayoutParams().height = H;
         ivGL.setX(X);
-        ((FrameLayout.LayoutParams) fL.getLayoutParams()).gravity = Gravity.BOTTOM;
+        ((FrameLayout.LayoutParams) fL.getLayoutParams()).gravity = Gravity.TOP;
         ivGL.requestLayout();
         fL.requestLayout();
 

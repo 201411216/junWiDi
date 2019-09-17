@@ -559,17 +559,17 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(CLIENT_CONTROL_SEND_PAUSE_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SEND_PAUSE_SERVICE");
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
-                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
                 String control_msg = Constants.CONTROL_PAUSE;
                 byte[] buf = control_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + control_msg);
+                Log.v(TAG, "control msg Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
@@ -581,17 +581,17 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(CLIENT_CONTROL_SEND_STOP_SERVICE)) {
-            Log.v(TAG, "ACT : CLIENT_CONTROL_SERVICE");
+            Log.v(TAG, "ACT : CLIENT_CONTROL_SEND_STOP_SERVICE");
             datagramSocket = null;
             try {
                 InetAddress addr = InetAddress.getByName("192.168.49.255");
-                datagramSocket = new DatagramSocket(Constants.CONTROL_WAITING_PORT);
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);
                 datagramSocket.setBroadcast(true);
                 String control_msg = Constants.CONTROL_STOP;
                 byte[] buf = control_msg.getBytes();
-                Log.v(TAG, "Handshake Info : " + control_msg);
+                Log.v(TAG, "control msg Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);
