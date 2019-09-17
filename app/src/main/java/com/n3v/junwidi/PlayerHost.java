@@ -1,6 +1,7 @@
 package com.n3v.junwidi;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,8 +10,10 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.SeekBar;
 import android.widget.VideoView;
 
@@ -32,7 +35,8 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
     int aY;
     public int stopTime = 0;
     public int back = 0;
-    VideoView vv;
+    VideoView vv = null;
+    FrameLayout flh = null;
     Button btnStart, btnPause;
     SeekBar seekBar;
     boolean isPlaying = false;
@@ -81,6 +85,8 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         W = myDeviceInfo.getMm_videoview_width();
         H = myDeviceInfo.getMm_videoview_height();
 
+        Log.v("PlayerHost", " W = " + W + " / H = " + H);
+
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
 
         //W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
@@ -92,6 +98,8 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
         H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, dm);
 
+        Log.v("PlayerHost", "afterAD : W = " + W + " / H = " + H);
+
         aX = myDeviceInfo.getSetXValue();
         aY = myDeviceInfo.getSetYValue();
 
@@ -100,9 +108,13 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         //시작,일시정지 버튼
         btnStart = findViewById(R.id.btnStart);
         btnPause = findViewById(R.id.btnPause);
+        //
+        flh = findViewById(R.id.fLh);
 
         //비디오뷰 생성
         vv = findViewById(R.id.videoViewHost);
+        //vv.setOnPreparedListener(onPrepared);
+
         String filePath = myDeviceInfo.getVideoName();
         //filePath = this.getExternalFilesDir(null) + "/TogetherTheater/" + filePath;
         Log.v("PlayerHost", "path : " + filePath);
@@ -117,7 +129,16 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         vv.getLayoutParams().height = H;
 
         vv.setX(aX);
-        vv.requestLayout();
+
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(W, H);
+        lp.leftMargin = 0;
+        lp.topMargin = 0;
+        lp.rightMargin = 0;
+        lp.bottomMargin = 0;
+        vv.setLayoutParams(lp);
+        flh.requestLayout();
+
+
 
         waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
 
@@ -229,6 +250,23 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         vv.seekTo(time);
     }
 
+//    private MediaPlayer.OnVideoSizeChangedListener onVideoSizeChangedListener =
+//            new MediaPlayer.OnVideoSizeChangedListener() {
+//                public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+//                    ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(W, H);
+//                    vv.setLayoutParams(lp);
+//                }
+//            };
+//
+//    private MediaPlayer.OnPreparedListener onPrepared = new MediaPlayer.OnPreparedListener() {
+//        public void onPrepared(MediaPlayer mp) {
+//            mp.setOnVideoSizeChangedListener(onVideoSizeChangedListener);
+//
+//            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(W, H);
+//            vv.setLayoutParams(lp);
+//        }
+//    };
+
     @Override
     public void onResume() {
         vv.resume();
@@ -265,6 +303,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
     //뒤로가기 버튼 눌러서 액티비티 종료한 경우(다른 기기로 종료 신호 인텐트 전달 기능 추가 필요)
     @Override
     public void onBackPressed() {
+        finishWithResult();
         super.onBackPressed();
     }
 

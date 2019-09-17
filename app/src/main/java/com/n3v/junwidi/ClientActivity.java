@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 
@@ -17,6 +18,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -90,6 +92,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
 
     boolean handshaked = false;
     boolean downloading = false;
+    boolean first_wifi_check = false;
 
     private static final int PLAYER_RESULT_CODE = 19283;
 
@@ -107,7 +110,32 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
         guideLineDialog = new GuideLineDialog(this, dm, GuideLineDialog.GLD_CLIENT, null);
         initView();
+
         permissionCheck(0);
+
+        if (!first_wifi_check) {
+            int checkWifiState = checkWifiOnAndConnected();
+            if (checkWifiState == 2) {
+                WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+                if (wifiManager != null) {
+                    wifiManager.setWifiEnabled(true);
+                    showToast("Wifi 기능을 사용합니다");
+                }
+            } else if (checkWifiState == 3) {
+                WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+                if (wifiManager != null) {
+                    wifiManager.disconnect();
+                    showToast("Wifi 연결을 해제하였습니다");
+                }
+            }
+            first_wifi_check = true;
+        }
+
+        if (!isLocationServiceEnabled()) {
+            showToast("위치정보 기능이 필요합니다");
+            Intent locationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(locationIntent);
+        }
 
 
         myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
@@ -159,7 +187,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         layout_Client_Pull_To_Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                permissionCheck(1);
+                permissionCheck(0);
                 String deviceState = "";
 
                 myManager.discoverPeers(myChannel, new WifiP2pManager.ActionListener() {
@@ -175,13 +203,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                         showToast("Discover Peer Failed");
                     }
                 });
-        if (myWifiP2pDevice.status == 0) { // Connect 상태일 때
-            text_server_activity_able_list.setVisibility(View.GONE);
-            text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
-        }
-        layout_Client_Pull_To_Refresh.setRefreshing(false);
-    }
-});
+                if (myWifiP2pDevice.status == 0) { // Connect 상태일 때
+                    text_server_activity_able_list.setVisibility(View.GONE);
+                    text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
+                }
+                layout_Client_Pull_To_Refresh.setRefreshing(false);
+            }
+        });
 
         //text_server_activity_Connected_Server.setVisibility(View.VISIBLE);
         listView_Server_List = findViewById(R.id.client_list_server);
@@ -445,6 +473,43 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         }
     }
 
+    public boolean isLocationServiceEnabled() {
+        LocationManager locationManager = null;
+        boolean gps_enabled = false, network_enabled = false;
+
+        if (locationManager == null)
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+            //do nothing...
+        }
+
+        try {
+            network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex) {
+            //do nothing...
+        }
+
+        return gps_enabled || network_enabled;
+
+    }
+
+    private int checkWifiOnAndConnected() {
+        WifiManager wifiMgr = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+
+        if (wifiMgr.isWifiEnabled()) { // Wi-Fi adapter is ON
+
+            WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+
+            if (wifiInfo.getNetworkId() == -1) {
+                return 3; // Not connected to an access point
+            }
+            return 1; // Connected to an access point
+        } else {
+            return 2; // Wi-Fi adapter is OFF
+        }
+    }
 
     /*
     Wi-Fi P2P Peerlist를 받아오기 위해 android 일정 버전 이상에서는 ACCESS_FINE_LOCATION 권한을 요구함.
@@ -462,6 +527,12 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
         if (permission == 0 || permission == 1) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.ACCESS_WIFI_STATE);
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_STATE) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.CHANGE_WIFI_STATE);
             }
         }
         if (permission == 0 || permission == 2) {

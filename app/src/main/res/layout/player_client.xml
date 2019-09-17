@@ -6,9 +6,10 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:context=".PlayerClient"
-    android:background="@drawable/blackwallpaper"
-    android:id="@+id/fL1"
-    >
+
+    android:background="#000000"
+    android:id="@+id/fLc"
+
 
     <ImageView
         android:layout_width="126dp"
