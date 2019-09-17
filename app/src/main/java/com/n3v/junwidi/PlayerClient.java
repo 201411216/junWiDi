@@ -2,6 +2,7 @@ package com.n3v.junwidi;
 
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -13,6 +14,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,7 +38,8 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     public int stopTime = 0;
     String fileName = "";
     long fileSize = 0;
-    VideoView vv;
+    VideoView vv = null;
+    FrameLayout flc = null;
 
     DeviceInfo myDeviceInfo = null;
     String hostAddress = "";
@@ -63,6 +66,8 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
 
         getSupportActionBar().hide();
 
+        Log.v("PlayerHost", " W = " + W + " / H = " + H);
+
         W = myDeviceInfo.getMm_videoview_width();
         H = myDeviceInfo.getMm_videoview_height();
         DisplayMetrics dm = getApplicationContext().getResources().getDisplayMetrics();
@@ -75,12 +80,18 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         W = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, W, dm);
         H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, H, dm);
 
+        Log.v("PlayerHost", "afterAD : W = " + W + " / H = " + H);
+
         aX = myDeviceInfo.getSetXValue();
         aY = myDeviceInfo.getSetYValue();
 
         aX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, aX, dm);
 
+        flc = findViewById(R.id.fLc);
+
         vv = findViewById(R.id.videoViewClient);
+
+        //vv.setOnPreparedListener(onPrepared);
         //filename = this.getExternalFilesDir(null) + "/TogetherTheater";
         fileName = myDeviceInfo.getVideoName();
 
@@ -101,7 +112,14 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         vv.getLayoutParams().width = W;
         vv.getLayoutParams().height = H;
         vv.setX(aX);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(W, H);
+        lp.leftMargin = 0;
+        lp.topMargin = 0;
+        lp.rightMargin = 0;
+        lp.bottomMargin = 0;
+        vv.setLayoutParams(lp);
         vv.requestLayout();
+        flc.requestLayout();
 
         waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
     }
@@ -153,13 +171,11 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     }
 
     //뒤로가기 버튼 눌러서 액티비티 종료한 경우(다른 기기로 종료 신호 인텐트 전달 기능 추가 필요)
-//    @Override
-//    public void onBackPressed() {
-//        if (back == 1) {
-//            super.onBackPressed();
-//            back = 0;
-//        }
-//    }
+    @Override
+    public void onBackPressed() {
+        finishWithResult();
+        super.onBackPressed();
+    }
 
     //Host 액티비티로부터 액티비티 종료 인텐트를 전달받을 경우에 실행되어야 함
     public void quitByHost() {
@@ -176,6 +192,23 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     public AsyncTask callClientTask(String mode) {
         return new MyClientTask(this, mode, hostAddress, myDeviceInfo, this, fileName, this.fileSize).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
+
+//    private MediaPlayer.OnVideoSizeChangedListener onVideoSizeChangedListener =
+//            new MediaPlayer.OnVideoSizeChangedListener() {
+//                public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+//                    ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(W, H);
+//                    vv.setLayoutParams(lp);
+//                }
+//            };
+//
+//    private MediaPlayer.OnPreparedListener onPrepared = new MediaPlayer.OnPreparedListener() {
+//        public void onPrepared(MediaPlayer mp) {
+//            mp.setOnVideoSizeChangedListener(onVideoSizeChangedListener);
+//
+//            ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(W, H);
+//            vv.setLayoutParams(lp);
+//        }
+//    };
 
     //MyClientTaskListener Overriding
 

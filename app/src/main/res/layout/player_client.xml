@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     tools:context=".PlayerClient"
     android:background="#000000"
-    android:id="@+id/fL1"
+    android:id="@+id/fLc"
     >
 
     <VideoView

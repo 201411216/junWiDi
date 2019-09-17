@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     tools:context=".PlayerHost"
     android:background="#000000"
-    android:id="@+id/fL1"
+    android:id="@+id/fLh"
     >
 
     <Button
@@ -55,7 +55,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top">
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
