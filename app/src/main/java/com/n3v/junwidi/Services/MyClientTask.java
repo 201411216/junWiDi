@@ -251,7 +251,7 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 }
             }
         } else if (ACT_MODE.equals(CLIENT_TCP_WAITING_SERVICE)) {
-            Log.v(TAG, "CLIENT_TCP_FILE_RECEIVE_WAITING_SERVICE act");
+            Log.v(TAG, "CLIENT_TCP_WAITING_SERVICE act");
             serverSocket = null;
             socket = null;
 

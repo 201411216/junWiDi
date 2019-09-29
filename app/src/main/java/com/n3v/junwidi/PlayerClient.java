@@ -166,7 +166,7 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         VideoView vv = findViewById(R.id.videoViewClient);
         vv.stopPlayback();
         nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_SEND_STOP_SERVICE);
-        finishWithResult();
+        //finishWithResult();
         super.onDestroy();
     }
 
