@@ -126,7 +126,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             } else if (checkWifiState == 3) {
                 WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
                 if (wifiManager != null) {
-                    showToast("Wifi 연결을 해제하였습니다");
+                    //showToast("Wifi 연결을 해제하였습니다");
                     wifiManager.disconnect();
                 }
             }
@@ -440,14 +440,14 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onSuccess() {
                 Log.v(TAG, "Create Group Success");
-                showToast("Create Group Success");
+                //showToast("Create Group Success");
                 isGroupExist = true;
             }
 
             @Override
             public void onFailure(int i) {
                 Log.e(TAG, "Create Group Failed");
-                showToast("Create Group Failed :: " + i);
+                //showToast("Create Group Failed :: " + i);
             }
         });
     }
@@ -461,7 +461,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onSuccess() {
                 Log.v(TAG, "Remove Group Success");
-                showToast("Remove Group Success");
+                //showToast("Remove Group Success");
                 isGroupExist = false;
                 myDeviceInfo = null;
                 myDeviceInfoList.clear();
@@ -471,7 +471,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onFailure(int i) {
                 Log.e(TAG, "Remove Group Failed");
-                showToast("Remove Group Failed :: " + i);
+                //showToast("Remove Group Failed :: " + i);
             }
         });
     }
@@ -595,7 +595,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onSuccess() {
                 Log.v(TAG, "Connect Success");
-                showToast("Connect Success");
+                //showToast("Connect Success");
                 DeviceInfo di = new DeviceInfo(d);
                 myDeviceInfoList.add(di);
             }
@@ -603,7 +603,7 @@ public class ServerActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onFailure(int i) {
                 Log.e(TAG, "Connect Failed");
-                showToast("Connect Failed");
+                //showToast("Connect Failed");
             }
         });
     }

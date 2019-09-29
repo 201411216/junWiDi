@@ -47,6 +47,8 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
     public static final String CLIENT_CONTROL_SEND_STOP_SERVICE = "tt.client.CONTROL_SEND_STOP_SERVICE";
     public static final String CLIENT_TCP_WAITING_SERVICE = "tt.client.TCP_FILE_RECEIVE_WAITING_SERVICE";
     public static final String CLIENT_TCP_CANCEL_WAITING_SERVICE = "tt.client.TCP_CANCEL_WAITING_SERVICE";
+    public static final String CLIENT_CONTROL_CANCEL_SERVICE = "tt.client.CONTROL_CANCEL_SERVICE";
+
     public static final String CLIENT_TCP_GO_SIGNAL_SERVICE = "tt.client.TCP_GO_SIGNAL_SERVICE";
 
     public String ACT_MODE = "";
@@ -592,6 +594,28 @@ public class MyClientTask extends AsyncTask<Void, Integer, String> {
                 String control_msg = Constants.CONTROL_STOP;
                 byte[] buf = control_msg.getBytes();
                 Log.v(TAG, "control msg Info : " + control_msg);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
+                Log.v(TAG, "Send message complete");
+                datagramSocket.send(packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (datagramSocket != null && !datagramSocket.isClosed()) {
+                    datagramSocket.close();
+                }
+            }
+        } else if (ACT_MODE.equals(CLIENT_CONTROL_CANCEL_SERVICE)) {
+            Log.v(TAG, "ACT : SERVER_CONTROL_CANCEL_SERVICE");
+            datagramSocket = null;
+            try {
+                InetAddress addr = InetAddress.getByName(myDeviceInfo.getStr_address());
+                datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
+                //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
+                datagramSocket.setReuseAddress(true);
+                datagramSocket.setBroadcast(true);
+                String control_msg = Constants.CONTROL_CANCEL;
+                byte[] buf = control_msg.getBytes();
+                Log.v(TAG, "Handshake Info : " + control_msg);
                 DatagramPacket packet = new DatagramPacket(buf, buf.length, addr, Constants.CONTROL_WAITING_PORT);
                 Log.v(TAG, "Send message complete");
                 datagramSocket.send(packet);

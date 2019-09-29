@@ -281,9 +281,10 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                 return "";
             }
 
+            int deviceCount = 0;
+
             try {
                 totalStartTime = System.currentTimeMillis();
-                int deviceCount = 0;
                 for (DeviceInfo di : myDeviceInfoList) {
                     if (di.isHasVideo()) {
                         Toaster.get().showToast(this.myContext, di.getWifiP2pDevice().deviceName + " 영상을 이미 가지고 있습니다.", Toast.LENGTH_LONG);
@@ -439,12 +440,13 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
                     send_finished = true;
                     publishProgress();
 
-                    Log.v(TAG, "Send to " + deviceCount + "device(s) complete");
+                    Log.v(TAG, "Send to " + deviceCount + " device(s) complete");
                     Log.v(TAG, "Total Time : " + totalDiffTime + "(sec)");
                     Log.v(TAG, "Total AVG Transfer Speed : " + totalAvgTransferSpeed + "(KB/s)");
-                    String toastMessage = "Send to " + deviceCount + "device(s) complete";
-                    Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_LONG);
-
+                    if (deviceCount > 0) {
+                        String toastMessage = "Send to " + deviceCount + " device(s) complete";
+                        Toaster.get().showToast(myContext, toastMessage, Toast.LENGTH_LONG);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -714,7 +716,7 @@ public class MyServerTask extends AsyncTask<Void, Integer, String> {
             Log.v(TAG, "ACT : SERVER_CONTROL_CANCEL_SERVICE");
             datagramSocket = null;
             try {
-                InetAddress addr = InetAddress.getByName("192.168.49.255");
+                InetAddress addr = InetAddress.getByName("192.168.49.1");
                 datagramSocket = new DatagramSocket(Constants.CONTROL_SEND_PORT);
                 //socket.setSoTimeout(Constants.COMMON_TIMEOUT);
                 datagramSocket.setReuseAddress(true);

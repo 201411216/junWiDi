@@ -121,6 +121,13 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         vv.requestLayout();
         flc.requestLayout();
 
+        vv.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.setLooping(true);
+            }
+        });
+
         waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
     }
 
@@ -138,15 +145,16 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
 
     public void seekTimeVideo(int time) {
         vv.seekTo(time);
+        vv.start();
     }
 
     @Override
     public void onResume() {
-        //VideoView vv = findViewById(R.id.videoViewClient);
         vv.resume();
         if (stopTime > -1) {
             vv.seekTo(stopTime);
         }
+        waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
         super.onResume();
     }
 
@@ -158,6 +166,8 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
             pauseVideo();
         }
         nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_SEND_PAUSE_SERVICE);
+        nowTask = callClientTask(MyClientTask.CLIENT_CONTROL_CANCEL_SERVICE);
+        waitTask = null;
         super.onPause();
     }
 

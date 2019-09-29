@@ -125,7 +125,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                 WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
                 if (wifiManager != null) {
                     wifiManager.disconnect();
-                    showToast("Wifi 연결을 해제하였습니다");
+                    //showToast("Wifi 연결을 해제하였습니다");
                 }
             }
             first_wifi_check = true;
@@ -194,13 +194,13 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                     @Override
                     public void onSuccess() {
                         Log.v(TAG, "Discover Peer Success");
-                        showToast("Discover Peer Success");
+                        //showToast("Discover Peer Success");
                     }
 
                     @Override
                     public void onFailure(int i) {
                         Log.e(TAG, "Discover Peer Failed :: " + i);
-                        showToast("Discover Peer Failed");
+                        //showToast("Discover Peer Failed");
                     }
                 });
                 if (myWifiP2pDevice.status == 0) { // Connect 상태일 때
@@ -296,14 +296,14 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onSuccess() {
                 Log.v(TAG, "Connect Success");
-                showToast("Connect Success!");
+                //showToast("Connect Success!");
 
             }
 
             @Override
             public void onFailure(int i) {
                 Log.e(TAG, "Connect Failed");
-                showToast("Connect Failed");
+                //showToast("Connect Failed");
 
             }
         });
@@ -317,7 +317,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onSuccess() {
                 Log.v(TAG, "Disconnect Success");
-                showToast("Disconnect Success");
+                //showToast("Disconnect Success");
                 if (nowTask != null && !nowTask.isCancelled()) {
                     callClientTask(MyClientTask.CLIENT_TCP_CANCEL_WAITING_SERVICE);
                     Log.v(TAG, "Disconnect call nowTask Cancel");
@@ -341,7 +341,7 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
             @Override
             public void onFailure(int i) {
                 Log.e(TAG, "Disconnect Failed :: " + i);
-                showToast("Disconnect Failed");
+                //showToast("Disconnect Failed");
             }
         });
     }
@@ -569,16 +569,11 @@ public class ClientActivity extends BaseActivity implements MyDirectActionListen
                         InetAddress inetAddress = enumIpAddr.nextElement();
                         if (!inetAddress.isLoopbackAddress()) {
                             if (inetAddress instanceof Inet4Address) { // fix for Galaxy Nexus. IPv4 is easy to use :-)
-                                showToast("ipv4Address");
+                                //showToast("ipv4Address");
                                 if (getDottedDecimalIP(inetAddress.getAddress()).startsWith("192.168.49.")) {
                                     return getDottedDecimalIP(inetAddress.getAddress());
                                 }
                             }
-//                        if(inetAddress instanceof Inet6Address) {
-//                            showToast("ipv6Address");
-//                            inetAddress.getAddress();
-//                            // Galaxy Nexus returns IPv6
-//                        }
                         }
                     }
                 }

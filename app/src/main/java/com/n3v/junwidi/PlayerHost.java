@@ -139,7 +139,6 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         flh.requestLayout();
 
 
-
         waitTask = callServerTask(MyServerTask.SERVER_CONTROL_WAITING_SERVICE);
 
         //시크 바 생성
@@ -151,9 +150,9 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
                 int moveTime = seekBar.getProgress();
                 stopTime = moveTime;
                 vv.seekTo(moveTime);
-                vv.start();
                 new MyThread().start();
                 nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_SEEKTIME_SERVICE);
+                vv.start();
             }
 
             @Override
@@ -173,17 +172,24 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int a = vv.getDuration();
-                seekBar.setMax(a);
-                new MyThread().start();
-                isPlaying = true;
-                nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_PLAY_SERVICE);
-                try{
-                    sleep(100);
-                } catch (InterruptedException ie) {
-
+                if (isPlaying) {
+                    btnStart.setEnabled(false);
+                    if (vv.canPause()) {
+                        pauseVideo();
+                    }
+                    stopTime = vv.getCurrentPosition();
+                    vv.seekTo(stopTime);
+                    nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_SEEKTIME_SERVICE);
+                    vv.start();
+                    btnStart.setEnabled(true);
+                } else {
+                    int a = vv.getDuration();
+                    seekBar.setMax(a);
+                    new MyThread().start();
+                    isPlaying = true;
+                    nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_PLAY_SERVICE);
+                    vv.start();
                 }
-                vv.start();
             }
         });
 
@@ -212,6 +218,13 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
                 return false;
             }
         });
+
+        vv.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.setLooping(true);
+            }
+        });
     }
 
     public AsyncTask callServerTask(String mode) {
@@ -237,6 +250,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
         vv.pause();
         stopTime = vv.getCurrentPosition();
         //vv.seekTo(stopTime);
+        isPlaying = false;
     }
 
     //재생 - 재생 신호를 다른 기기로 전달하는 기능 추가 필요
@@ -244,6 +258,7 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
     public void playVideo() {
         //vv.seekTo(stopTime);
         vv.start();
+        isPlaying = true;
     }
 
     public void seekTimeVideo(int time) {
