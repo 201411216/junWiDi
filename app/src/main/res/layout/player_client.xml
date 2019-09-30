@@ -12,6 +12,7 @@
 
 
     <ImageView
+        android:id="@+id/tlogo"
         android:layout_width="126dp"
         android:layout_height="98dp"
         android:layout_gravity="bottom"
