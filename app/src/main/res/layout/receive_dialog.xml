@@ -19,6 +19,7 @@
             android:layout_marginTop="0dp"
             android:fontFamily="@font/notoblack"
             android:textColor="#4B4747"
+            android:ellipsize="end"
             android:textSize="15dp"
             android:text="Toy Story.3.2010.1080p.mp4"/>
 
