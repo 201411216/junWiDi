@@ -46,7 +46,6 @@
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/notolight"
             android:textColor="#4B4747"
             android:text="0 / 100"/>
 
@@ -56,7 +55,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginTop="10dp"
-            android:fontFamily="@font/notoregular"
             android:gravity="center"
             android:text="파일을 다운로드 하시겠습니까?"
             android:textColor="#4B4747"
@@ -72,7 +70,6 @@
             android:layout_width="160dp"
             android:layout_height="match_parent"
             android:background="@drawable/btn_dialog"
-            android:fontFamily="@font/notoregular"
             android:text="취소"
             android:textColor="#4095FB"
             android:textSize="16dp" />
