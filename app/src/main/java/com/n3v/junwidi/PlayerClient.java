@@ -11,10 +11,12 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +43,8 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
     VideoView vv = null;
     FrameLayout flc = null;
 
+    ImageView tlogo = null;
+
     DeviceInfo myDeviceInfo = null;
     String hostAddress = "";
 
@@ -59,6 +63,8 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
             decorView.setSystemUiVisibility(uiOptions);
         }
         setContentView(R.layout.player_client);
+
+        tlogo = findViewById(R.id.tlogo);
 
         Intent intent = getIntent();
         myDeviceInfo = intent.getParcelableExtra("myDeviceInfo");
@@ -129,6 +135,18 @@ public class PlayerClient extends AppCompatActivity implements MyClientTaskListe
         });
 
         waitTask = callClientTask(MyClientTask.CLIENT_CONTROL_WAITING_SERVICE);
+
+        vv.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent motionEvent) {
+                if (tlogo.getVisibility() == View.VISIBLE) {
+                    tlogo.setVisibility(View.GONE);
+                } else {
+                    tlogo.setVisibility(View.VISIBLE);
+                }
+                return false;
+            }
+        });
     }
 
     public void playVideo() {

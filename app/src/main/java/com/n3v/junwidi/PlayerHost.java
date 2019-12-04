@@ -41,6 +41,8 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
     SeekBar seekBar;
     boolean isPlaying = false;
 
+    MyThread mt = null;
+
     DeviceInfo myDeviceInfo = null;
 
     AsyncTask nowTask = null;
@@ -150,6 +152,11 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
                 int moveTime = seekBar.getProgress();
                 stopTime = moveTime;
                 vv.seekTo(moveTime);
+                if (mt != null) {
+                    mt.interrupt();
+                }
+                mt = new MyThread();
+                mt.start();
                 new MyThread().start();
                 nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_SEEKTIME_SERVICE);
                 vv.start();
@@ -180,6 +187,12 @@ public class PlayerHost extends AppCompatActivity implements MyServerTaskListene
                     stopTime = vv.getCurrentPosition();
                     vv.seekTo(stopTime);
                     nowTask = callServerTask(MyServerTask.SERVER_CONTROL_SEND_SEEKTIME_SERVICE);
+                    if (mt != null) {
+                        mt.interrupt();
+                    }
+                    isPlaying = true;
+                    mt = new MyThread();
+                    mt.start();
                     vv.start();
                     btnStart.setEnabled(true);
                 } else {

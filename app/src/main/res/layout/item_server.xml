@@ -34,7 +34,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:layout_weight="0.6"
-                    android:fontFamily="@font/notoregular"
                     android:text="Device Name"
                     android:textSize="20dp" />
             </TableRow>
@@ -45,7 +44,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:layout_marginRight="10dp"
-                    android:fontFamily="@font/notoregular"
                     android:text="Device Address"
                     android:textSize="10dp" />
             </TableRow>
