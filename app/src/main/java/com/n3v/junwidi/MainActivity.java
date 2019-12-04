@@ -32,13 +32,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onResume(){
-
         try {
             sleep(500);
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
-
         super.onResume();
     }
 
